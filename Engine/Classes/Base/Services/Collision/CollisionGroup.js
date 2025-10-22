@@ -1,0 +1,4 @@
+class CollisionGroup{
+
+}
+export {CollisionGroup}

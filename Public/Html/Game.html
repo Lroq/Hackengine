@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hackemon</title>
+    <link rel="stylesheet" href="/Public/Css/Game.css">
+    <script type="module" src="/Public/Js/StartEngine.js"></script>
+    <!-- Dependencies --->
+    <% dependencies.forEach(function(dependency) { %>
+    <script type="module" src="<%= dependency %>"></script>
+    <% }); %>
+    <!------------------->
+</head>
+<body>
+<main>
+  <label id="temp-msg">Hackengine - In Dev</label>
+  <canvas id="game-canvas" width="20" height="20"></canvas>
+</main>
+</body>
+</html>

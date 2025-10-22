@@ -1,0 +1,33 @@
+body{
+    margin: 0;
+    padding: 0;
+}
+
+#game-canvas{
+    position: absolute;
+    image-rendering: pixelated;
+    background: black;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@font-face {
+    font-family: "Pixel Font";
+    src: url("/Public/Fonts/pixel.ttf") format("truetype");
+}
+
+:root {
+  --font-main: "Pixel Font";
+}
+
+#temp-msg{
+    position: absolute;
+    bottom: 1vw;
+    left: 1vw;
+    font-family: var(--font-main);
+    color: white;
+    z-index: 5;
+    font-size: 1vw;
+}
