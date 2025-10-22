@@ -30,9 +30,9 @@ class Player extends Instance {
     #AnimationFrame = 0;
     #Face = FACING.Right;
 
-    constructor() {
+    constructor(username) {
         super();
-        const Tag = new NameTag("IForst")
+        const Tag = new NameTag(username)
 
         Tag.coordinates.Y = -65;
         Tag.coordinates.X = -5;

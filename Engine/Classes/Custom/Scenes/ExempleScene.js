@@ -39,7 +39,7 @@ class ExempleScene extends Scene {
         Text.coordinates.Y = 10
         super.addWGObject(Text)
 
-        const PlayerInstance = new Player();
+        const PlayerInstance = new Player("Ewoukouskous");
         super.addWGObject(PlayerInstance);
 
             // Creation of the camera who follow the player
