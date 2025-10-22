@@ -43,11 +43,6 @@ class ExempleScene extends Scene {
         super.addWGObject(PlayerInstance);
 
             // Creation of the camera who follow the player
-        /*
-        * The camera have a few type
-        * - no type precise = the camera follow the player directly
-        * - "scriptable" = the camera is free to be controlled by scripts
-        */
         super.activeCamera.cameraSubject = PlayerInstance;
     }
 
