@@ -42,17 +42,8 @@ class ExempleScene extends Scene {
         const PlayerInstance = new Player();
         super.addWGObject(PlayerInstance);
 
+            // Creation of the camera who follow the player
         super.activeCamera.cameraSubject = PlayerInstance;
-
-        for (let i = 0; i < 10; i++){
-            Text.text = `Je vais devenir collant dans ${9 - i} sec!`
-            await Utils.wait(1)
-        }
-
-        Text.text = `Tu ne m'échapperas pas!`
-        Text.parent = PlayerInstance;
-        Text.color = "yellow"
-        this.activeCamera.cameraType = "scriptable"
     }
 
     constructor() {

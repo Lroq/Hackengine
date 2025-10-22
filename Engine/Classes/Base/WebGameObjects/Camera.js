@@ -1,6 +1,13 @@
 import {WGObject} from "/Engine/Classes/Base/WebGameObjects/WGObject.js";
 import {Coordinates_2D} from "/Engine/Classes/Base/MicroClasses/Coordinates_2D.js";
 
+/*
+* The camera have a few type
+* - no type precise = the camera follow the player directly
+* - "scriptable" = the camera is free to be controlled by scripts
+* - "follow" = the camera follow a subject
+*/
+
 const CameraType = {
     Scriptable: "CAM_SCRIPTABLE",
     Follow: "CAM_FOLLOW",
