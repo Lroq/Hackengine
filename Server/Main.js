@@ -23,5 +23,5 @@ app.use("/Public", express.static(path.join(__dirname, '../Public')));
 app.use("/Engine", express.static(path.join(__dirname, '../Engine')));
 
 app.listen(port, () => {
-  console.log(`[+] Server started on port ${port}`);
+  console.log(`[+] Server started on http://localhost:${port}`);
 });
