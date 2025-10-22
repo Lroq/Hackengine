@@ -5,12 +5,12 @@ Run the **Hack Engine** for the first time you need to write :
 
 ```bash
 npm install 
-node Server/Main.js
+npm start
 ```
 
 To run the server next times you can use :
 ```bash
-node Server/Main.js
+npm start
 ```
 
 After that, open your web browser and go to [http://localhost:80/](http://localhost:80/) to use the hack engine.
