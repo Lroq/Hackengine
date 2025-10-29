@@ -1,24 +1,23 @@
-import {WGComponent}    from "/Engine/Classes/Base/Components/WGComponent.js";
+import {WGComponent} from "/Engine/Classes/Base/Components/WGComponent.js";
 import {Coordinates_2D} from "/Engine/Classes/Base/MicroClasses/Coordinates_2D.js";
 
-class PhysicController extends WGComponent{
-    #Velocity = new Coordinates_2D();
-    #GravityEnabled = true;
+class PhysicController extends WGComponent {
+    #velocity = new Coordinates_2D();
+    #gravityEnabled = true;
 
-    get velocity(){
-        return this.#Velocity;
+    get velocity() {
+        return this.#velocity;
     }
 
-    get gravityEnabled(){
-        return this.#GravityEnabled
+    get gravityEnabled() {
+        return this.#gravityEnabled;
     }
 
-    set gravityEnabled(Bool){
-        if (typeof Bool === "boolean") {
-            this.#GravityEnabled = Bool;
-        }else{
-            throw new TypeError("Non boolean value indicated.")
+    set gravityEnabled(value) {
+        if (typeof value !== 'boolean') {
+            throw new TypeError("Gravity enabled must be a boolean value");
         }
+        this.#gravityEnabled = value;
     }
 }
 
