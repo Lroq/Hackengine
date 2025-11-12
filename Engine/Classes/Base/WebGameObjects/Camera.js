@@ -52,8 +52,13 @@ class Camera extends WGObject {
      * Called by Renderer each frame.
      */
     run(Scene, CanvasSize) {
+        const mode = window.getMode ? window.getMode() : "play";
+
         switch (this.#cameraType) {
             case CameraType.Follow: {
+                // ✅ En mode "play" : comportement normal
+                if (mode !== "play") return;
+
                 const scale = CanvasSize.Height * 0.004;
                 let modelX = 0;
                 let modelY = 0;
@@ -65,7 +70,14 @@ class Camera extends WGObject {
 
                 super.coordinates.X = -this.#cameraSubject.coordinates.X + (CanvasSize.Width / 2) / scale - modelX;
                 super.coordinates.Y = -this.#cameraSubject.coordinates.Y + (CanvasSize.Height / 2) / scale - modelY;
+                break;
+            }
 
+            case CameraType.Scriptable: {
+                // ✅ En mode "construction" : déplacement libre (pan)
+                const pan = window.getCameraPan ? window.getCameraPan() : { x: 0, y: 0 };
+                super.coordinates.X += pan.x * 0.01;
+                super.coordinates.Y += pan.y * 0.01;
                 break;
             }
         }

@@ -1,20 +1,237 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hackemon</title>
-    <link rel="stylesheet" href="/Public/Css/Game.css">
-    <script type="module" src="/Public/Js/StartEngine.js"></script>
-    <!-- Dependencies --->
-    <% dependencies.forEach(function(dependency) { %>
-    <script type="module" src="<%= dependency %>"></script>
-    <% }); %>
-    <!------------------->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="/Public/Js/StartEngine.js" defer></script>
+    <script type="module" src="/Public/Js/TileLoader.js" defer></script>
 </head>
-<body>
-<main>
-  <label id="temp-msg">Hackengine - In Dev</label>
-  <canvas id="game-canvas" width="20" height="20"></canvas>
+<body class="bg-[#0d0d0f] text-gray-100 h-screen flex flex-col overflow-hidden">
+
+<!-- Header -->
+<header class="flex items-center justify-between px-6 py-4 bg-[#1a1a1d] shadow-md">
+    <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-[#2b2b2f] flex items-center justify-center font-bold text-lg">H</div>
+        <div>
+            <h1 class="text-lg font-semibold">Hackemon</h1>
+            <p class="text-xs text-gray-400">Hackengine — In Dev</p>
+        </div>
+    </div>
+
+    <div class="flex space-x-2">
+        <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
+        <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
+    </div>
+</header>
+
+<!-- Main Layout -->
+<main class="flex flex-1 overflow-hidden h-[calc(100vh-64px)]">
+    <!-- Zone de jeu -->
+    <section class="flex-1 flex items-center justify-center bg-[#0d0d0f]">
+        <div class="relative w-full h-full flex items-center justify-center max-w-[calc(100vw-20rem)]">
+            <canvas id="game-canvas" class="rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"></canvas>
+        </div>
+    </section>
+
+    <!-- Panneau latéral -->
+    <aside class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
+        <div id="tiles-container" class="grid grid-cols-4 gap-2 mb-4"></div>
+
+        <!-- Bouton pour ajouter un tile -->
+        <div class="flex justify-center mt-auto">
+            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">➕ Ajouter</button>
+            <input type="file" id="tile-input" accept="image/png" style="display:none;">
+        </div>
+    </aside>
 </main>
+
+<script>
+    /**
+     * Gestion du canvas, des modes et du déplacement de la caméra
+     */
+    let mode = 'construction';
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+    });
+
+    // Variables de caméra
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let cameraPanX = 0;
+    let cameraPanY = 0;
+
+    // --- Fonctions principales ---
+    function resizeCanvas() {
+        const section = document.querySelector('section.flex-1');
+        const rect = section.getBoundingClientRect();
+        const availableWidth = rect.width * 0.95;
+        const availableHeight = rect.height * 0.95;
+
+        // Taille d'affichage CSS
+        canvas.style.width = availableWidth + 'px';
+        canvas.style.height = availableHeight + 'px';
+    }
+
+    /**
+     * Met à jour le layout selon le mode actif
+     */
+    function updateLayout() {
+        const aside = document.querySelector('aside');
+        const mainSection = document.querySelector('section.flex-1');
+
+        aside.style.display = mode === 'play' ? 'none' : 'flex';
+        mainSection.style.flex = '1';
+
+        setTimeout(() => {
+            resizeCanvas();
+            if (window.forceRender) window.forceRender();
+        }, 100);
+    }
+
+    /**
+     * Change le mode (play/construction)
+     */
+    function setMode(newMode) {
+        mode = newMode;
+
+        if (mode === "construction") {
+            // 🧭 Réinitialise le pan caméra
+            cameraPanX = 0;
+            cameraPanY = 0;
+            isPanning = false;
+
+            // ❗ Détache la caméra du joueur pour la rendre libre
+            if (window.activeCamera) {
+                window.activeCamera.cameraSubject = undefined;
+                window.activeCamera.cameraType = "CAM_SCRIPTABLE";
+            }
+
+            // 🔄 Reset curseur
+            canvas.style.cursor = "grab";
+        }
+
+        if (mode === "play") {
+            // 🔁 Rattache la caméra au joueur
+            if (window.activeCamera && window.playerInstance) {
+                window.activeCamera.cameraSubject = window.playerInstance;
+                window.activeCamera.cameraType = "CAM_FOLLOW";
+            }
+
+            canvas.style.cursor = "default";
+        }
+
+        updateCursor?.(); // si tu utilises la fonction du précédent bloc
+    }
+
+    function updateCursor() {
+        if (mode === 'construction') {
+            canvas.style.cursor = isPanning ? 'grabbing' : 'grab';
+        } else {
+            canvas.style.cursor = 'default';
+        }
+    }
+
+    // --- Événements pour le pan de caméra ---
+    canvas.addEventListener('mousedown', (e) => {
+        if (mode === 'construction' && e.button === 2) {
+            isPanning = true;
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+            canvas.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isPanning && mode === 'construction') {
+            const deltaX = e.clientX - panStartX;
+            const deltaY = e.clientY - panStartY;
+            cameraPanX += deltaX;
+            cameraPanY += deltaY;
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+
+            if (window.activeCamera) {
+                // Inversion des directions pour un comportement "éditeur"
+                window.activeCamera.coordinates.X += deltaX;
+                window.activeCamera.coordinates.Y += deltaY;
+            }
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+        if (e.button === 2) {
+            isPanning = false;
+            updateCursor();
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (isPanning) {
+            isPanning = false;
+            updateCursor();
+        }
+    });
+
+    // Initialisation
+    resizeCanvas();
+    updateLayout();
+    updateCursor();
+
+    // Gestion du redimensionnement
+    window.addEventListener('resize', resizeCanvas);
+
+    // Gestion des boutons
+    document.getElementById('play-btn').addEventListener('click', () => {
+        setMode('play');
+        if (typeof start === 'function') start();
+    });
+
+    document.getElementById('stop-btn').addEventListener('click', () => {
+        setMode('construction');
+        if (typeof stop === 'function') stop();
+    });
+
+    // Export pour le moteur
+    window.gameCanvas = canvas;
+    window.gameContext = ctx;
+    window.getMode = () => mode;
+    window.getCameraPan = () => ({ x: cameraPanX, y: cameraPanY });
+</script>
+
+<script>
+    /**
+     * Charger les tiles depuis le serveur
+     */
+    async function loadTiles() {
+        try {
+            const res = await fetch('/api/tiles');
+            const tiles = await res.json();
+            const container = document.getElementById('tiles-container');
+            container.innerHTML = '';
+
+            tiles.forEach(tile => {
+                const img = document.createElement('img');
+                img.src = `/Public/Assets/Game/Tiles/${tile}`;
+                img.alt = tile;
+                img.className = 'w-full h-auto rounded-lg border border-gray-700';
+                container.appendChild(img);
+            });
+        } catch (err) {
+            console.error('Erreur en chargeant les tiles :', err);
+        }
+    }
+
+    loadTiles();
+</script>
+
 </body>
 </html>
