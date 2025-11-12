@@ -19,8 +19,8 @@
     </div>
 
     <div class="flex space-x-2">
-        <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
-        <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
+        <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
+        <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
     </div>
 </header>
 
@@ -46,43 +46,41 @@
 </main>
 
 <script>
-    (function(){
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        let running = false;
-        let frameId = null;
-        let tick = 0;
+    let mode = 'construction'; // 'construction' ou 'play'
 
-        function render(){
-            tick++;
-            const w = canvas.width;
-            const h = canvas.height;
-            ctx.clearRect(0,0,w,h);
-            const x = Math.abs(((tick)% (w*2)) - w);
-            ctx.fillStyle = '#00d0ff';
-            ctx.fillRect(x, Math.floor(h/2), 1, 1);
-            frameId = requestAnimationFrame(render);
+    function updateLayout() {
+        const aside = document.querySelector('aside');
+        const mainSection = document.querySelector('section.flex-1');
+
+        if (mode === 'play') {
+            aside.style.display = 'none';
+            mainSection.style.flex = '1';
+            mainSection.classList.add('justify-center', 'items-center'); // Centrer le canvas
+        } else {
+            aside.style.display = 'flex';
+            mainSection.style.flex = '1';
+            mainSection.classList.remove('justify-center', 'items-center');
         }
+    }
 
-        function start(){
-            if(running) return;
-            running = true;
-            tick = 0;
-            frameId = requestAnimationFrame(render);
-            document.getElementById('temp-msg').textContent = 'Hackengine — Running';
-        }
+    function setMode(newMode) {
+        mode = newMode;
+        updateLayout();
+    }
 
-        function stop(){
-            if(!running) return;
-            running = false;
-            if(frameId) cancelAnimationFrame(frameId);
-            frameId = null;
-            document.getElementById('temp-msg').textContent = 'Hackengine — Stopped';
-        }
+    // Initialisation
+    updateLayout();
 
-        document.getElementById('play-btn').addEventListener('click', start);
-        document.getElementById('stop-btn').addEventListener('click', stop);
-    })();
+    // Exemple de bouton pour passer en play/construction
+    document.getElementById('play-btn').addEventListener('click', () => {
+        setMode('play');
+        start();
+    });
+
+    document.getElementById('stop-btn').addEventListener('click', () => {
+        setMode('construction');
+        stop();
+    });
 </script>
 <script>
     async function loadTiles() {
