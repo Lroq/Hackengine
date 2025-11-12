@@ -8,7 +8,7 @@ class ExempleScene extends Scene {
     async buildScene(){
 
         for (let i = 2; i < 11; i++) {
-            for (let a = 0; a < 8; a++) {
+            for (let a = 0; a < 11; a++) {
                 const TileInstance = new Tile();
                 TileInstance.components.SpriteModel.sprite = Utils.createSprite("/Public/Assets/Game/Tiles/tile_floor_house_1.png")
 
