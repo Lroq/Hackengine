@@ -42,7 +42,7 @@ class ExempleScene extends Scene {
         const PlayerInstance = new Player("Ewoukouskous");
         super.addWGObject(PlayerInstance);
 
-            // Creation of the camera who follow the player
+        // Creation of the camera who follow the player
         super.activeCamera.cameraSubject = PlayerInstance;
     }
 
