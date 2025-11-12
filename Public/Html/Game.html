@@ -6,8 +6,10 @@
     <title>Hackemon</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="/Public/Js/StartEngine.js" defer></script>
+    <script type="module" src="/Public/Js/TileLoader.js" defer></script>
 </head>
 <body class="bg-[#0d0d0f] text-gray-100 h-screen flex flex-col overflow-hidden">
+
 <!-- Header -->
 <header class="flex items-center justify-between px-6 py-4 bg-[#1a1a1d] shadow-md">
     <div class="flex items-center space-x-3">
@@ -29,25 +31,46 @@
     <!-- Zone de jeu -->
     <section class="flex-1 flex items-center justify-center bg-[#0d0d0f]">
         <div class="relative w-full h-full flex items-center justify-center max-w-[calc(100vw-20rem)]">
-            <canvas
-                    id="game-canvas"
-                    width="20"
-                    height="20"
-                    class="w-[95%] h-[95%] max-w-full max-h-full object-contain rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"
-            ></canvas>
+            <canvas id="game-canvas" class="rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"></canvas>
         </div>
     </section>
 
     <!-- Panneau latéral -->
     <aside class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
         <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
-        <div id="tiles-container" class="grid grid-cols-4 gap-2"></div>
+        <div id="tiles-container" class="grid grid-cols-4 gap-2 mb-4"></div>
+
+        <!-- Bouton pour ajouter un tile -->
+        <div class="flex justify-center mt-auto">
+            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">➕ Ajouter</button>
+            <input type="file" id="tile-input" accept="image/png" style="display:none;">
+        </div>
     </aside>
 </main>
 
 <script>
-    let mode = 'construction'; // 'construction' ou 'play'
+    let mode = 'construction';
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
 
+    /**
+     * Redimensionne le canvas en fonction de l'espace disponible
+     */
+    function resizeCanvas() {
+        const section = document.querySelector('section.flex-1');
+        const rect = section.getBoundingClientRect();
+
+        const availableWidth = rect.width * 0.95;
+        const availableHeight = rect.height * 0.95;
+
+        // Taille d'affichage CSS
+        canvas.style.width = availableWidth + 'px';
+        canvas.style.height = availableHeight + 'px';
+    }
+
+    /**
+     * Met à jour le layout selon le mode actif
+     */
     function updateLayout() {
         const aside = document.querySelector('aside');
         const mainSection = document.querySelector('section.flex-1');
@@ -55,34 +78,52 @@
         if (mode === 'play') {
             aside.style.display = 'none';
             mainSection.style.flex = '1';
-            mainSection.classList.add('justify-center', 'items-center'); // Centrer le canvas
         } else {
             aside.style.display = 'flex';
             mainSection.style.flex = '1';
-            mainSection.classList.remove('justify-center', 'items-center');
         }
+
+        setTimeout(() => {
+            resizeCanvas();
+            if (window.forceRender) window.forceRender();
+        }, 100);
     }
 
+    /**
+     * Change le mode (play/construction)
+     */
     function setMode(newMode) {
         mode = newMode;
         updateLayout();
     }
 
     // Initialisation
+    resizeCanvas();
     updateLayout();
 
-    // Exemple de bouton pour passer en play/construction
+    // Gestion du redimensionnement
+    window.addEventListener('resize', resizeCanvas);
+
+    // Gestion des boutons
     document.getElementById('play-btn').addEventListener('click', () => {
         setMode('play');
-        start();
+        if (typeof start === 'function') start();
     });
 
     document.getElementById('stop-btn').addEventListener('click', () => {
         setMode('construction');
-        stop();
+        if (typeof stop === 'function') stop();
     });
+
+    // Export pour le moteur
+    window.gameCanvas = canvas;
+    window.gameContext = ctx;
 </script>
+
 <script>
+    /**
+     * Charger les tiles depuis le serveur
+     */
     async function loadTiles() {
         try {
             const res = await fetch('/api/tiles');
@@ -104,5 +145,6 @@
 
     loadTiles();
 </script>
+
 </body>
 </html>

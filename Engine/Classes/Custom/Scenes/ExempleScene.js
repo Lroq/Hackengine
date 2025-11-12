@@ -1,7 +1,6 @@
 import {Scene} from "../../Base/Services/Scenes/Scene.js";
 import {Tile} from "../../Base/WebGameObjects/Tile.js";
 import {Utils} from "../../Base/Services/Utilities/Utils.js";
-import {TextLabel} from "../../Base/WebGameObjects/TextLabel.js";
 import {Player} from "../WebGameObjects/Player.js";
 
 class ExempleScene extends Scene {
@@ -33,11 +32,11 @@ class ExempleScene extends Scene {
             }
         }
 
-        const Text = new TextLabel();
-        Text.font = "Pixel Font"
-        Text.color = "red"
-        Text.coordinates.Y = 10
-        super.addWGObject(Text)
+        // const Text = new TextLabel();
+        // Text.font = "Pixel Font"
+        // Text.color = "red"
+        // Text.coordinates.Y = 10
+        // super.addWGObject(Text)
 
         const PlayerInstance = new Player("Ewoukouskous");
         super.addWGObject(PlayerInstance);

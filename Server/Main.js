@@ -1,42 +1,46 @@
 const express = require('express');
 const path = require('path');
-const { urlencoded } = require("express");
-const fs = require("fs");
-
-const DependencyService = require(__dirname + "/Services/DependencyService.js");
+const fs = require('fs');
+const multer = require('multer');
 
 const app = express();
-const port = 80;
+const PORT = 80;
 
-// Configuration EJS/HTML
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'html');
-app.set('views', path.join(__dirname, '../Public/Html'));
+const tilesDir = path.join(__dirname, '../Public/Assets/Game/Tiles');
 
-app.use(urlencoded({ extended: true }));
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, tilesDir),
+    filename: (req, file, cb) => cb(null, file.originalname)
+});
+const upload = multer({ storage, fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'image/png') cb(null, true);
+        else cb(new Error('Seuls les PNG sont autorisés'));
+    }});
+
 app.use(express.json());
 
-// Routes principales
+app.use('/Engine', express.static(path.join(__dirname, '../Engine')));
+
+app.use('/Public', express.static(path.join(__dirname, '../Public')));
+
+// Route principale
 app.get('/', (req, res) => {
-    res.render('Game', { dependencies: DependencyService.getDependencies() });
+    res.sendFile(path.join(__dirname, '../Public/Html/Game.html'));
 });
 
-// Servir les fichiers statiques
-app.use("/Public", express.static(path.join(__dirname, '../Public')));
-app.use("/Engine", express.static(path.join(__dirname, '../Engine')));
+// Upload tile
+app.post('/api/upload-tile', upload.single('tile'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Aucun fichier reçu' });
+    res.json({ message: 'Tile ajouté', filename: req.file.filename });
+});
 
-// Endpoint pour récupérer la liste des tiles
+// Lister tiles
 app.get('/api/tiles', (req, res) => {
-    const tilesDir = path.join(__dirname, '../Public/Assets/Game/Tiles');
     fs.readdir(tilesDir, (err, files) => {
         if (err) return res.status(500).json({ error: 'Impossible de lire le dossier Tiles' });
-        // Filtrer seulement les fichiers images
-        const images = files.filter(f => /\.(png|jpg|jpeg|gif)$/i.test(f));
+        const images = files.filter(f => /\.png$/i.test(f));
         res.json(images);
     });
 });
 
-// Démarrage du serveur
-app.listen(port, () => {
-    console.log(`[+] Server started on http://localhost:${port}`);
-});
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
