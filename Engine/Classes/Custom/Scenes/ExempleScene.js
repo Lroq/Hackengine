@@ -43,6 +43,7 @@ class ExempleScene extends Scene {
 
         // Creation of the camera who follow the player
         super.activeCamera.cameraSubject = PlayerInstance;
+        window.activeCamera = super.activeCamera;
     }
 
     constructor() {

@@ -49,17 +49,28 @@
 </main>
 
 <script>
+    /**
+     * Gestion du canvas, des modes et du déplacement de la caméra
+     */
     let mode = 'construction';
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
 
-    /**
-     * Redimensionne le canvas en fonction de l'espace disponible
-     */
+    canvas.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+    });
+
+    // Variables de caméra
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let cameraPanX = 0;
+    let cameraPanY = 0;
+
+    // --- Fonctions principales ---
     function resizeCanvas() {
         const section = document.querySelector('section.flex-1');
         const rect = section.getBoundingClientRect();
-
         const availableWidth = rect.width * 0.95;
         const availableHeight = rect.height * 0.95;
 
@@ -75,13 +86,8 @@
         const aside = document.querySelector('aside');
         const mainSection = document.querySelector('section.flex-1');
 
-        if (mode === 'play') {
-            aside.style.display = 'none';
-            mainSection.style.flex = '1';
-        } else {
-            aside.style.display = 'flex';
-            mainSection.style.flex = '1';
-        }
+        aside.style.display = mode === 'play' ? 'none' : 'flex';
+        mainSection.style.flex = '1';
 
         setTimeout(() => {
             resizeCanvas();
@@ -94,12 +100,91 @@
      */
     function setMode(newMode) {
         mode = newMode;
-        updateLayout();
+
+        if (mode === "construction") {
+            // 🧭 Réinitialise le pan caméra
+            cameraPanX = 0;
+            cameraPanY = 0;
+            isPanning = false;
+
+            // ❗ Détache la caméra du joueur pour la rendre libre
+            if (window.activeCamera) {
+                window.activeCamera.cameraSubject = undefined;
+                window.activeCamera.cameraType = "CAM_SCRIPTABLE";
+            }
+
+            // 🔄 Reset curseur
+            canvas.style.cursor = "grab";
+        }
+
+        if (mode === "play") {
+            // 🔁 Rattache la caméra au joueur
+            if (window.activeCamera && window.playerInstance) {
+                window.activeCamera.cameraSubject = window.playerInstance;
+                window.activeCamera.cameraType = "CAM_FOLLOW";
+            }
+
+            canvas.style.cursor = "default";
+        }
+
+        updateCursor?.(); // si tu utilises la fonction du précédent bloc
     }
+
+    function updateCursor() {
+        if (mode === 'construction') {
+            canvas.style.cursor = isPanning ? 'grabbing' : 'grab';
+        } else {
+            canvas.style.cursor = 'default';
+        }
+    }
+
+    // --- Événements pour le pan de caméra ---
+    canvas.addEventListener('mousedown', (e) => {
+        if (mode === 'construction' && e.button === 2) {
+            isPanning = true;
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+            canvas.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isPanning && mode === 'construction') {
+            const deltaX = e.clientX - panStartX;
+            const deltaY = e.clientY - panStartY;
+            cameraPanX += deltaX;
+            cameraPanY += deltaY;
+            panStartX = e.clientX;
+            panStartY = e.clientY;
+
+            if (window.activeCamera) {
+                // Inversion des directions pour un comportement "éditeur"
+                window.activeCamera.coordinates.X += deltaX;
+                window.activeCamera.coordinates.Y += deltaY;
+            }
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+        if (e.button === 2) {
+            isPanning = false;
+            updateCursor();
+        }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        if (isPanning) {
+            isPanning = false;
+            updateCursor();
+        }
+    });
 
     // Initialisation
     resizeCanvas();
     updateLayout();
+    updateCursor();
 
     // Gestion du redimensionnement
     window.addEventListener('resize', resizeCanvas);
@@ -118,6 +203,8 @@
     // Export pour le moteur
     window.gameCanvas = canvas;
     window.gameContext = ctx;
+    window.getMode = () => mode;
+    window.getCameraPan = () => ({ x: cameraPanX, y: cameraPanY });
 </script>
 
 <script>
