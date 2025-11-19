@@ -1,4 +1,4 @@
-import {WGComponent}    from "/Engine/Classes/Base/Components/WGComponent.js";
+import {WGComponent} from "/Engine/Classes/Base/Components/WGComponent.js";
 import {Coordinates_2D} from "/Engine/Classes/Base/MicroClasses/Coordinates_2D.js";
 
 /**
@@ -10,21 +10,25 @@ class PhysicController extends WGComponent {
     #gravityEnabled = true;
 
     /**
-     * @returns {Coordinates_2D} Current velocity vector (pixels per tick)
+     * Gets the current velocity vector (pixels per tick).
+     * @returns {Coordinates_2D} The velocity vector
      */
     get velocity() {
         return this.#velocity;
     }
 
     /**
-     * @returns {boolean} Whether gravity affects this object
+     * Gets whether gravity affects this object.
+     * @returns {boolean} True if gravity is enabled
      */
     get gravityEnabled() {
         return this.#gravityEnabled;
     }
 
     /**
+     * Sets whether gravity affects this object.
      * @param {boolean} value - Enable or disable gravity
+     * @throws {TypeError} If value is not a boolean
      */
     set gravityEnabled(value) {
         if (typeof value !== "boolean") {
