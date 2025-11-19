@@ -1,25 +1,13 @@
-/**
- * Base class for all components in the WG Engine.
- * Provides common functionality like enable/disable state.
- */
 class WGComponent {
-    #enabled = true;
+    #Enabled = true;
 
-    /**
-     * @returns {boolean} Whether the component is active
-     */
-    get enabled() {
-        return this.#enabled;
+    get enabled(){
+        return this.#Enabled
     }
 
-    /**
-     * @param {boolean} value - Enable or disable the component
-     */
-    set enabled(value) {
-        if (typeof value !== 'boolean') {
-            throw new TypeError("enabled must be a boolean");
-        }
-        this.#enabled = value;
+    set enabled(bool){
+        this.#Enabled = bool
+        return this;
     }
 }
 

@@ -19,56 +19,48 @@ class SpriteModel extends WGComponent {
     }
 
     /**
-     * Gets the horizontal flip multiplier (1 for normal, -1 for flipped).
-     * @returns {number} The rotation value
+     * @returns {number} Horizontal flip multiplier (1 or -1)
      */
     get rotation() {
         return this.#rotation;
     }
 
     /**
-     * Sets the horizontal flip multiplier.
      * @param {number} value - 1 for normal, -1 for horizontal flip
-     * @throws {TypeError} If value is not a number
      */
     set rotation(value) {
         if (typeof value !== 'number') {
-            throw new TypeError("rotation must be a number");
+            throw new TypeError("Rotation must be a number (1 or -1)");
         }
         this.#rotation = value;
     }
 
     /**
-     * Gets the sprite image to render.
-     * @returns {Image} The sprite image
+     * @returns {Image} The sprite image to render
      */
     get sprite() {
         return this.#sprite;
     }
 
     /**
-     * Sets the sprite image to render.
      * @param {Image} value - HTML Image object
-     * @throws {TypeError} If value is not an Image object
      */
     set sprite(value) {
         if (!(value instanceof Image)) {
-            throw new TypeError("sprite must be an Image object");
+            throw new TypeError("Sprite must be an Image object");
         }
         this.#sprite = value;
     }
 
     /**
-     * Gets the visual offset from object position.
-     * @returns {Coordinates_2D} The sprite offset
+     * @returns {Coordinates_2D} Visual offset from object position
      */
     get spriteOffset() {
         return this.#spriteOffset;
     }
 
     /**
-     * Gets the render dimensions of the sprite.
-     * @returns {Size_2D} The sprite size
+     * @returns {Size_2D} Render dimensions of the sprite
      */
     get size() {
         return this.#size;

@@ -12,36 +12,31 @@ class BoxCollider extends WGComponent {
     #collisionGroup = "Base";
 
     /**
-     * Gets the collision group name (used for collision filtering).
-     * @returns {string} The collision group name
+     * @returns {string} The collision group name (used for collision filtering)
      */
     get collisionGroup() {
         return this.#collisionGroup;
     }
 
     /**
-     * Sets the collision group name.
      * @param {string} value - The collision group name
-     * @throws {TypeError} If value is not a string
      */
     set collisionGroup(value) {
         if (typeof value !== 'string') {
-            throw new TypeError("collisionGroup must be a string");
+            throw new TypeError("Collision group must be a string");
         }
         this.#collisionGroup = value;
     }
 
     /**
-     * Gets the dimensions of the collision box.
-     * @returns {Size_2D} The hitbox dimensions
+     * @returns {Size_2D} The dimensions of the collision box
      */
     get hitbox() {
         return this.#hitbox;
     }
 
     /**
-     * Gets the position offset of the hitbox relative to the object.
-     * @returns {Coordinates_2D} The offset coordinates
+     * @returns {Coordinates_2D} Position offset of the hitbox relative to the object
      */
     get offset() {
         return this.#offset;
