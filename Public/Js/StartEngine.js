@@ -1,11 +1,11 @@
 // -- :: Dependencies :: -- \\
-import {Engine}         from "/Engine/Classes/Base/Main/Engine.js";
+import {Engine}         from "/Engine/Core/Engine.js";
 import {CollisionGroup} from "/Engine/Classes/Base/Services/Collision/CollisionGroup.js";
 import {SceneLoader}    from  "/Engine/Classes/Base/Services/Scenes/SceneLoader.js";
 import {SceneService}   from  "/Engine/Classes/Base/Services/Scenes/SceneService.js";
-import {Size2D}        from "/Engine/Classes/Base/MicroClasses/Size2D.js";
-import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
-import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/InputService.js";
+import {Size2D}        from "/Engine/Utils/Size2D.js";
+import {PhysicSystem}  from "/Engine/Systems/PhysicSystem.js";
+import {InputSystem} from "../../Engine/Systems/InputSystem.js";
 import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
 // -- :: -- :: --:: -- :: -- \\
 
@@ -17,8 +17,8 @@ async function main(){
         SceneService :          new SceneService(),
         SceneLoaderService :    new SceneLoader(),
         CollisionGroupService : new CollisionGroup(),
-        PhysicService :         new PhysicService(),
-        InputService :          new InputService()
+        PhysicService :         new PhysicSystem(),
+        InputService :          new InputSystem()
     },
         {
             TickRate: 10,

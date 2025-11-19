@@ -1,5 +1,5 @@
-import {Camera} from "/Engine/Classes/Base/WebGameObjects/Camera.js";
-import {WGObject} from "/Engine/Classes/Base/WebGameObjects/WGObject.js";
+import {Camera} from "/Engine/Entities/Camera.js";
+import {WGObject} from "/Engine/Entities/WGObject.js";
 
 class Scene {
     #ActiveCamera = new Camera();

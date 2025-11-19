@@ -1,5 +1,5 @@
 import {Scene} from "../../Base/Services/Scenes/Scene.js";
-import {Tile} from "../../Base/WebGameObjects/Tile.js";
+import {Tile} from "../../../Entities/Tile.js";
 import {Utils} from "../../Base/Services/Utilities/Utils.js";
 import {Player} from "../WebGameObjects/Player.js";
 

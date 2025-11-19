@@ -1,11 +1,11 @@
-import {Instance} from "/Engine/Classes/Base/WebGameObjects/Instance.js";
-import {SpriteModel} from "/Engine/Classes/Base/Components/SpriteModel.js";
-import {BoxCollider} from "/Engine/Classes/Base/Components/BoxCollider.js";
-import {PhysicController} from "/Engine/Classes/Base/Components/PhysicController.js";
+import {Instance} from "/Engine/Entities/Instance.js";
+import {SpriteModel} from "/Engine/Components/SpriteModel.js";
+import {BoxCollider} from "/Engine/Components/BoxCollider.js";
+import {PhysicController} from "/Engine/Components/PhysicController.js";
 import {Utils} from "/Engine/Classes/Base/Services/Utilities/Utils.js"
 import {Shadow} from "./Shadow.js";
 import {NameTag} from "./NameTag.js";
-import {TextLabel} from "../../Base/WebGameObjects/TextLabel.js";
+import {TextLabel} from "../../../Entities/TextLabel.js";
 
 const PLAYER_STATE = {
     Idling: 0, // Player is not moving

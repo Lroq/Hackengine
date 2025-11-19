@@ -1,6 +1,6 @@
-import {SpriteModel} from "../../Base/Components/SpriteModel.js";
+import {SpriteModel} from "../../../Components/SpriteModel.js";
 import {Utils} from "../../Base/Services/Utilities/Utils.js";
-import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
+import {WGObject} from "../../../Entities/WGObject.js";
 
 const ____CLASSDATA____ = {
     ____DATAMODEL____ : `

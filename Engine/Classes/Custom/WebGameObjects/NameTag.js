@@ -1,7 +1,7 @@
-import {SpriteModel} from "../../Base/Components/SpriteModel.js";
+import {SpriteModel} from "../../../Components/SpriteModel.js";
 import {Utils} from "../../Base/Services/Utilities/Utils.js";
-import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
-import {TextLabel} from "../../Base/WebGameObjects/TextLabel.js";
+import {WGObject} from "../../../Entities/WGObject.js";
+import {TextLabel} from "../../../Entities/TextLabel.js";
 
 class NameTag extends WGObject {
     constructor(Text) {
