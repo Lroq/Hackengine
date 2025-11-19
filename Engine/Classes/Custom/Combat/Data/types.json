@@ -1,0 +1,14 @@
+{
+  "quoicoubeh": {
+    "name": "Quoi Coubeh",
+    "color": "#FF5733",
+    "strenghts": ["apagnan"],
+    "weaknesses": []
+  },
+    "apagnan": {
+        "name": "Apagnan",
+        "color": "#33C1FF",
+        "strenghts": [],
+        "weaknesses": ["quoicoubeh"]
+    }
+}

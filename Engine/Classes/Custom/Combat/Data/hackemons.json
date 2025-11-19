@@ -1,0 +1,15 @@
+{
+  "cle_USB":{
+    "id": "1",
+    "name": "Clé USB",
+    "types": "quoicoubeh",
+    "baseStats": {
+      "hp": 95,
+      "attack": 110,
+      "defense": 80,
+      "speed": 60
+    },
+    "attacks": ["cum"],
+    "spriteURL": "/Public/Assets/Game/Hackemons/hackemon1.png"
+  }
+}

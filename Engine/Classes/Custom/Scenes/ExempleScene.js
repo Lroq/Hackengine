@@ -4,9 +4,16 @@ import {Utils} from "../../Base/Services/Utilities/Utils.js";
 import {Player} from "../WebGameObjects/Player.js";
 import {BattleTrigger} from "../Combat/Triggers/BattleTrigger.js";
 import {BattleScene} from "../Combat/Scenes/BattleScene.js";
+import {HackemonService} from "../../Base/Services/Hackemon/HackemonService.js";
 
 class ExempleScene extends Scene {
+    #initialized = false;
+
     async buildScene() {
+        if (!this.#initialized) {
+            await HackemonService.initialize();
+            this.#initialized = true;
+        }
         // === SOL === //
         for (let i = 2; i < 11; i++) {
             for (let a = 0; a < 11; a++) {
@@ -65,14 +72,16 @@ class ExempleScene extends Scene {
         const battleScene = new BattleScene();
 
         Services.SceneService.addScene("Battle", battleScene);
-
         Services.SceneService.activeScene = battleScene;
 
-        // TODO: Passer les données des Hackemons
-        // battleScene.startBattle(playerHackemon, wildHackemon);
+        const playerHackemon = HackemonService.createHackemon("cle_USB", 10);
+        const enemyHackemon = HackemonService.createHackemon("cle_USB", 8);
+
+        battleScene.startBattle(playerHackemon, enemyHackemon);
 
         console.log("✅ Battle scene loaded!");
     }
+
 
     constructor() {
         super();
