@@ -6,6 +6,7 @@ import {WGObject} from "/Engine/Classes/Base/WebGameObjects/WGObject.js";
 const CameraType = {
     Scriptable: "CAM_SCRIPTABLE",
     Follow: "CAM_FOLLOW",
+    FIXED: "CAM_FIXED"
 }
 
 /**
