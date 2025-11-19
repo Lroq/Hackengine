@@ -1,6 +1,6 @@
 import {WGComponent} from "/Engine/Classes/Base/Components/WGComponent.js";
-import {Coordinates_2D} from "/Engine/Classes/Base/MicroClasses/Coordinates_2D.js";
-import {Size_2D} from "../MicroClasses/Size_2D.js";
+import {Coordinates2D} from "/Engine/Classes/Base/MicroClasses/Coordinates2D.js";
+import {Size2D} from "../MicroClasses/Size2D.js";
 import {Utils} from "../Services/Utilities/Utils.js";
 
 /**
@@ -9,9 +9,9 @@ import {Utils} from "../Services/Utilities/Utils.js";
  */
 class SpriteModel extends WGComponent {
     #sprite = new Image();
-    #spriteOffset = new Coordinates_2D(0, 0);
+    #spriteOffset = new Coordinates2D(0, 0);
     #rotation = 1;
-    #size = new Size_2D(0, 0);
+    #size = new Size2D(0, 0);
 
     constructor() {
         super();
@@ -53,14 +53,14 @@ class SpriteModel extends WGComponent {
     }
 
     /**
-     * @returns {Coordinates_2D} Visual offset from object position
+     * @returns {Coordinates2D} Visual offset from object position
      */
     get spriteOffset() {
         return this.#spriteOffset;
     }
 
     /**
-     * @returns {Size_2D} Render dimensions of the sprite
+     * @returns {Size2D} Render dimensions of the sprite
      */
     get size() {
         return this.#size;

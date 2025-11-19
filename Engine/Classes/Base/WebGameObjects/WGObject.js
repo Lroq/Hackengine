@@ -1,8 +1,8 @@
-import {Coordinates_2D} from "/Engine/Classes/Base/MicroClasses/Coordinates_2D.js";
+import {Coordinates2D} from "/Engine/Classes/Base/MicroClasses/Coordinates2D.js";
 import {WGComponent}    from "/Engine/Classes/Base/Components/WGComponent.js";
 
 class WGObject {
-    #Coordinates = new Coordinates_2D();
+    #Coordinates = new Coordinates2D();
     #Components = {};
     #Children = [];
     #Parent;

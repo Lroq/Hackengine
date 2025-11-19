@@ -3,7 +3,7 @@ import {SceneService} from "/Engine/Classes/Base/Services/Scenes/SceneService.js
 import {Renderer} from "/Engine/Classes/Base/Main/Renderer.js"
 import {MegaTicks} from "/Engine/Classes/Base/Services/TicksHandler/MegaTicks.js";
 import {Instance} from "/Engine/Classes/Base/WebGameObjects/Instance.js";
-import {Size_2D} from "../MicroClasses/Size_2D.js";
+import {Size2D} from "../MicroClasses/Size2D.js";
 
 // -- :: -- :: --:: -- :: -- \\
 
@@ -49,7 +49,7 @@ class Engine {
             this.#Canvas.height = document.documentElement.clientHeight;
         }
 
-        this.#Renderer.setCanvasSize(new Size_2D(this.#Canvas.height, this.#Canvas.width))
+        this.#Renderer.setCanvasSize(new Size2D(this.#Canvas.height, this.#Canvas.width))
     }
 
     async #runWGObject(WGObject, DeltaTime) {

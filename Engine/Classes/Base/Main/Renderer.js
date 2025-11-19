@@ -1,9 +1,9 @@
-import {Size_2D} from "../MicroClasses/Size_2D.js";
+import {Size2D} from "../MicroClasses/Size2D.js";
 import {TextLabel} from "../WebGameObjects/TextLabel.js";
 
 class Renderer {
     #Context;
-    #CanvasSize = new Size_2D(0, 0);
+    #CanvasSize = new Size2D(0, 0);
     #Engine;
 
     constructor(Engine) {
