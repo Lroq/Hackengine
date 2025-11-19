@@ -17,7 +17,7 @@ class BattleTrigger extends Instance {
 
         const Sprite = new SpriteModel();
         Sprite.enabled = true;
-        Sprite.sprite = Utils.createSprite("/Public/Assets/Game/Tiles/tile_floor_house_1.png");
+        Sprite.sprite = Utils.createSprite("/Public/Assets/Game/Tiles/grass_sprite.png");
         Sprite.size.Height = 30;
         Sprite.size.Width = 30;
 

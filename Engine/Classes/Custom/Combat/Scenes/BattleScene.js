@@ -1,5 +1,9 @@
 import { Scene } from "../../../Base/Services/Scenes/Scene.js";
 import { TextLabel } from "../../../Base/WebGameObjects/TextLabel.js";
+import {Instance} from "../../../Base/WebGameObjects/Instance.js";
+import {WGObject} from "../../../Base/WebGameObjects/WGObject.js";
+import {SpriteModel} from "../../../Base/Components/SpriteModel.js";
+import {Utils} from "../../../Base/Services/Utilities/Utils.js";
 
 /**
  * Scene dedicated to Hackemon battles
@@ -19,14 +23,11 @@ class BattleScene extends Scene {
      * Setup camera for battle scene (static, centered)
      */
     #setupCamera() {
-        // Mettre la caméra en mode scriptable (pas de follow)
         super.activeCamera.cameraType = "CAM_SCRIPTABLE";
 
-        // Centrer la caméra pour la bataille
         super.activeCamera.coordinates.X = 0;
         super.activeCamera.coordinates.Y = 0;
 
-        // Empêcher le pan de la caméra pendant le combat
         window.getCameraPan = () => ({ x: 0, y: 0 });
     }
 
@@ -34,7 +35,6 @@ class BattleScene extends Scene {
      * Initialize basic battle UI elements
      */
     #initializeUI() {
-        // Titre temporaire pour test
         const battleTitle = new TextLabel();
         battleTitle.text = "COMBAT HACKEMON";
         battleTitle.font = "Pixel Font";
@@ -46,7 +46,6 @@ class BattleScene extends Scene {
         super.addWGObject(battleTitle);
         this.#uiElements.title = battleTitle;
 
-        // Instruction temporaire
         const instruction = new TextLabel();
         instruction.text = "Appuyez sur ECHAP pour retourner";
         instruction.font = "Pixel Font";
@@ -57,6 +56,19 @@ class BattleScene extends Scene {
 
         super.addWGObject(instruction);
         this.#uiElements.instruction = instruction;
+
+        const hackemonSprite = new WGObject();
+        const hackemonSpriteModel = new SpriteModel();
+        hackemonSpriteModel.enabled = true;
+        hackemonSpriteModel.sprite = Utils.createSprite("/Public/Assets/Game/Hackemons/hackemon1.png");
+        hackemonSpriteModel.size.Height = 96;
+        hackemonSpriteModel.size.Width = 96;
+        hackemonSprite.addComponent(hackemonSpriteModel);
+        hackemonSprite.coordinates.X = 200;
+        hackemonSprite.coordinates.Y = 150;
+
+        super.addWGObject(hackemonSprite);
+        this.#uiElements.hackemonSprite = hackemonSprite;
     }
 
     /**
