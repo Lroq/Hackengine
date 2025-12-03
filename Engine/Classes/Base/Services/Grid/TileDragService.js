@@ -168,8 +168,9 @@ class TileDragService {
         this.#ghostTile.coordinates.X = finalPos.x;
         this.#ghostTile.coordinates.Y = finalPos.y;
 
-        // Initialiser comme non-solide par défaut
+        // Initialiser les propriétés par défaut
         this.#ghostTile.isSolid = false;
+        this.#ghostTile.layer = 0; // Layer 0 (Sol) par défaut pour les tuiles
 
         // Désactiver le collider pour les tuiles placées (par défaut non-solide)
         if (this.#ghostTile.components.BoxCollider) {
@@ -256,7 +257,8 @@ class TileDragService {
                 x,
                 y,
                 sprite: spriteModel.sprite.src,
-                isSolid: tile.isSolid !== undefined ? tile.isSolid : false
+                isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
+                layer: tile.layer !== undefined ? tile.layer : 0
             });
         });
         
@@ -293,10 +295,11 @@ class TileDragService {
             spriteModel.size.Height = 27;
             spriteModel.enabled = true;
 
-            // Restaurer la propriété isSolid
+            // Restaurer les propriétés
             tile.isSolid = data.isSolid !== undefined ? data.isSolid : false;
+            tile.layer = data.layer !== undefined ? data.layer : 0;
 
-            // Activer le collider si la tuile est solide
+            // Activer le collider si la tuile est solide (layer 1)
             if (tile.components.BoxCollider) {
                 tile.components.BoxCollider.enabled = tile.isSolid;
             }

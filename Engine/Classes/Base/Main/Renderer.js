@@ -93,8 +93,16 @@ class Renderer {
             console.warn("SceneService contains no ActiveScene, Aborting.")
             return
         }
-        for (let i = 0; i < SceneToRender.wgObjects.length; i++) {
-            this.#renderInstance(SceneToRender.wgObjects[i]);
+
+        // Trier les objets par layer (0 = sol derrière, 1 = murs/déco milieu, 2 = sprites devant)
+        const sortedObjects = [...SceneToRender.wgObjects].sort((a, b) => {
+            const layerA = a.layer !== undefined ? a.layer : 2; // Par défaut layer 2 pour sprites/joueurs
+            const layerB = b.layer !== undefined ? b.layer : 2;
+            return layerA - layerB; // Ordre croissant : 0 puis 1 puis 2
+        });
+
+        for (let i = 0; i < sortedObjects.length; i++) {
+            this.#renderInstance(sortedObjects[i]);
 
             const recursive_render_children = (obj) => {
                 for (let b = 0; b < obj.children.length; b++) {
@@ -103,7 +111,7 @@ class Renderer {
                 }
             }
 
-            recursive_render_children(SceneToRender.wgObjects[i])
+            recursive_render_children(sortedObjects[i])
         }
 
         // Rendu de la grille de construction (uniquement en mode construction)
