@@ -4,7 +4,7 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
-const PORT = 80;
+const PORT = 8080;
 
 const tilesDir = path.join(__dirname, '../Public/Assets/Game/Tiles');
 
@@ -73,6 +73,52 @@ app.delete('/api/delete-tile', (req, res) => {
             return res.status(500).json({ error: 'Erreur lors de la suppression du fichier' });
         }
         res.json({ message: 'Tile supprimé avec succès', filename });
+    });
+});
+
+// Sauvegarder la map
+app.post('/api/save-map', (req, res) => {
+    const { mapData } = req.body;
+
+    if (!mapData || !Array.isArray(mapData)) {
+        return res.status(400).json({ error: 'Données de map invalides' });
+    }
+
+    const mapFilePath = path.join(__dirname, '../Public/Assets/Game/map.json');
+
+    fs.writeFile(mapFilePath, JSON.stringify(mapData, null, 2), 'utf8', (err) => {
+        if (err) {
+            console.error('Erreur lors de la sauvegarde de la map:', err);
+            return res.status(500).json({ error: 'Erreur lors de la sauvegarde de la map' });
+        }
+        res.json({ message: 'Map sauvegardée avec succès', tileCount: mapData.length });
+    });
+});
+
+// Charger la map
+app.get('/api/load-map', (req, res) => {
+    const mapFilePath = path.join(__dirname, '../Public/Assets/Game/map.json');
+
+    // Vérifier si le fichier existe
+    if (!fs.existsSync(mapFilePath)) {
+        // Retourner une map vide si le fichier n'existe pas
+        return res.json([]);
+    }
+
+    fs.readFile(mapFilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Erreur lors du chargement de la map:', err);
+            return res.status(500).json({ error: 'Erreur lors du chargement de la map' });
+        }
+
+        try {
+            const mapData = JSON.parse(data);
+            console.log(`Map chargée : ${mapData.length} tuiles`);
+            res.json(mapData);
+        } catch (parseErr) {
+            console.error('Erreur de parsing JSON:', parseErr);
+            res.status(500).json({ error: 'Fichier de map corrompu' });
+        }
     });
 });
 
