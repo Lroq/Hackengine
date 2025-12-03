@@ -12,9 +12,20 @@ import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileConte
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;
+let currentMapName = 'default_map';
 
 // -- :: Functions :: -- \\
 async function main(){
+    // Afficher le sélecteur de map au démarrage
+    const mapSelector = new window.MapSelector();
+
+    await new Promise((resolve) => {
+        mapSelector.show((selectedMapName) => {
+            currentMapName = selectedMapName;
+            console.log(`🗺️ Chargement de la map : ${currentMapName}`);
+            resolve();
+        });
+    });
     const EngineInstance = new Engine({
         SceneService :          new SceneService(),
         SceneLoaderService :    new SceneLoader(),
@@ -46,8 +57,11 @@ async function main(){
     // Exposer le service globalement pour debug/export et pour TileLoader.js
     window.tileDragService = tileDragService;
 
-    // Charger la map sauvegardée (si elle existe)
-    await tileDragService.loadMapFromServer();
+    // Charger la map sélectionnée
+    await tileDragService.loadMapFromServer(currentMapName);
+
+    // Exposer le nom de la map actuelle
+    window.currentMapName = currentMapName;
 
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);

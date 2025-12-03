@@ -96,10 +96,12 @@ async function loadTiles() {
             deleteBtn.className = 'absolute top-1 right-1 w-5 h-5 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center';
             deleteBtn.title = `Supprimer ${tile}`;
 
-            // Gestionnaire de suppression
+            // Gestionnaire de suppression avec confirmation
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                deleteTile(tile);
+                if (window.confirm(`Voulez-vous vraiment supprimer "${tile}" ?\n\nCette action est irréversible.`)) {
+                    deleteTile(tile);
+                }
             });
 
             tileWrapper.appendChild(img);
