@@ -52,6 +52,16 @@ class TileContextMenu {
             this.#toggleSolid();
         });
 
+        // Bouton supprimer
+        document.getElementById('menu-delete-tile').addEventListener('click', () => {
+            this.#deleteTile();
+        });
+
+        // Sélecteur de layer
+        document.getElementById('menu-layer-select').addEventListener('change', (e) => {
+            this.#changeLayer(parseInt(e.target.value));
+        });
+
         // Fermer le menu avec Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -110,6 +120,10 @@ class TileContextMenu {
         const iconElement = document.getElementById('menu-solid-icon');
         iconElement.textContent = isSolid ? '☑' : '☐';
 
+        // Mettre à jour le layer sélectionné
+        const layerSelect = document.getElementById('menu-layer-select');
+        layerSelect.value = tile.layer !== undefined ? tile.layer : 0;
+
         // Mettre à jour la position affichée
         document.getElementById('menu-tile-pos').textContent =
             `Position: (${this.#currentPosition.x}, ${this.#currentPosition.y})`;
@@ -160,6 +174,52 @@ class TileContextMenu {
         iconElement.textContent = newState ? '☑' : '☐';
 
         // Sauvegarder automatiquement via la méthode publique
+        this.#tileDragService.saveMap();
+    }
+
+    /**
+     * Supprime la tuile actuelle
+     */
+    #deleteTile() {
+        if (!this.#currentTile || !this.#currentPosition) return;
+
+        // Supprimer via le service
+        const deleted = this.#tileDragService.removeTileAt(
+            this.#currentPosition.x,
+            this.#currentPosition.y
+        );
+
+        if (deleted) {
+            console.log(`🗑️ Tuile supprimée à (${this.#currentPosition.x}, ${this.#currentPosition.y})`);
+        }
+
+        // Fermer le menu
+        this.#hideMenu();
+    }
+
+    /**
+     * Change le layer de la tuile actuelle
+     */
+    #changeLayer(newLayer) {
+        if (!this.#currentTile) return;
+
+        const layerNames = ['🟫 Plan Sol (Derrière)', '🧱 Plan Murs/Déco (Milieu)', '🎨 Plan Sprites (Devant)'];
+
+        // Mettre à jour le layer
+        this.#currentTile.layer = newLayer;
+
+        // Layer 1 (Murs/Déco) : peut être solide ou non selon le checkbox
+        // On ne change pas automatiquement isSolid ici
+        // L'utilisateur peut cocher "Solide" manuellement si c'est un mur
+
+        // Appliquer l'état du collider selon isSolid (peu importe le layer)
+        if (this.#currentTile.components.BoxCollider) {
+            this.#currentTile.components.BoxCollider.enabled = this.#currentTile.isSolid || false;
+        }
+
+        console.log(`📐 Tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y}) → ${layerNames[newLayer]}`);
+
+        // Sauvegarder automatiquement
         this.#tileDragService.saveMap();
     }
 }
