@@ -41,6 +41,9 @@ async function main(){
 
     // Exposer le service globalement pour debug/export et pour TileLoader.js
     window.tileDragService = tileDragService;
+
+    // Charger la map sauvegardée (si elle existe)
+    await tileDragService.loadMapFromServer();
 }
 // -- :: -- :: --:: -- :: -- \\
 

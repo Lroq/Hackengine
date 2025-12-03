@@ -178,6 +178,9 @@ class TileDragService {
 
         console.log(`Tuile placée à (${finalPos.x}, ${finalPos.y})`);
 
+        // Sauvegarder automatiquement la map
+        this.#saveMapToServer();
+
         // Réinitialiser l'état
         this.#ghostTile = null;
         this.#isDragging = false;
@@ -225,6 +228,10 @@ class TileDragService {
             
             this.#placedTiles.delete(posKey);
             console.log(`Tuile supprimée à (${worldX}, ${worldY})`);
+
+            // Sauvegarder automatiquement la map
+            this.#saveMapToServer();
+
             return true;
         }
         
@@ -299,6 +306,47 @@ class TileDragService {
      */
     isDragging() {
         return this.#isDragging;
+    }
+
+    /**
+     * Sauvegarde la map sur le serveur (méthode privée)
+     */
+    #saveMapToServer() {
+        const mapData = this.exportMapData();
+
+        fetch('/api/save-map', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ mapData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(`✅ ${data.message} (${data.tileCount} tuiles)`);
+        })
+        .catch(err => {
+            console.error('❌ Erreur lors de la sauvegarde de la map:', err);
+        });
+    }
+
+    /**
+     * Charge la map depuis le serveur
+     */
+    async loadMapFromServer() {
+        try {
+            const res = await fetch('/api/load-map');
+            const mapData = await res.json();
+
+            if (mapData.length > 0) {
+                this.loadMapData(mapData);
+                console.log(`✅ Map chargée depuis le serveur : ${mapData.length} tuiles`);
+            } else {
+                console.log('ℹ️ Aucune map sauvegardée trouvée');
+            }
+        } catch (err) {
+            console.error('❌ Erreur lors du chargement de la map:', err);
+        }
     }
 }
 
