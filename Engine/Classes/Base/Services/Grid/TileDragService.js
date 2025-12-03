@@ -168,7 +168,10 @@ class TileDragService {
         this.#ghostTile.coordinates.X = finalPos.x;
         this.#ghostTile.coordinates.Y = finalPos.y;
 
-        // Désactiver le collider pour les tuiles placées (optionnel)
+        // Initialiser comme non-solide par défaut
+        this.#ghostTile.isSolid = false;
+
+        // Désactiver le collider pour les tuiles placées (par défaut non-solide)
         if (this.#ghostTile.components.BoxCollider) {
             this.#ghostTile.components.BoxCollider.enabled = false;
         }
@@ -252,7 +255,8 @@ class TileDragService {
             mapData.push({
                 x,
                 y,
-                sprite: spriteModel.sprite.src
+                sprite: spriteModel.sprite.src,
+                isSolid: tile.isSolid !== undefined ? tile.isSolid : false
             });
         });
         
@@ -289,8 +293,12 @@ class TileDragService {
             spriteModel.size.Height = 27;
             spriteModel.enabled = true;
 
+            // Restaurer la propriété isSolid
+            tile.isSolid = data.isSolid !== undefined ? data.isSolid : false;
+
+            // Activer le collider si la tuile est solide
             if (tile.components.BoxCollider) {
-                tile.components.BoxCollider.enabled = false;
+                tile.components.BoxCollider.enabled = tile.isSolid;
             }
 
             scene.wgObjects.push(tile);
@@ -309,9 +317,27 @@ class TileDragService {
     }
 
     /**
+     * Récupère une tuile à une position donnée
+     * @param {number} worldX - Position X dans le monde
+     * @param {number} worldY - Position Y dans le monde
+     * @returns {Tile|null} - La tuile trouvée ou null
+     */
+    getTileAt(worldX, worldY) {
+        const posKey = `${worldX},${worldY}`;
+        return this.#placedTiles.get(posKey) || null;
+    }
+
+    /**
      * Sauvegarde la map sur le serveur (méthode privée)
      */
     #saveMapToServer() {
+        this.saveMap();
+    }
+
+    /**
+     * Sauvegarde la map sur le serveur (méthode publique)
+     */
+    saveMap() {
         const mapData = this.exportMapData();
 
         fetch('/api/save-map', {

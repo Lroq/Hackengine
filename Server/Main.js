@@ -91,7 +91,6 @@ app.post('/api/save-map', (req, res) => {
             console.error('Erreur lors de la sauvegarde de la map:', err);
             return res.status(500).json({ error: 'Erreur lors de la sauvegarde de la map' });
         }
-        console.log(`Map sauvegardée : ${mapData.length} tuiles`);
         res.json({ message: 'Map sauvegardée avec succès', tileCount: mapData.length });
     });
 });
