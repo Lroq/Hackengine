@@ -342,13 +342,14 @@ class TileDragService {
      */
     saveMap() {
         const mapData = this.exportMapData();
+        const mapName = window.currentMapName || 'default_map';
 
         fetch('/api/save-map', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ mapData })
+            body: JSON.stringify({ mapData, mapName })
         })
         .then(res => res.json())
         .then(data => {
@@ -361,17 +362,18 @@ class TileDragService {
 
     /**
      * Charge la map depuis le serveur
+     * @param {string} mapName - Nom de la map à charger
      */
-    async loadMapFromServer() {
+    async loadMapFromServer(mapName = 'default_map') {
         try {
-            const res = await fetch('/api/load-map');
+            const res = await fetch(`/api/load-map?name=${encodeURIComponent(mapName)}`);
             const mapData = await res.json();
 
             if (mapData.length > 0) {
                 this.loadMapData(mapData);
-                console.log(`✅ Map chargée depuis le serveur : ${mapData.length} tuiles`);
+                console.log(`✅ Map "${mapName}" chargée depuis le serveur : ${mapData.length} tuiles`);
             } else {
-                console.log('ℹ️ Aucune map sauvegardée trouvée');
+                console.log(`ℹ️ Map "${mapName}" vide ou introuvable`);
             }
         } catch (err) {
             console.error('❌ Erreur lors du chargement de la map:', err);
