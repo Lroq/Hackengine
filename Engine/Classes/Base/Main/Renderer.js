@@ -1,10 +1,12 @@
 import {Size_2D} from "../MicroClasses/Size_2D.js";
 import {TextLabel} from "../WebGameObjects/TextLabel.js";
+import {ConstructionGrid} from "../Services/Grid/ConstructionGrid.js";
 
 class Renderer {
     #Context;
     #CanvasSize = new Size_2D(0, 0);
     #Engine;
+    #ConstructionGrid = new ConstructionGrid();
 
     constructor(Engine) {
         this.#Engine = Engine;
@@ -57,10 +59,20 @@ class Renderer {
                     return;
                 }
 
-                this.#Context.save();
-                this.#Context.scale(SpriteModel.rotation, 1);
-                this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
-                this.#Context.restore();
+                // Vérifier que l'image est bien chargée avant de dessiner
+                if (!SpriteModel.sprite || !SpriteModel.sprite.complete || SpriteModel.sprite.naturalWidth === 0) {
+                    return; // Ignorer les images cassées ou non chargées
+                }
+
+                try {
+                    this.#Context.save();
+                    this.#Context.scale(SpriteModel.rotation, 1);
+                    this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
+                    this.#Context.restore();
+                } catch (error) {
+                    // Ignorer silencieusement les erreurs de rendu d'images
+                    this.#Context.restore();
+                }
             }
         }
     }
@@ -87,6 +99,9 @@ class Renderer {
 
             recursive_render_children(SceneToRender.wgObjects[i])
         }
+
+        // Rendu de la grille de construction (uniquement en mode construction)
+        this.#ConstructionGrid.render(this.#Context, SceneToRender.activeCamera);
     }
 
     setContext(Context) {

@@ -49,8 +49,11 @@ class ExempleScene extends Scene {
         // === CAMÉRA === //
         super.activeCamera.cameraSubject = PlayerInstance;
         window.activeCamera = super.activeCamera;
+        window.playerInstance = PlayerInstance;
 
         // === TRIGGER DE COMBAT === //
+        // Temporairement désactivé car grass_sprite.png est manquant
+        /*
         const battleTrigger = new BattleTrigger((Services) => {
             this.#startBattle(Services);
         });
@@ -61,6 +64,7 @@ class ExempleScene extends Scene {
         battleTrigger.components.SpriteModel.sprite = Utils.createSprite("/Public/Assets/Game/Tiles/grass_sprite.png");
 
         super.addWGObject(battleTrigger);
+        */
     }
 
     /**
