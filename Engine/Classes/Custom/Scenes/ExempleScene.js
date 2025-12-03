@@ -14,33 +14,6 @@ class ExempleScene extends Scene {
             await HackemonService.initialize();
             this.#initialized = true;
         }
-        // === SOL === //
-        for (let i = 2; i < 11; i++) {
-            for (let a = 0; a < 11; a++) {
-                const TileInstance = new Tile();
-                TileInstance.components.SpriteModel.sprite = Utils.createSprite("/Public/Assets/Game/Tiles/tile_floor_house_1.png");
-
-                TileInstance.coordinates.X = i * TileInstance.components.BoxCollider.hitbox.Width;
-                TileInstance.coordinates.Y = a * TileInstance.components.BoxCollider.hitbox.Width;
-
-                TileInstance.components.BoxCollider.enabled = false;
-
-                super.addWGObject(TileInstance);
-            }
-        }
-
-        // === MURS === //
-        for (let i = 2; i < 11; i++) {
-            for (let a = -2; a < 2; a++) {
-                const TileInstance = new Tile();
-                TileInstance.components.SpriteModel.sprite = Utils.createSprite("/Public/Assets/Game/Tiles/tile_wall_house_1.png");
-
-                TileInstance.coordinates.X = i * TileInstance.components.BoxCollider.hitbox.Width;
-                TileInstance.coordinates.Y = a * TileInstance.components.BoxCollider.hitbox.Width;
-
-                super.addWGObject(TileInstance);
-            }
-        }
 
         // === JOUEUR === //
         const PlayerInstance = new Player("Ewoukouskous");
