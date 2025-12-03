@@ -4,7 +4,7 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
-const PORT = 80;
+const PORT = 8080;
 
 const tilesDir = path.join(__dirname, '../Public/Assets/Game/Tiles');
 

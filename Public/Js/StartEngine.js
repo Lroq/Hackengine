@@ -7,6 +7,7 @@ import {Size_2D}        from  "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
 import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/InputService.js";
 import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;
@@ -33,6 +34,13 @@ async function main(){
 
     EngineInstance.services.SceneService.addScene("TestScene",TestScene);
     EngineInstance.services.SceneService.activeScene = TestScene;
+
+    // Initialiser le TileDragService
+    const tileDragService = new TileDragService();
+    tileDragService.initialize(EngineInstance, Canvas);
+
+    // Exposer le service globalement pour debug/export et pour TileLoader.js
+    window.tileDragService = tileDragService;
 }
 // -- :: -- :: --:: -- :: -- \\
 

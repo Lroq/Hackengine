@@ -66,6 +66,12 @@ class Renderer {
 
                 try {
                     this.#Context.save();
+
+                    // Appliquer l'opacité pour les tuiles fantômes
+                    if (Instance.isGhost) {
+                        this.#Context.globalAlpha = 0.5;
+                    }
+
                     this.#Context.scale(SpriteModel.rotation, 1);
                     this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
                     this.#Context.restore();

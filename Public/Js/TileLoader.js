@@ -69,8 +69,26 @@ async function loadTiles() {
             const img = document.createElement('img');
             img.src = `/Public/Assets/Game/Tiles/${tile}`;
             img.alt = tile;
-            img.className = 'w-full h-auto rounded-lg border border-gray-700';
+            img.className = 'w-full h-auto rounded-lg border border-gray-700 cursor-grab active:cursor-grabbing';
             img.draggable = false;
+
+            // Gestion du drag and drop
+            img.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (window.tileDragService) {
+                    window.tileDragService.startDrag(img.src);
+                    img.classList.add('opacity-50');
+                }
+            });
+
+            img.addEventListener('mouseup', () => {
+                img.classList.remove('opacity-50');
+            });
+
+            // Empêcher le drag natif
+            img.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+            });
 
             // Bouton de suppression (visible au hover)
             const deleteBtn = document.createElement('button');
