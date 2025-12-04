@@ -13,11 +13,12 @@ import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileConte
 
 let Canvas;
 let currentMapName = 'default_map';
+let mapSelector;
 
 // -- :: Functions :: -- \\
 async function main(){
     // Afficher le sélecteur de map au démarrage
-    const mapSelector = new window.MapSelector();
+    mapSelector = new window.MapSelector();
 
     await new Promise((resolve) => {
         mapSelector.show((selectedMapName) => {
@@ -66,6 +67,20 @@ async function main(){
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     window.tileContextMenu = tileContextMenu;
+
+    // Bouton de retour à la sélection des maps
+    const backToMapsBtn = document.getElementById('back-to-maps-btn');
+    backToMapsBtn.addEventListener('click', () => {
+        // Réouvrir le sélecteur de maps
+        mapSelector.show(async (selectedMapName) => {
+            currentMapName = selectedMapName;
+            window.currentMapName = currentMapName;
+            console.log(`🗺️ Chargement de la nouvelle map : ${currentMapName}`);
+
+            // Charger la nouvelle map
+            await tileDragService.loadMapFromServer(currentMapName);
+        });
+    });
 }
 // -- :: -- :: --:: -- :: -- \\
 

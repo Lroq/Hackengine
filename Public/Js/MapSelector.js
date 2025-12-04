@@ -205,6 +205,14 @@ class MapSelector {
     getCurrentMapName() {
         return this.#currentMapName;
     }
+
+    /**
+     * Réouvre la modale de sélection des maps
+     */
+    async reopen() {
+        this.#modal.classList.remove('hidden');
+        await this.#loadMaps();
+    }
 }
 
 // Exporter pour utilisation globale
