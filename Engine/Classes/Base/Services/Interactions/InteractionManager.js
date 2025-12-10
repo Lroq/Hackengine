@@ -2,6 +2,11 @@ class InteractionManager {
     #interactables = [];
     #player = null;
     #interactionRange = 30;
+    #dialogueBox = null;
+
+    setDialogueBox(dialogueBox) {
+        this.#dialogueBox = dialogueBox;
+    }
 
     setPlayer(player) {
         this.#player = player;
@@ -20,6 +25,11 @@ class InteractionManager {
 
     checkInteractions(inputService) {
         if (!this.#player || !inputService.IsKeyDown('e')) return;
+
+        if (this.#dialogueBox && this.#dialogueBox.isVisible()) {
+            this.#dialogueBox.hide();
+            return;
+        }
 
         const playerX = this.#player.coordinates.X;
         const playerY = this.#player.coordinates.Y;
