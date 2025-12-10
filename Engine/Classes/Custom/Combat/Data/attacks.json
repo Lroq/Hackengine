@@ -1,7 +1,7 @@
 {
   "charge": {
     "name": "Charge",
-    "type": "quoicoubeh",
+    "type": "Normal",
     "power": 30,
     "accuracy": 85,
     "descritption": "Attaque basique."

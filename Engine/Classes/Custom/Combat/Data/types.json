@@ -1,14 +1,14 @@
 {
-  "quoicoubeh": {
-    "name": "Quoi Coubeh",
+  "poison": {
+    "name": "Poison",
     "color": "#FF5733",
-    "strenghts": ["apagnan"],
+    "strength": [],
     "weaknesses": []
   },
-    "apagnan": {
-        "name": "Apagnan",
+    "tenebre": {
+        "name": "Tenebre",
         "color": "#33C1FF",
-        "strenghts": [],
-        "weaknesses": ["quoicoubeh"]
+        "strength": [],
+        "weaknesses": []
     }
 }
