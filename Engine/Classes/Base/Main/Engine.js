@@ -86,6 +86,8 @@ class Engine {
 
             this.#LastTick = CurrentTick;
             MegaTicks.updateTicks(DeltaTime);
+
+            this.#Services.InputService.updatePreviousInputs();
         } else {
             console.warn("No 'SceneService' Detected.");
             debugger;
