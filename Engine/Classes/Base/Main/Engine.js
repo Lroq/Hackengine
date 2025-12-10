@@ -69,6 +69,11 @@ class Engine {
         if (isServiceListed && isServiceValid) {
             const ActiveScene = this.services.SceneService.activeScene;
 
+            // Vérifier que la scène active existe
+            if (!ActiveScene) {
+                return;
+            }
+
             if (this.#LastTick == null) {
                 this.#LastTick = performance.now();
             }
