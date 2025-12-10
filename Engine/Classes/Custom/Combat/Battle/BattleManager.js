@@ -1,0 +1,7 @@
+class BattleManager {
+    constructor(playerHackemon) {
+
+    }
+
+
+}

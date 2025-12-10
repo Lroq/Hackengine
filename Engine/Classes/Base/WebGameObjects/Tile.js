@@ -10,12 +10,12 @@ class Tile extends WGObject{
         const Collider = new BoxCollider()
 
         Collider.enabled = true;
-        Collider.hitbox.Width = 30;
-        Collider.hitbox.Height = 30;
+        Collider.hitbox.Width = 27;
+        Collider.hitbox.Height = 27;
 
         Sprite.enabled = true;
-        Sprite.size.Height = 30;
-        Sprite.size.Width = 30;
+        Sprite.size.Height = 27;
+        Sprite.size.Width = 27;
 
         super.addComponent(Collider)
         super.addComponent(Sprite)
