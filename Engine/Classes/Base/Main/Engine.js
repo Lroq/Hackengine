@@ -80,6 +80,10 @@ class Engine {
                 await this.#runWGObject(ActiveScene.wgObjects[i], DeltaTime);
             }
 
+            if (ActiveScene.update) {
+                ActiveScene.update(this.#Services);
+            }
+
             this.#LastTick = CurrentTick;
             MegaTicks.updateTicks(DeltaTime);
         } else {
