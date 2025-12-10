@@ -84,21 +84,22 @@ class Renderer {
     }
 
     render() {
-        this.clearScreen()
+        const SceneToRender = this.#Engine.services.SceneService?.activeScene;
 
-        const SceneToRender = this.#Engine.services.SceneService.activeScene;
-        SceneToRender.activeCamera.run(SceneToRender, this.#CanvasSize)
-
-        if (SceneToRender == null) {
-            console.warn("SceneService contains no ActiveScene, Aborting.")
-            return
+        // Vérifier que la scène existe
+        if (!SceneToRender) {
+            return;
         }
+
+        this.clearScreen();
+
+        SceneToRender.activeCamera.run(SceneToRender, this.#CanvasSize);
 
         // Trier les objets par layer (0 = sol derrière, 1 = murs/déco milieu, 2 = sprites devant)
         const sortedObjects = [...SceneToRender.wgObjects].sort((a, b) => {
-            const layerA = a.layer !== undefined ? a.layer : 2; // Par défaut layer 2 pour sprites/joueurs
+            const layerA = a.layer !== undefined ? a.layer : 2;
             const layerB = b.layer !== undefined ? b.layer : 2;
-            return layerA - layerB; // Ordre croissant : 0 puis 1 puis 2
+            return layerA - layerB;
         });
 
         for (let i = 0; i < sortedObjects.length; i++) {
@@ -117,6 +118,7 @@ class Renderer {
         // Rendu de la grille de construction (uniquement en mode construction)
         this.#ConstructionGrid.render(this.#Context, SceneToRender.activeCamera);
     }
+
 
     setContext(Context) {
         this.#Context = Context;
