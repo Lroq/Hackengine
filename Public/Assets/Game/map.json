@@ -1,0 +1,506 @@
+[
+  {
+    "x": 243,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 270,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 324,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 297,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 351,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 378,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 405,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 189,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 216,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 243,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 270,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 324,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 297,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 351,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 378,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 405,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 216,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 189,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 162,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 162,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 378,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 351,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 270,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 216,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 189,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 324,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 405,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 243,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 162,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 378,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 351,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 297,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 270,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 405,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 324,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 243,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 162,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 216,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 189,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 135,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 135,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 162,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 189,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 216,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 243,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 270,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 297,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 324,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 351,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 378,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 405,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 135,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 135,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 135,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 135,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 162,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 189,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 216,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 243,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 270,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 297,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 324,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 351,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 378,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 405,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 432,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 432,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 432,
+    "y": 108,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 432,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 432,
+    "y": 162,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 432,
+    "y": 189,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": true,
+    "layer": 1
+  },
+  {
+    "x": 297,
+    "y": 135,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  }
+]

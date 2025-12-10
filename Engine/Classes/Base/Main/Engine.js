@@ -80,8 +80,14 @@ class Engine {
                 await this.#runWGObject(ActiveScene.wgObjects[i], DeltaTime);
             }
 
+            if (ActiveScene.update) {
+                ActiveScene.update(this.#Services);
+            }
+
             this.#LastTick = CurrentTick;
             MegaTicks.updateTicks(DeltaTime);
+
+            this.#Services.InputService.updatePreviousInputs();
         } else {
             console.warn("No 'SceneService' Detected.");
             debugger;

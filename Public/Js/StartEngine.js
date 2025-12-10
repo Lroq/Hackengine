@@ -7,6 +7,7 @@ import {Size_2D}        from  "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
 import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/InputService.js";
 import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {TutorialScene} from "/Engine/Classes/Custom/Scenes/TutorialScene.js";
 import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 // -- :: -- :: --:: -- :: -- \\
@@ -31,7 +32,7 @@ async function main(){
         FullScreen : true,
     })
 
-    const TestScene = new ExempleScene();
+    const TestScene = new TutorialScene();
 
     EngineInstance.services.SceneService.addScene("TestScene",TestScene);
     EngineInstance.services.SceneService.activeScene = TestScene;
