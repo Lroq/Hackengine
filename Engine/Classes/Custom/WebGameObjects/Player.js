@@ -1,20 +1,10 @@
-import {Instance} from "/Engine/Classes/Base/WebGameObjects/Instance.js";
-import {SpriteModel} from "/Engine/Classes/Base/Components/SpriteModel.js";
-import {BoxCollider} from "/Engine/Classes/Base/Components/BoxCollider.js";
-import {PhysicController} from "/Engine/Classes/Base/Components/PhysicController.js";
-import {Utils} from "/Engine/Classes/Base/Services/Utilities/Utils.js"
-import {Shadow} from "./Shadow.js";
-import {NameTag} from "./NameTag.js";
-import {TextLabel} from "../../Base/WebGameObjects/TextLabel.js";
+import {Character} from "./Character.js";
+import {Utils} from "../../Base/Services/Utilities/Utils.js";
 
 const PLAYER_STATE = {
     Idling: 0, // Player is not moving
     Moving: 1, // Player is moving
     Freeze: 2, // Controls are frozen (for scripted cutscenes or anything else)
-}
-
-const FACING = {
-    Down: "Down", Up: "Up", Right: "Right", Left: "Left"
 }
 
 const SPRITES = {
@@ -25,44 +15,22 @@ const SPRITES = {
     }
 }
 
-class Player extends Instance {
+const FACING = {
+    Down: "Down", Up: "Up", Right: "Right", Left: "Left"
+}
+
+class Player extends Character {
     #GlobalState = PLAYER_STATE.Idling;
     #AnimationFrame = 0;
     #Face = FACING.Right;
 
     constructor(username) {
-        super();
-        const Tag = new NameTag(username)
-
-        Tag.coordinates.Y = -65;
-        Tag.coordinates.X = -5;
-
-        super.addChild(Tag)
-
-        const Sprite = new SpriteModel();
-        const Physic = new PhysicController();
-        const Collider = new BoxCollider();
-
-        Sprite.sprite = SPRITES.IDLE;
-        Sprite.enabled = true;
-        Sprite.size.Height = 54;
-        Sprite.size.Width = 27;
-        Sprite.spriteOffset.Y = -50;
-        Sprite.spriteOffset.X = -4;
-
-        Physic.gravityEnabled = false;
-        Collider.enabled = true;
-
-        Collider.hitbox.Width = 20
-        Collider.hitbox.Height = 4
-
-        super.addComponent(Sprite);
-        super.addComponent(Physic);
-        super.addComponent(Collider);
+        super(username);
+        this.hp = 3;
     }
 
     #run_Idling(Services, DeltaTime) {
-        super.components.SpriteModel.sprite = SPRITES.MOVING[this.#Face][0]
+        super.components.this.sprite = SPRITES.MOVING[this.#Face][0]
         if (Services.InputService.IsEitherKeyDown(["z", "q", "s", "d"])) {
             this.#GlobalState = PLAYER_STATE.Moving;
         }
@@ -71,25 +39,25 @@ class Player extends Instance {
     #run_Moving(Services, DeltaTime) {
         const IsStopped = super.components.PhysicController.velocity.X == 0 && super.components.PhysicController.velocity.Y == 0
 
-        super.components.PhysicController.velocity.Y = 0;
-        super.components.PhysicController.velocity.X = 0;
+        super.components.velocity.Y = 0;
+        super.components.velocity.X = 0;
 
         if (Services.InputService.IsKeyDown("z")) {
             this.#Face = FACING.Up
-            super.components.PhysicController.velocity.Y = -0.8;
+            super.components.velocity.Y = -0.8;
         } else if (Services.InputService.IsKeyDown("s")) {
             this.#Face = FACING.Down
-            super.components.PhysicController.velocity.Y = 0.8;
+            super.components.velocity.Y = 0.8;
         }
 
         if (Services.InputService.IsKeyDown("q")) {
-            super.components.PhysicController.velocity.X = -0.8;
-            super.components.SpriteModel.rotation = -1
+            super.components.velocity.X = -0.8;
+            super.components.rotation = -1
             this.#Face = FACING.Right
         } else if (Services.InputService.IsKeyDown("d")) {
-            super.components.SpriteModel.rotation = 1
+            super.components.rotation = 1
             this.#Face = FACING.Right
-            super.components.PhysicController.velocity.X = 0.8;
+            super.components.velocity.X = 0.8;
         }
 
         if (!Services.InputService.IsEitherKeyDown(["z", "q", "s", "d"])) {
@@ -102,7 +70,7 @@ class Player extends Instance {
             this.#AnimationFrame = 0
         }
 
-        super.components.SpriteModel.sprite = SPRITES.MOVING[this.#Face][Math.round(this.#AnimationFrame)]
+        super.components.sprite = SPRITES.MOVING[this.#Face][Math.round(this.#AnimationFrame)]
     }
 
     run(Services, DeltaTime) {
@@ -122,4 +90,4 @@ class Player extends Instance {
     }
 }
 
-export {Player}
+export {Player , SPRITES}
