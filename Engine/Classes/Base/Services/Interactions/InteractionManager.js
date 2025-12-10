@@ -24,7 +24,7 @@ class InteractionManager {
     }
 
     checkInteractions(inputService) {
-        if (!this.#player || !inputService.IsKeyDown('e')) return;
+        if (!this.#player || !inputService.IsKeyPressed('e')) return;
 
         if (this.#dialogueBox && this.#dialogueBox.isVisible()) {
             this.#dialogueBox.hide();
