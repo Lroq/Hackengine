@@ -1,4 +1,5 @@
 /**
+ * C:\Users\marqu\Documents\Cours\Hackengine\Public\Js\TileLoader.js
  * Gestion de l'upload et de la suppression des tiles
  */
 

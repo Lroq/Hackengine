@@ -1,0 +1,44 @@
+[
+  {
+    "x": 216,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 243,
+    "y": 27,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": true,
+    "layer": 0
+  },
+  {
+    "x": 351,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 297,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 270,
+    "y": 54,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 486,
+    "y": 81,
+    "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+    "isSolid": false,
+    "layer": 0
+  }
+]
