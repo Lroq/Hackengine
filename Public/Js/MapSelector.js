@@ -155,6 +155,10 @@ class MapSelector {
             // Recharger la liste
             await this.#loadMaps();
 
+            // Charger automatiquement la nouvelle carte vierge
+            // Cela nettoiera tous les tiles de l'ancienne carte
+            this.#selectMap(data.name);
+
         } catch (err) {
             console.error('Erreur lors de la création de la map:', err);
             alert('Erreur lors de la création de la map');

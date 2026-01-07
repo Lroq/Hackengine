@@ -369,11 +369,14 @@ class TileDragService {
             const res = await fetch(`/api/load-map?name=${encodeURIComponent(mapName)}`);
             const mapData = await res.json();
 
+            // Toujours appeler loadMapData, même si la carte est vide
+            // Cela nettoiera les tiles de l'ancienne carte
+            this.loadMapData(mapData);
+
             if (mapData.length > 0) {
-                this.loadMapData(mapData);
                 console.log(`✅ Map "${mapName}" chargée depuis le serveur : ${mapData.length} tuiles`);
             } else {
-                console.log(`ℹ️ Map "${mapName}" vide ou introuvable`);
+                console.log(`✅ Map vierge "${mapName}" chargée (0 tuiles) - anciens tiles nettoyés`);
             }
         } catch (err) {
             console.error('❌ Erreur lors du chargement de la map:', err);
