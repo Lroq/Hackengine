@@ -5,6 +5,8 @@ import {Player} from "../WebGameObjects/Player.js";
 import {BattleTrigger} from "../Combat/Triggers/BattleTrigger.js";
 import {BattleScene} from "../Combat/Scenes/BattleScene.js";
 import {HackemonService} from "../../Base/Services/Hackemon/HackemonService.js";
+import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
+import {SpriteModel} from "../../Base/Components/SpriteModel.js";
 
 class ExempleScene extends Scene {
     #initialized = false;
@@ -15,12 +17,57 @@ class ExempleScene extends Scene {
             this.#initialized = true;
         }
 
+        // === FOND === //
+        const background = new WGObject();
+        const bgSprite = new SpriteModel();
+        bgSprite.enabled = true;
+        bgSprite.sprite = Utils.createSprite("/Public/Assets/Game/temp_bg.png");
+
+        // Dimensions du canvas (800x600 standard)
+        const canvasWidth = 800;
+        const canvasHeight = 600;
+
+        // Dimensions du sprite de fond
+        bgSprite.size.Width = canvasWidth;
+        bgSprite.size.Height = canvasHeight;
+
+        // Centrer le fond - position 0,0 car le fond prend toute la taille du canvas
+        background.coordinates.X = 0;
+        background.coordinates.Y = -5;
+
+        // Ajouter le composant sprite au fond
+        background.addComponent(bgSprite);
+
+        // Layer 0 pour que le fond soit derrière tout
+        background.layer = 0;
+
+        super.addWGObject(background);
+
         // === JOUEUR === //
         const PlayerInstance = new Player("Ewoukouskous");
+
+        // Placer le joueur à des coordonnées précises (par exemple au centre de la map)
+        PlayerInstance.coordinates.X = 20; // Centre horizontal (800/2)
+        PlayerInstance.coordinates.Y = 560; // Centre vertical (600/2)
+
         super.addWGObject(PlayerInstance);
 
         // === CAMÉRA === //
         super.activeCamera.cameraSubject = PlayerInstance;
+
+        // Centrer immédiatement la caméra sur le joueur (calcul similaire à Camera.run())
+        const scale = 600 * 0.004; // CanvasHeight * 0.004
+        let modelX = 0;
+        let modelY = 0;
+
+        if (PlayerInstance.components.BoxCollider) {
+            modelX = PlayerInstance.components.BoxCollider.hitbox.Width / 2;
+            modelY = PlayerInstance.components.BoxCollider.hitbox.Height / 2;
+        }
+
+        super.activeCamera.coordinates.X = -PlayerInstance.coordinates.X + (canvasWidth / 2) / scale - modelX;
+        super.activeCamera.coordinates.Y = -PlayerInstance.coordinates.Y + (canvasHeight / 2) / scale - modelY;
+
         window.activeCamera = super.activeCamera;
         window.playerInstance = PlayerInstance;
 
