@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hackemon</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/Public/Js/MapSelector.js"></script>
     <script type="module" src="/Public/Js/StartEngine.js" defer></script>
     <script type="module" src="/Public/Js/TileLoader.js" defer></script>
     <script src="/Public/Js/TestDragDrop.js" defer></script>
@@ -22,6 +23,7 @@
     </div>
 
     <div class="flex space-x-2">
+        <button id="back-to-maps-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🗺️ Maps</button>
         <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
         <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
     </div>
@@ -48,6 +50,31 @@
         </div>
     </aside>
 </main>
+
+<!-- Modale de sélection de map -->
+<div id="map-selector-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+    <div class="bg-[#1a1a1d] border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h2 class="text-2xl font-bold text-white">Sélectionner une Map</h2>
+            <p class="text-sm text-gray-400 mt-1">Choisissez une map existante ou créez-en une nouvelle</p>
+        </div>
+
+        <!-- Liste des maps -->
+        <div id="maps-list" class="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-3 max-h-96">
+            <!-- Les maps seront chargées ici -->
+        </div>
+
+        <!-- Footer avec bouton Nouvelle Map -->
+        <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
+            <button id="create-new-map-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center gap-2">
+                <span>➕</span>
+                <span>Nouvelle Map</span>
+            </button>
+            <p class="text-xs text-gray-500">Cliquez sur une map pour la charger</p>
+        </div>
+    </div>
+</div>
 
 <!-- Menu contextuel pour les tuiles -->
 <div id="tile-context-menu" class="hidden fixed bg-[#1a1a1d] border border-gray-700 rounded-lg shadow-xl p-2 z-50" style="min-width: 220px;">
