@@ -1,10 +1,12 @@
 import {Size_2D} from "../MicroClasses/Size_2D.js";
 import {TextLabel} from "../WebGameObjects/TextLabel.js";
+import {ConstructionGrid} from "../Services/Grid/ConstructionGrid.js";
 
 class Renderer {
     #Context;
     #CanvasSize = new Size_2D(0, 0);
     #Engine;
+    #ConstructionGrid = new ConstructionGrid();
 
     constructor(Engine) {
         this.#Engine = Engine;
@@ -57,10 +59,26 @@ class Renderer {
                     return;
                 }
 
-                this.#Context.save();
-                this.#Context.scale(SpriteModel.rotation, 1);
-                this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
-                this.#Context.restore();
+                // Vérifier que l'image est bien chargée avant de dessiner
+                if (!SpriteModel.sprite || !SpriteModel.sprite.complete || SpriteModel.sprite.naturalWidth === 0) {
+                    return; // Ignorer les images cassées ou non chargées
+                }
+
+                try {
+                    this.#Context.save();
+
+                    // Appliquer l'opacité pour les tuiles fantômes
+                    if (Instance.isGhost) {
+                        this.#Context.globalAlpha = 0.5;
+                    }
+
+                    this.#Context.scale(SpriteModel.rotation, 1);
+                    this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
+                    this.#Context.restore();
+                } catch (error) {
+                    // Ignorer silencieusement les erreurs de rendu d'images
+                    this.#Context.restore();
+                }
             }
         }
     }
@@ -75,8 +93,16 @@ class Renderer {
             console.warn("SceneService contains no ActiveScene, Aborting.")
             return
         }
-        for (let i = 0; i < SceneToRender.wgObjects.length; i++) {
-            this.#renderInstance(SceneToRender.wgObjects[i]);
+
+        // Trier les objets par layer (0 = sol derrière, 1 = murs/déco milieu, 2 = sprites devant)
+        const sortedObjects = [...SceneToRender.wgObjects].sort((a, b) => {
+            const layerA = a.layer !== undefined ? a.layer : 2; // Par défaut layer 2 pour sprites/joueurs
+            const layerB = b.layer !== undefined ? b.layer : 2;
+            return layerA - layerB; // Ordre croissant : 0 puis 1 puis 2
+        });
+
+        for (let i = 0; i < sortedObjects.length; i++) {
+            this.#renderInstance(sortedObjects[i]);
 
             const recursive_render_children = (obj) => {
                 for (let b = 0; b < obj.children.length; b++) {
@@ -85,8 +111,11 @@ class Renderer {
                 }
             }
 
-            recursive_render_children(SceneToRender.wgObjects[i])
+            recursive_render_children(sortedObjects[i])
         }
+
+        // Rendu de la grille de construction (uniquement en mode construction)
+        this.#ConstructionGrid.render(this.#Context, SceneToRender.activeCamera);
     }
 
     setContext(Context) {

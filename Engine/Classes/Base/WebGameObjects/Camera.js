@@ -1,45 +1,84 @@
 import {WGObject} from "/Engine/Classes/Base/WebGameObjects/WGObject.js";
-import {Coordinates_2D} from "/Engine/Classes/Base/MicroClasses/Coordinates_2D.js";
 
+/**
+ * Camera type enumeration
+ */
 const CameraType = {
     Scriptable: "CAM_SCRIPTABLE",
     Follow: "CAM_FOLLOW",
+    FIXED: "CAM_FIXED"
 }
 
+/**
+ * Camera that determines what portion of the scene is visible.
+ * Can follow a subject or be manually controlled.
+ */
 class Camera extends WGObject {
-    #CameraType = CameraType.Follow
-    #CameraSubject;
+    #cameraType = CameraType.Follow;
+    #cameraSubject;
 
     get cameraType() {
-        return this.#CameraType
+        return this.#cameraType;
     }
 
-    set cameraType(Type) {
-        this.#CameraType = Type;
+    /**
+     * @param {string} value - Camera type from CameraType enum
+     */
+    set cameraType(value) {
+        if (!Object.values(CameraType).includes(value)) {
+            throw new TypeError("Invalid camera type. Use CameraType enum.");
+        }
+        this.#cameraType = value;
     }
 
-    set cameraSubject(Subject) {
-        this.#CameraSubject = Subject;
-    }
-
+    /**
+     * @returns {WGObject|undefined} The object this camera follows
+     */
     get cameraSubject() {
-        return this.#CameraSubject
+        return this.#cameraSubject;
     }
 
-    run(Scene, CanvasSize) {
-        switch (this.#CameraType) {
-            case CameraType.Follow: {
-                const scale = CanvasSize.Height * 0.004;
-                let modelX,modelY
+    /**
+     * @param {WGObject} value - Object for the camera to follow
+     */
+    set cameraSubject(value) {
+        if (!(value instanceof WGObject)) {
+            throw new TypeError("Camera subject must be a WGObject");
+        }
+        this.#cameraSubject = value;
+    }
 
-                if (this.#CameraSubject.components.BoxCollider){
-                    modelX = this.#CameraSubject.components.BoxCollider.hitbox.Width / 2
-                    modelY = this.#CameraSubject.components.BoxCollider.hitbox.Height / 2
+    /**
+     * Updates camera position based on its type and subject.
+     * Called by Renderer each frame.
+     */
+    run(Scene, CanvasSize) {
+        const mode = window.getMode ? window.getMode() : "play";
+
+        switch (this.#cameraType) {
+            case CameraType.Follow: {
+                // ✅ En mode "play" : comportement normal
+                if (mode !== "play") return;
+
+                const scale = CanvasSize.Height * 0.004;
+                let modelX = 0;
+                let modelY = 0;
+
+                if (this.#cameraSubject.components.BoxCollider) {
+                    modelX = this.#cameraSubject.components.BoxCollider.hitbox.Width / 2;
+                    modelY = this.#cameraSubject.components.BoxCollider.hitbox.Height / 2;
                 }
 
-                super.coordinates.X = -this.#CameraSubject.coordinates.X + (CanvasSize.Width / 2) / scale - modelX;
-                super.coordinates.Y = -this.#CameraSubject.coordinates.Y + (CanvasSize.Height / 2) / scale - modelY;
+                super.coordinates.X = -this.#cameraSubject.coordinates.X + (CanvasSize.Width / 2) / scale - modelX;
+                super.coordinates.Y = -this.#cameraSubject.coordinates.Y + (CanvasSize.Height / 2) / scale - modelY;
+                break;
+            }
 
+            case CameraType.Scriptable: {
+                // ✅ En mode "construction" : déplacement libre (pan)
+                const pan = window.getCameraPan ? window.getCameraPan() : { x: 0, y: 0 };
+                super.coordinates.X += pan.x * 0.01;
+                super.coordinates.Y += pan.y * 0.01;
                 break;
             }
         }

@@ -1,5 +1,0 @@
-// TODO
-
-- Uniformiser les noms des variables car je me suis concentré sur la logique (c'est le bordel)
-- Vérifier le resize et le fait que les variables soient bien mises a jour (moteur)
-- Ajouter le Collider offset dans le rendu

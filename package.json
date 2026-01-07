@@ -1,0 +1,25 @@
+{
+  "name": "hackengine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node Server/Main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lroq/Hackengine.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "multer": "^2.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/Lroq/Hackengine/issues"
+  },
+  "homepage": "https://github.com/Lroq/Hackengine#readme",
+  "description": ""
+}
