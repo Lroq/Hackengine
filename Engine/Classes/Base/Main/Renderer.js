@@ -1,6 +1,7 @@
 import {Size_2D} from "../MicroClasses/Size_2D.js";
 import {TextLabel} from "../WebGameObjects/TextLabel.js";
 import {ConstructionGrid} from "../Services/Grid/ConstructionGrid.js";
+import {Tile} from "../WebGameObjects/Tile.js";
 
 class Renderer {
     #Context;
@@ -62,6 +63,17 @@ class Renderer {
                 // Vérifier que l'image est bien chargée avant de dessiner
                 if (!SpriteModel.sprite || !SpriteModel.sprite.complete || SpriteModel.sprite.naturalWidth === 0) {
                     return; // Ignorer les images cassées ou non chargées
+                }
+
+                // Vérifier si c'est un tile invisible.png en mode jeu
+                const mode = window.getMode ? window.getMode() : 'play';
+                const isInvisibleTile = Instance instanceof Tile &&
+                                       SpriteModel.sprite.src &&
+                                       SpriteModel.sprite.src.includes('invisible.png');
+
+                // Si c'est invisible.png en mode jeu, ne pas le rendre (mais garder ses propriétés de collision)
+                if (isInvisibleTile && mode === 'play') {
+                    return;
                 }
 
                 try {
