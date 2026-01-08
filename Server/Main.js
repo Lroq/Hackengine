@@ -221,4 +221,73 @@ app.delete('/api/maps/delete', (req, res) => {
     });
 });
 
+// === Routes pour la gestion des dossiers de tuiles ===
+
+const tileFoldersFile = path.join(__dirname, '../Public/Assets/Game/tile-folders.json');
+
+// Charger la structure des dossiers
+app.get('/api/tile-folders', (req, res) => {
+    if (!fs.existsSync(tileFoldersFile)) {
+        // Structure par défaut
+        return res.json({
+            structure: {
+                root: {
+                    name: 'root',
+                    folders: [],
+                    tiles: []
+                }
+            },
+            expanded: ['root']
+        });
+    }
+
+    fs.readFile(tileFoldersFile, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Erreur lors du chargement des dossiers:', err);
+            return res.status(500).json({ error: 'Erreur lors du chargement' });
+        }
+
+        try {
+            const folderData = JSON.parse(data);
+            res.json(folderData);
+        } catch (parseErr) {
+            console.error('Erreur de parsing JSON:', parseErr);
+            // Retourner structure par défaut en cas d'erreur
+            res.json({
+                structure: {
+                    root: {
+                        name: 'root',
+                        folders: [],
+                        tiles: []
+                    }
+                },
+                expanded: ['root']
+            });
+        }
+    });
+});
+
+// Sauvegarder la structure des dossiers
+app.post('/api/tile-folders', (req, res) => {
+    const { structure, expanded } = req.body;
+
+    if (!structure) {
+        return res.status(400).json({ error: 'Structure invalide' });
+    }
+
+    const folderData = {
+        structure,
+        expanded: expanded || ['root']
+    };
+
+    fs.writeFile(tileFoldersFile, JSON.stringify(folderData, null, 2), 'utf8', (err) => {
+        if (err) {
+            console.error('Erreur lors de la sauvegarde des dossiers:', err);
+            return res.status(500).json({ error: 'Erreur lors de la sauvegarde' });
+        }
+
+        res.json({ message: 'Structure des dossiers sauvegardée' });
+    });
+});
+
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

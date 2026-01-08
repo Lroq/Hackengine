@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hackemon</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Public/Css/TileFolders.css">
     <script src="/Public/Js/MapSelector.js"></script>
     <script type="module" src="/Public/Js/StartEngine.js" defer></script>
     <script type="module" src="/Public/Js/TileLoader.js" defer></script>
@@ -41,11 +42,12 @@
     <!-- Panneau latéral -->
     <aside class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
         <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
-        <div id="tiles-container" class="grid grid-cols-4 gap-2 mb-4"></div>
+        <div id="tiles-container" class="flex-1 overflow-y-auto mb-4"></div>
 
-        <!-- Bouton pour ajouter un tile -->
-        <div class="flex justify-center mt-auto">
-            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">➕ Ajouter</button>
+        <!-- Boutons pour ajouter un tile et créer un dossier -->
+        <div class="flex gap-2 justify-center mt-auto">
+            <button id="create-folder-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition" title="Créer un nouveau dossier">📁 Dossier</button>
+            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition" title="Ajouter une tuile">➕ Tuile</button>
             <input type="file" id="tile-input" accept="image/png" style="display:none;">
         </div>
     </aside>
