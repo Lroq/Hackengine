@@ -158,6 +158,78 @@ class TileFolderManager {
     }
 
     /**
+     * Déplace un dossier vers un autre dossier (création de sous-dossier)
+     * @param {string} folderId - ID du dossier à déplacer
+     * @param {string} newParentId - ID du nouveau dossier parent
+     * @returns {boolean} - true si succès
+     */
+    moveFolder(folderId, newParentId) {
+        // Vérifications de sécurité
+        if (folderId === 'root') {
+            console.error('❌ Impossible de déplacer le dossier racine');
+            return false;
+        }
+
+        if (folderId === newParentId) {
+            console.error('❌ Un dossier ne peut pas être son propre parent');
+            return false;
+        }
+
+        // Vérifier que le nouveau parent existe
+        if (!this.#folderStructure[newParentId]) {
+            console.error(`❌ Dossier parent "${newParentId}" introuvable`);
+            return false;
+        }
+
+        // Vérifier que le dossier existe
+        const folder = this.#folderStructure[folderId];
+        if (!folder) {
+            console.error(`❌ Dossier "${folderId}" introuvable`);
+            return false;
+        }
+
+        // Vérifier qu'on ne crée pas une boucle (déplacer un parent dans son enfant)
+        if (this.#isDescendant(newParentId, folderId)) {
+            console.error('❌ Impossible de déplacer un dossier dans l\'un de ses sous-dossiers');
+            return false;
+        }
+
+        // Retirer du parent actuel
+        const oldParent = this.#folderStructure[folder.parent];
+        if (oldParent) {
+            oldParent.folders = oldParent.folders.filter(id => id !== folderId);
+        }
+
+        // Ajouter au nouveau parent
+        this.#folderStructure[newParentId].folders.push(folderId);
+        folder.parent = newParentId;
+
+        // Sauvegarder
+        this.#saveStructure();
+
+        console.log(`✅ Dossier "${folder.name}" déplacé vers "${this.#folderStructure[newParentId].name}"`);
+        return true;
+    }
+
+    /**
+     * Vérifie si un dossier est un descendant d'un autre
+     * @param {string} folderId - ID du dossier à vérifier
+     * @param {string} ancestorId - ID du potentiel ancêtre
+     * @returns {boolean}
+     */
+    #isDescendant(folderId, ancestorId) {
+        let currentId = folderId;
+        while (currentId && currentId !== 'root') {
+            if (currentId === ancestorId) {
+                return true;
+            }
+            const folder = this.#folderStructure[currentId];
+            currentId = folder ? folder.parent : null;
+        }
+        return false;
+    }
+
+    /**
      * Ajoute une tuile à un dossier
      * @param {string} tilePath - Chemin de la tuile
      * @param {string} folderId - ID du dossier (défaut: root)

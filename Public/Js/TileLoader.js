@@ -136,6 +136,60 @@ function renderFolder(folderId, structure, parentElement, depth) {
         const folderHeader = document.createElement('div');
         folderHeader.className = 'flex items-center justify-between px-2 py-1 hover:bg-[#2b2b2f] rounded cursor-pointer group';
         folderHeader.style.paddingLeft = `${depth * 12 + 8}px`;
+        folderHeader.draggable = true; // Rendre le dossier draggable
+        folderHeader.dataset.folderId = folderId;
+        folderHeader.dataset.folderName = folder.name;
+
+        // Gestion du drag-and-drop de dossiers
+        folderHeader.addEventListener('dragstart', (e) => {
+            e.stopPropagation();
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('application/x-folder-id', folderId);
+            e.dataTransfer.setData('application/x-folder-name', folder.name);
+            folderHeader.classList.add('opacity-50');
+            console.log('📁 Drag dossier started:', folder.name);
+        });
+
+        folderHeader.addEventListener('dragend', () => {
+            folderHeader.classList.remove('opacity-50');
+            console.log('📁 Drag dossier ended');
+        });
+
+        // Permettre de drop un dossier sur un autre dossier (création de sous-dossier)
+        folderHeader.addEventListener('dragover', (e) => {
+            // Vérifier si c'est un dossier qui est draggé
+            if (e.dataTransfer.types.includes('application/x-folder-id')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'move';
+                folderHeader.classList.add('bg-blue-900', 'border-blue-500');
+            }
+        });
+
+        folderHeader.addEventListener('dragleave', (e) => {
+            if (!folderHeader.contains(e.relatedTarget)) {
+                folderHeader.classList.remove('bg-blue-900', 'border-blue-500');
+            }
+        });
+
+        folderHeader.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            folderHeader.classList.remove('bg-blue-900', 'border-blue-500');
+
+            const draggedFolderId = e.dataTransfer.getData('application/x-folder-id');
+            const draggedFolderName = e.dataTransfer.getData('application/x-folder-name');
+
+            if (draggedFolderId && draggedFolderId !== folderId) {
+                console.log(`📁 Drop dossier "${draggedFolderName}" dans "${folder.name}"`);
+                if (folderManager.moveFolder(draggedFolderId, folderId)) {
+                    loadTiles();
+                    console.log('✅ Dossier déplacé avec succès!');
+                } else {
+                    alert('Impossible de déplacer ce dossier ici.');
+                }
+            }
+        });
 
         // Partie gauche (icône + nom)
         const leftPart = document.createElement('div');
@@ -156,6 +210,17 @@ function renderFolder(folderId, structure, parentElement, depth) {
         const actions = document.createElement('div');
         actions.className = 'flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity';
 
+        // Bouton ajouter sous-dossier
+        const addSubfolderBtn = createActionButton('➕', 'Ajouter sous-dossier', () => {
+            const subfolderName = prompt('Nom du sous-dossier :');
+            if (subfolderName && subfolderName.trim()) {
+                folderManager.createFolder(subfolderName.trim(), folderId);
+                folderManager.toggleFolder(folderId); // Déplier le dossier parent
+                loadTiles();
+            }
+        });
+        addSubfolderBtn.classList.add('text-green-500');
+
         // Bouton renommer
         const renameBtn = createActionButton('✏️', 'Renommer', () => {
             const newName = prompt('Nouveau nom :', folder.name);
@@ -174,6 +239,7 @@ function renderFolder(folderId, structure, parentElement, depth) {
         });
         deleteBtn.classList.add('hover:bg-red-600');
 
+        actions.appendChild(addSubfolderBtn);
         actions.appendChild(renameBtn);
         actions.appendChild(deleteBtn);
 

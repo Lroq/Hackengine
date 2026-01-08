@@ -224,11 +224,25 @@ app.delete('/api/maps/delete', (req, res) => {
 // === Routes pour la gestion des dossiers de tuiles ===
 
 const tileFoldersFile = path.join(__dirname, '../Public/Assets/Game/tile-folders.json');
+const defaultFoldersFile = path.join(__dirname, '../Public/Assets/Game/tile-folders-default.json');
 
 // Charger la structure des dossiers
 app.get('/api/tile-folders', (req, res) => {
     if (!fs.existsSync(tileFoldersFile)) {
-        // Structure par défaut
+        // Charger la structure par défaut depuis le fichier
+        if (fs.existsSync(defaultFoldersFile)) {
+            try {
+                const defaultData = fs.readFileSync(defaultFoldersFile, 'utf8');
+                const defaultStructure = JSON.parse(defaultData);
+                console.log('📁 Utilisation de la structure par défaut avec sous-dossiers');
+                return res.json(defaultStructure);
+            } catch (err) {
+                console.error('Erreur lors du chargement de la structure par défaut:', err);
+            }
+        }
+
+        // Structure minimale de secours
+        console.log('📁 Utilisation de la structure minimale de secours');
         return res.json({
             structure: {
                 root: {
@@ -253,6 +267,16 @@ app.get('/api/tile-folders', (req, res) => {
         } catch (parseErr) {
             console.error('Erreur de parsing JSON:', parseErr);
             // Retourner structure par défaut en cas d'erreur
+            if (fs.existsSync(defaultFoldersFile)) {
+                try {
+                    const defaultData = fs.readFileSync(defaultFoldersFile, 'utf8');
+                    const defaultStructure = JSON.parse(defaultData);
+                    return res.json(defaultStructure);
+                } catch (err2) {
+                    console.error('Erreur lors du chargement de secours:', err2);
+                }
+            }
+
             res.json({
                 structure: {
                     root: {
