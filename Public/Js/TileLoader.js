@@ -33,6 +33,17 @@ async function initializeTileSystem() {
 // Démarrer l'initialisation dès que possible
 initializeTileSystem();
 
+// Désactiver le menu contextuel sur toute la colonne des assets
+window.addEventListener('load', () => {
+    const assetsPanel = document.getElementById('assets-panel');
+    if (assetsPanel) {
+        assetsPanel.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    }
+});
+
 // Gestion du bouton d'ajout
 document.getElementById('add-tile-btn').addEventListener('click', () => {
     document.getElementById('tile-input').click();
@@ -315,7 +326,6 @@ function createActionButton(icon, title, onClick) {
 function createTileElement(tilePath, filename, folderId) {
     const tileWrapper = document.createElement('div');
     tileWrapper.className = 'relative group';
-    tileWrapper.draggable = true;
     tileWrapper.dataset.tilePath = tilePath;
     tileWrapper.dataset.folderId = folderId;
 
@@ -326,46 +336,55 @@ function createTileElement(tilePath, filename, folderId) {
     img.className = 'w-full h-auto rounded-lg border border-gray-700 cursor-grab active:cursor-grabbing';
     img.draggable = false;
 
-    let isCanvasDrag = false;
+    let isDraggingToFolder = false;
+    let draggedTileData = null;
 
-    // Gestion du drag vers le canvas avec Alt+Drag ou double-clic+drag
+    // Gestion du drag (clic gauche = canvas, clic droit = entre dossiers)
     img.addEventListener('mousedown', (e) => {
-        // Si Alt est pressé, c'est un drag vers le canvas
-        if (e.altKey || e.button === 1) { // Alt ou bouton du milieu
+        if (e.button === 0) { // Clic gauche - drag vers canvas
             e.preventDefault();
-            isCanvasDrag = true;
-            tileWrapper.draggable = false; // Désactiver le drag natif
             if (window.tileDragService) {
                 window.tileDragService.startDrag(img.src);
                 img.classList.add('opacity-50');
             }
+        } else if (e.button === 2) { // Clic droit - drag entre dossiers
+            e.preventDefault();
+            isDraggingToFolder = true;
+            draggedTileData = { tilePath, filename };
+            img.classList.add('opacity-50', 'border-2', 'border-blue-500');
+            console.log('🎯 Drag entre dossiers started:', filename);
         }
-        // Sinon, laisser le drag natif fonctionner
     });
 
     img.addEventListener('mouseup', () => {
-        img.classList.remove('opacity-50');
-        isCanvasDrag = false;
-        tileWrapper.draggable = true; // Réactiver le drag natif
-    });
+        img.classList.remove('opacity-50', 'border-2', 'border-blue-500');
 
-    // Gestion du drag-and-drop entre dossiers (drag natif)
-    tileWrapper.addEventListener('dragstart', (e) => {
-        if (isCanvasDrag) {
-            e.preventDefault();
-            return;
+        // Si on était en train de dragger entre dossiers, on arrête
+        if (isDraggingToFolder) {
+            isDraggingToFolder = false;
+            draggedTileData = null;
+            console.log('🏁 Drag entre dossiers ended');
         }
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', tilePath);
-        e.dataTransfer.setData('application/x-tile-filename', filename);
-        tileWrapper.classList.add('opacity-50');
-        console.log('🎯 Drag started:', tilePath);
     });
 
-    tileWrapper.addEventListener('dragend', () => {
-        tileWrapper.classList.remove('opacity-50');
-        console.log('🏁 Drag ended');
+    // Désactiver le menu contextuel
+    img.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
     });
+
+    tileWrapper.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+
+    // Exposer les données de drag pour que setupDropZone puisse les récupérer
+    tileWrapper.getDragData = () => {
+        if (isDraggingToFolder && draggedTileData) {
+            return draggedTileData;
+        }
+        return null;
+    };
 
     // Bouton de suppression
     const deleteBtn = document.createElement('button');
@@ -390,18 +409,67 @@ function createTileElement(tilePath, filename, folderId) {
  * Configure une zone comme drop zone pour les tuiles
  */
 function setupDropZone(element, folderId) {
+    let isHovering = false;
+
+    // Détecter le survol pendant un drag
+    element.addEventListener('mouseenter', () => {
+        isHovering = true;
+
+        // Chercher s'il y a un drag en cours
+        const allTiles = document.querySelectorAll('[data-tile-path]');
+        let hasDragInProgress = false;
+
+        allTiles.forEach(tile => {
+            if (tile.getDragData && tile.getDragData()) {
+                hasDragInProgress = true;
+                element.classList.add('bg-[#2b2b2f]', 'border-2', 'border-blue-500');
+                console.log('📦 Hover sur dossier pendant drag:', folderId);
+            }
+        });
+    });
+
+    element.addEventListener('mouseleave', () => {
+        isHovering = false;
+        element.classList.remove('bg-[#2b2b2f]', 'border-2', 'border-blue-500');
+    });
+
+    // Détecter le mouseup (drop) sur la zone
+    element.addEventListener('mouseup', (e) => {
+        if (e.button === 2 && isHovering) { // Clic droit relâché
+            // Chercher la tuile en cours de drag
+            const allTiles = document.querySelectorAll('[data-tile-path]');
+
+            allTiles.forEach(tile => {
+                if (tile.getDragData) {
+                    const dragData = tile.getDragData();
+                    if (dragData) {
+                        console.log('🎯 Drop détecté!');
+                        console.log('  - Tuile:', dragData.tilePath);
+                        console.log('  - Fichier:', dragData.filename);
+                        console.log('  - Dossier cible:', folderId);
+
+                        // Déplacer la tuile
+                        folderManager.moveTile(dragData.tilePath, folderId);
+                        loadTiles();
+                        console.log('✨ Tuile déplacée avec succès!');
+
+                        element.classList.remove('bg-[#2b2b2f]', 'border-2', 'border-blue-500');
+                    }
+                }
+            });
+        }
+    });
+
+    // Garder aussi le système de drag natif pour la compatibilité (drag de dossiers)
     element.addEventListener('dragover', (e) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
         element.classList.add('bg-[#2b2b2f]', 'border-blue-500');
-        console.log('📦 Dragover sur dossier:', folderId);
     });
 
     element.addEventListener('dragleave', (e) => {
-        // Vérifier que l'on quitte vraiment l'élément (pas juste un enfant)
         if (!element.contains(e.relatedTarget)) {
             element.classList.remove('bg-[#2b2b2f]', 'border-blue-500');
-            console.log('👋 Dragleave du dossier:', folderId);
         }
     });
 
@@ -413,18 +481,10 @@ function setupDropZone(element, folderId) {
         const tilePath = e.dataTransfer.getData('text/plain');
         const filename = e.dataTransfer.getData('application/x-tile-filename');
 
-        console.log('🎯 Drop détecté!');
-        console.log('  - Tuile:', tilePath);
-        console.log('  - Fichier:', filename);
-        console.log('  - Dossier cible:', folderId);
-
         if (tilePath) {
-            console.log('✅ Déplacement de la tuile...');
+            console.log('✅ Déplacement de la tuile (drag natif)...');
             folderManager.moveTile(tilePath, folderId);
             loadTiles();
-            console.log('✨ Tuile déplacée avec succès!');
-        } else {
-            console.error('❌ Aucun chemin de tuile trouvé dans le dataTransfer');
         }
     });
 }

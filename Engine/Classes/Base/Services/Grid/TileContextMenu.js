@@ -52,6 +52,24 @@ class TileContextMenu {
             this.#toggleSolid();
         });
 
+        // Bouton toggle teleport
+        document.getElementById('menu-toggle-teleport').addEventListener('click', () => {
+            this.#toggleTeleport();
+        });
+
+        // Champs de téléportation
+        document.getElementById('menu-teleport-map').addEventListener('input', (e) => {
+            this.#updateTeleportData('map', e.target.value);
+        });
+
+        document.getElementById('menu-teleport-x').addEventListener('input', (e) => {
+            this.#updateTeleportData('x', parseFloat(e.target.value) || 0);
+        });
+
+        document.getElementById('menu-teleport-y').addEventListener('input', (e) => {
+            this.#updateTeleportData('y', parseFloat(e.target.value) || 0);
+        });
+
         // Bouton supprimer
         document.getElementById('menu-delete-tile').addEventListener('click', () => {
             this.#deleteTile();
@@ -115,10 +133,29 @@ class TileContextMenu {
      * Affiche le menu contextuel
      */
     #showMenu(x, y, tile) {
-        // Mettre à jour l'état du checkbox
+        // Mettre à jour l'état du checkbox solide
         const isSolid = tile.isSolid || false;
         const iconElement = document.getElementById('menu-solid-icon');
         iconElement.textContent = isSolid ? '☑' : '☐';
+
+        // Mettre à jour l'état du téléporteur
+        const isTeleporter = tile.isTeleporter || false;
+        const teleportIcon = document.getElementById('menu-teleport-icon');
+        teleportIcon.textContent = isTeleporter ? '☑' : '☐';
+
+        // Afficher/masquer les paramètres de téléportation
+        const teleportSettings = document.getElementById('teleport-settings');
+        if (isTeleporter) {
+            teleportSettings.classList.remove('hidden');
+
+            // Remplir les champs avec les données existantes
+            const teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
+            document.getElementById('menu-teleport-map').value = teleportData.map || '';
+            document.getElementById('menu-teleport-x').value = teleportData.x || 0;
+            document.getElementById('menu-teleport-y').value = teleportData.y || 0;
+        } else {
+            teleportSettings.classList.add('hidden');
+        }
 
         // Mettre à jour le layer sélectionné
         const layerSelect = document.getElementById('menu-layer-select');
@@ -174,6 +211,76 @@ class TileContextMenu {
         iconElement.textContent = newState ? '☑' : '☐';
 
         // Sauvegarder automatiquement via la méthode publique
+        this.#tileDragService.saveMap();
+    }
+
+    /**
+     * Bascule l'état téléporteur de la tuile
+     */
+    #toggleTeleport() {
+        if (!this.#currentTile) return;
+
+        // Inverser l'état
+        const newState = !(this.#currentTile.isTeleporter || false);
+        this.#currentTile.isTeleporter = newState;
+
+        // Initialiser les données de téléportation si activé
+        if (newState && !this.#currentTile.teleportData) {
+            this.#currentTile.teleportData = {
+                map: '',
+                x: 0,
+                y: 0
+            };
+        }
+
+        // IMPORTANT: Désactiver le collider pour les téléporteurs (sinon le joueur est bloqué)
+        if (newState) {
+            this.#currentTile.isSolid = false;
+            if (this.#currentTile.components.BoxCollider) {
+                this.#currentTile.components.BoxCollider.enabled = false;
+            }
+        }
+
+        console.log(`Tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y}) : ${newState ? '🌀 TÉLÉPORTEUR' : '⬜ Normal'}`);
+
+        // Mettre à jour l'icône
+        const teleportIcon = document.getElementById('menu-teleport-icon');
+        teleportIcon.textContent = newState ? '☑' : '☐';
+
+        // Afficher/masquer les paramètres
+        const teleportSettings = document.getElementById('teleport-settings');
+        if (newState) {
+            teleportSettings.classList.remove('hidden');
+            // Remplir les champs avec les valeurs actuelles
+            const data = this.#currentTile.teleportData;
+            document.getElementById('menu-teleport-map').value = data.map || '';
+            document.getElementById('menu-teleport-x').value = data.x || 0;
+            document.getElementById('menu-teleport-y').value = data.y || 0;
+        } else {
+            teleportSettings.classList.add('hidden');
+        }
+
+        // Sauvegarder automatiquement
+        this.#tileDragService.saveMap();
+    }
+
+    /**
+     * Met à jour les données de téléportation
+     */
+    #updateTeleportData(field, value) {
+        if (!this.#currentTile || !this.#currentTile.isTeleporter) return;
+
+        // Initialiser teleportData si nécessaire
+        if (!this.#currentTile.teleportData) {
+            this.#currentTile.teleportData = { map: '', x: 0, y: 0 };
+        }
+
+        // Mettre à jour le champ
+        this.#currentTile.teleportData[field] = value;
+
+        console.log(`🌀 Téléporteur à (${this.#currentPosition.x}, ${this.#currentPosition.y}) → ${field}: ${value}`);
+
+        // Sauvegarder automatiquement
         this.#tileDragService.saveMap();
     }
 

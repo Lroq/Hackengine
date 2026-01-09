@@ -16,6 +16,16 @@ let currentMapName = 'default_map';
 let mapSelector;
 
 // -- :: Functions :: -- \\
+/**
+ * Met à jour l'affichage du nom de la map en haut du canvas
+ */
+function updateMapNameDisplay(mapName) {
+    const mapNameElement = document.getElementById('current-map-name');
+    if (mapNameElement) {
+        mapNameElement.textContent = mapName;
+    }
+}
+
 async function main(){
     // Afficher le sélecteur de map au démarrage
     mapSelector = new window.MapSelector();
@@ -64,6 +74,12 @@ async function main(){
     // Exposer le nom de la map actuelle
     window.currentMapName = currentMapName;
 
+    // Exposer la fonction de mise à jour du nom de map
+    window.updateMapNameDisplay = updateMapNameDisplay;
+
+    // Mettre à jour l'affichage du nom de la map
+    updateMapNameDisplay(currentMapName);
+
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     window.tileContextMenu = tileContextMenu;
@@ -79,6 +95,9 @@ async function main(){
 
             // Charger la nouvelle map
             await tileDragService.loadMapFromServer(currentMapName);
+
+            // Mettre à jour l'affichage du nom de la map
+            updateMapNameDisplay(currentMapName);
         });
     });
 }
