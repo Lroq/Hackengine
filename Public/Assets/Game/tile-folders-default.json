@@ -1,0 +1,134 @@
+{
+  "structure": {
+    "root": {
+      "name": "root",
+      "folders": [
+        "folder_base_terrain",
+        "folder_base_personnages",
+        "folder_base_decoration",
+        "folder_base_batiments"
+      ],
+      "tiles": []
+    },
+    "folder_base_terrain": {
+      "name": "🌍 Terrain",
+      "parent": "root",
+      "folders": [
+        "folder_terrain_sol",
+        "folder_terrain_eau",
+        "folder_terrain_nature"
+      ],
+      "tiles": []
+    },
+    "folder_terrain_sol": {
+      "name": "Sol & Routes",
+      "parent": "folder_base_terrain",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_terrain_eau": {
+      "name": "Eau & Liquides",
+      "parent": "folder_base_terrain",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_terrain_nature": {
+      "name": "Herbe & Nature",
+      "parent": "folder_base_terrain",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_base_personnages": {
+      "name": "👤 Personnages",
+      "parent": "root",
+      "folders": [
+        "folder_perso_joueur",
+        "folder_perso_npc",
+        "folder_perso_ennemis"
+      ],
+      "tiles": []
+    },
+    "folder_perso_joueur": {
+      "name": "Joueur",
+      "parent": "folder_base_personnages",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_perso_npc": {
+      "name": "PNJ",
+      "parent": "folder_base_personnages",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_perso_ennemis": {
+      "name": "Ennemis & Boss",
+      "parent": "folder_base_personnages",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_base_decoration": {
+      "name": "🎨 Décorations",
+      "parent": "root",
+      "folders": [
+        "folder_deco_arbres",
+        "folder_deco_objets",
+        "folder_deco_effets"
+      ],
+      "tiles": []
+    },
+    "folder_deco_arbres": {
+      "name": "Arbres & Plantes",
+      "parent": "folder_base_decoration",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_deco_objets": {
+      "name": "Objets & Props",
+      "parent": "folder_base_decoration",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_deco_effets": {
+      "name": "Effets Spéciaux",
+      "parent": "folder_base_decoration",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_base_batiments": {
+      "name": "🏠 Bâtiments",
+      "parent": "root",
+      "folders": [
+        "folder_bat_murs",
+        "folder_bat_toits",
+        "folder_bat_interieurs"
+      ],
+      "tiles": []
+    },
+    "folder_bat_murs": {
+      "name": "Murs & Façades",
+      "parent": "folder_base_batiments",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_bat_toits": {
+      "name": "Toits",
+      "parent": "folder_base_batiments",
+      "folders": [],
+      "tiles": []
+    },
+    "folder_bat_interieurs": {
+      "name": "Intérieurs",
+      "parent": "folder_base_batiments",
+      "folders": [],
+      "tiles": []
+    }
+  },
+  "expanded": [
+    "root",
+    "folder_base_terrain",
+    "folder_base_personnages",
+    "folder_base_decoration",
+    "folder_base_batiments"
+  ]
+}
+

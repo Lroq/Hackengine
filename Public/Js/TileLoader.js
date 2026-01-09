@@ -1,10 +1,61 @@
 /**
  * Gestion de l'upload et de la suppression des tiles
+ * Avec système d'organisation en dossiers
  */
+
+import { TileFolderManager } from '../../Engine/Classes/Base/Services/Ui/TileFolderManager.js';
+
+const folderManager = new TileFolderManager();
+window.tileFolderManager = folderManager; // Exposer globalement
+
+// Initialiser et charger les tuiles au démarrage
+async function initializeTileSystem() {
+    console.log('🚀 Initialisation du système de tuiles...');
+
+    // Afficher un indicateur de chargement
+    const container = document.getElementById('tiles-container');
+    if (container) {
+        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">📦 Chargement des dossiers...</div>';
+    }
+
+    try {
+        await folderManager.initialize();
+        console.log('✅ Système de tuiles prêt!');
+        await loadTiles();
+    } catch (error) {
+        console.error('❌ Erreur lors de l\'initialisation:', error);
+        if (container) {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">❌ Erreur de chargement</div>';
+        }
+    }
+}
+
+// Démarrer l'initialisation dès que possible
+initializeTileSystem();
+
+// Désactiver le menu contextuel sur toute la colonne des assets
+window.addEventListener('load', () => {
+    const assetsPanel = document.getElementById('assets-panel');
+    if (assetsPanel) {
+        assetsPanel.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    }
+});
 
 // Gestion du bouton d'ajout
 document.getElementById('add-tile-btn').addEventListener('click', () => {
     document.getElementById('tile-input').click();
+});
+
+// Gestion du bouton de création de dossier
+document.getElementById('create-folder-btn').addEventListener('click', () => {
+    const folderName = prompt('Nom du nouveau dossier :');
+    if (folderName && folderName.trim()) {
+        folderManager.createFolder(folderName.trim());
+        loadTiles();
+    }
 });
 
 // Gestion de l'upload
@@ -51,9 +102,398 @@ document.getElementById('tile-input').addEventListener('change', (event) => {
 });
 
 /**
- * Charge les tiles depuis le serveur et crée les éléments avec bouton de suppression
+ * Charge les tiles depuis le serveur et crée l'arborescence de dossiers
  */
 async function loadTiles() {
+    try {
+        const res = await fetch('/api/tiles');
+        const tiles = await res.json();
+        const container = document.getElementById('tiles-container');
+        container.innerHTML = '';
+
+        // Synchroniser avec le serveur
+        folderManager.syncWithServerTiles(tiles);
+
+        // Afficher l'arborescence
+        const structure = folderManager.getStructure();
+        renderFolder('root', structure, container, 0);
+
+    } catch (err) {
+        console.error('Erreur en chargeant les tiles :', err);
+    }
+}
+
+/**
+ * Rend un dossier et son contenu de manière récursive
+ * @param {string} folderId - ID du dossier
+ * @param {Object} structure - Structure complète
+ * @param {HTMLElement} parentElement - Élément parent HTML
+ * @param {number} depth - Profondeur dans l'arborescence
+ */
+function renderFolder(folderId, structure, parentElement, depth) {
+    const folder = structure[folderId];
+    if (!folder) return;
+
+    const isRoot = folderId === 'root';
+    const isExpanded = folderManager.isFolderExpanded(folderId);
+
+    // Conteneur du dossier
+    const folderDiv = document.createElement('div');
+    folderDiv.className = 'folder-item';
+    folderDiv.dataset.folderId = folderId;
+
+    // En-tête du dossier (sauf pour root)
+    if (!isRoot) {
+        const folderHeader = document.createElement('div');
+        folderHeader.className = 'flex items-center justify-between px-2 py-1 hover:bg-[#2b2b2f] rounded cursor-pointer group';
+        folderHeader.style.paddingLeft = `${depth * 12 + 8}px`;
+        folderHeader.draggable = true; // Rendre le dossier draggable
+        folderHeader.dataset.folderId = folderId;
+        folderHeader.dataset.folderName = folder.name;
+
+        // Gestion du drag-and-drop de dossiers
+        folderHeader.addEventListener('dragstart', (e) => {
+            e.stopPropagation();
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('application/x-folder-id', folderId);
+            e.dataTransfer.setData('application/x-folder-name', folder.name);
+            folderHeader.classList.add('opacity-50');
+            console.log('📁 Drag dossier started:', folder.name);
+        });
+
+        folderHeader.addEventListener('dragend', () => {
+            folderHeader.classList.remove('opacity-50');
+            console.log('📁 Drag dossier ended');
+        });
+
+        // Permettre de drop un dossier sur un autre dossier (création de sous-dossier)
+        folderHeader.addEventListener('dragover', (e) => {
+            // Vérifier si c'est un dossier qui est draggé
+            if (e.dataTransfer.types.includes('application/x-folder-id')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'move';
+                folderHeader.classList.add('bg-blue-900', 'border-blue-500');
+            }
+        });
+
+        folderHeader.addEventListener('dragleave', (e) => {
+            if (!folderHeader.contains(e.relatedTarget)) {
+                folderHeader.classList.remove('bg-blue-900', 'border-blue-500');
+            }
+        });
+
+        folderHeader.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            folderHeader.classList.remove('bg-blue-900', 'border-blue-500');
+
+            const draggedFolderId = e.dataTransfer.getData('application/x-folder-id');
+            const draggedFolderName = e.dataTransfer.getData('application/x-folder-name');
+
+            if (draggedFolderId && draggedFolderId !== folderId) {
+                console.log(`📁 Drop dossier "${draggedFolderName}" dans "${folder.name}"`);
+                if (folderManager.moveFolder(draggedFolderId, folderId)) {
+                    loadTiles();
+                    console.log('✅ Dossier déplacé avec succès!');
+                } else {
+                    alert('Impossible de déplacer ce dossier ici.');
+                }
+            }
+        });
+
+        // Partie gauche (icône + nom)
+        const leftPart = document.createElement('div');
+        leftPart.className = 'flex items-center gap-1 flex-1';
+
+        const toggleIcon = document.createElement('span');
+        toggleIcon.textContent = isExpanded ? '📂' : '📁';
+        toggleIcon.className = 'text-sm';
+
+        const folderName = document.createElement('span');
+        folderName.textContent = folder.name;
+        folderName.className = 'text-sm font-medium';
+
+        leftPart.appendChild(toggleIcon);
+        leftPart.appendChild(folderName);
+
+        // Boutons d'action (visible au survol)
+        const actions = document.createElement('div');
+        actions.className = 'flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity';
+
+        // Bouton ajouter sous-dossier
+        const addSubfolderBtn = createActionButton('➕', 'Ajouter sous-dossier', () => {
+            const subfolderName = prompt('Nom du sous-dossier :');
+            if (subfolderName && subfolderName.trim()) {
+                folderManager.createFolder(subfolderName.trim(), folderId);
+                folderManager.toggleFolder(folderId); // Déplier le dossier parent
+                loadTiles();
+            }
+        });
+        addSubfolderBtn.classList.add('text-green-500');
+
+        // Bouton renommer
+        const renameBtn = createActionButton('✏️', 'Renommer', () => {
+            const newName = prompt('Nouveau nom :', folder.name);
+            if (newName && newName.trim()) {
+                folderManager.renameFolder(folderId, newName.trim());
+                loadTiles();
+            }
+        });
+
+        // Bouton supprimer
+        const deleteBtn = createActionButton('🗑️', 'Supprimer', () => {
+            if (confirm(`Supprimer le dossier "${folder.name}" et tout son contenu ?`)) {
+                folderManager.deleteFolder(folderId);
+                loadTiles();
+            }
+        });
+        deleteBtn.classList.add('hover:bg-red-600');
+
+        actions.appendChild(addSubfolderBtn);
+        actions.appendChild(renameBtn);
+        actions.appendChild(deleteBtn);
+
+        // Toggle sur clic de l'en-tête
+        folderHeader.addEventListener('click', (e) => {
+            if (!e.target.closest('button')) {
+                folderManager.toggleFolder(folderId);
+                loadTiles();
+            }
+        });
+
+        folderHeader.appendChild(leftPart);
+        folderHeader.appendChild(actions);
+        folderDiv.appendChild(folderHeader);
+    }
+
+    // Contenu du dossier (si déplié)
+    if (isExpanded || isRoot) {
+        // Afficher les sous-dossiers
+        folder.folders.forEach(subFolderId => {
+            renderFolder(subFolderId, structure, folderDiv, depth + 1);
+        });
+
+        // Afficher les tuiles
+        if (folder.tiles.length > 0) {
+            const tilesGrid = document.createElement('div');
+            tilesGrid.className = 'grid grid-cols-4 gap-2 mb-2';
+            tilesGrid.style.paddingLeft = isRoot ? '0' : `${(depth + 1) * 12 + 8}px`;
+            tilesGrid.dataset.folderId = folderId;
+
+            // Permettre le drop de tuiles dans ce dossier
+            setupDropZone(tilesGrid, folderId);
+
+            folder.tiles.forEach(tilePath => {
+                const filename = tilePath.split('/').pop();
+                const tileElement = createTileElement(tilePath, filename, folderId);
+                tilesGrid.appendChild(tileElement);
+            });
+
+            folderDiv.appendChild(tilesGrid);
+        } else if (!isRoot) {
+            // Zone de drop vide pour les dossiers sans tuiles
+            const emptyZone = document.createElement('div');
+            emptyZone.className = 'text-xs text-gray-500 italic px-3 py-2 border border-dashed border-gray-700 rounded mx-2 mb-2';
+            emptyZone.textContent = 'Glissez des tuiles ici';
+            emptyZone.style.marginLeft = `${(depth + 1) * 12 + 8}px`;
+            setupDropZone(emptyZone, folderId);
+            folderDiv.appendChild(emptyZone);
+        }
+    }
+
+    parentElement.appendChild(folderDiv);
+}
+
+/**
+ * Crée un bouton d'action
+ */
+function createActionButton(icon, title, onClick) {
+    const btn = document.createElement('button');
+    btn.textContent = icon;
+    btn.title = title;
+    btn.className = 'w-5 h-5 rounded hover:bg-[#3a3a3f] flex items-center justify-center text-xs';
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onClick();
+    });
+    return btn;
+}
+
+/**
+ * Crée un élément tuile draggable
+ */
+function createTileElement(tilePath, filename, folderId) {
+    const tileWrapper = document.createElement('div');
+    tileWrapper.className = 'relative group';
+    tileWrapper.dataset.tilePath = tilePath;
+    tileWrapper.dataset.folderId = folderId;
+
+    // Image du tile
+    const img = document.createElement('img');
+    img.src = tilePath;
+    img.alt = filename;
+    img.className = 'w-full h-auto rounded-lg border border-gray-700 cursor-grab active:cursor-grabbing';
+    img.draggable = false;
+
+    let isDraggingToFolder = false;
+    let draggedTileData = null;
+
+    // Gestion du drag (clic gauche = canvas, clic droit = entre dossiers)
+    img.addEventListener('mousedown', (e) => {
+        if (e.button === 0) { // Clic gauche - drag vers canvas
+            e.preventDefault();
+            if (window.tileDragService) {
+                window.tileDragService.startDrag(img.src);
+                img.classList.add('opacity-50');
+            }
+        } else if (e.button === 2) { // Clic droit - drag entre dossiers
+            e.preventDefault();
+            isDraggingToFolder = true;
+            draggedTileData = { tilePath, filename };
+            img.classList.add('opacity-50', 'border-2', 'border-blue-500');
+            console.log('🎯 Drag entre dossiers started:', filename);
+        }
+    });
+
+    img.addEventListener('mouseup', () => {
+        img.classList.remove('opacity-50', 'border-2', 'border-blue-500');
+
+        // Si on était en train de dragger entre dossiers, on arrête
+        if (isDraggingToFolder) {
+            isDraggingToFolder = false;
+            draggedTileData = null;
+            console.log('🏁 Drag entre dossiers ended');
+        }
+    });
+
+    // Désactiver le menu contextuel
+    img.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+
+    tileWrapper.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        return false;
+    });
+
+    // Exposer les données de drag pour que setupDropZone puisse les récupérer
+    tileWrapper.getDragData = () => {
+        if (isDraggingToFolder && draggedTileData) {
+            return draggedTileData;
+        }
+        return null;
+    };
+
+    // Bouton de suppression
+    const deleteBtn = document.createElement('button');
+    deleteBtn.innerHTML = '✕';
+    deleteBtn.className = 'absolute top-1 right-1 w-5 h-5 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center';
+    deleteBtn.title = `Supprimer ${filename}`;
+
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm(`Voulez-vous vraiment supprimer "${filename}" ?\n\nCette action est irréversible.`)) {
+            deleteTile(filename);
+        }
+    });
+
+    tileWrapper.appendChild(img);
+    tileWrapper.appendChild(deleteBtn);
+
+    return tileWrapper;
+}
+
+/**
+ * Configure une zone comme drop zone pour les tuiles
+ */
+function setupDropZone(element, folderId) {
+    let isHovering = false;
+
+    // Détecter le survol pendant un drag
+    element.addEventListener('mouseenter', () => {
+        isHovering = true;
+
+        // Chercher s'il y a un drag en cours
+        const allTiles = document.querySelectorAll('[data-tile-path]');
+        let hasDragInProgress = false;
+
+        allTiles.forEach(tile => {
+            if (tile.getDragData && tile.getDragData()) {
+                hasDragInProgress = true;
+                element.classList.add('bg-[#2b2b2f]', 'border-2', 'border-blue-500');
+                console.log('📦 Hover sur dossier pendant drag:', folderId);
+            }
+        });
+    });
+
+    element.addEventListener('mouseleave', () => {
+        isHovering = false;
+        element.classList.remove('bg-[#2b2b2f]', 'border-2', 'border-blue-500');
+    });
+
+    // Détecter le mouseup (drop) sur la zone
+    element.addEventListener('mouseup', (e) => {
+        if (e.button === 2 && isHovering) { // Clic droit relâché
+            // Chercher la tuile en cours de drag
+            const allTiles = document.querySelectorAll('[data-tile-path]');
+
+            allTiles.forEach(tile => {
+                if (tile.getDragData) {
+                    const dragData = tile.getDragData();
+                    if (dragData) {
+                        console.log('🎯 Drop détecté!');
+                        console.log('  - Tuile:', dragData.tilePath);
+                        console.log('  - Fichier:', dragData.filename);
+                        console.log('  - Dossier cible:', folderId);
+
+                        // Déplacer la tuile
+                        folderManager.moveTile(dragData.tilePath, folderId);
+                        loadTiles();
+                        console.log('✨ Tuile déplacée avec succès!');
+
+                        element.classList.remove('bg-[#2b2b2f]', 'border-2', 'border-blue-500');
+                    }
+                }
+            });
+        }
+    });
+
+    // Garder aussi le système de drag natif pour la compatibilité (drag de dossiers)
+    element.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        element.classList.add('bg-[#2b2b2f]', 'border-blue-500');
+    });
+
+    element.addEventListener('dragleave', (e) => {
+        if (!element.contains(e.relatedTarget)) {
+            element.classList.remove('bg-[#2b2b2f]', 'border-blue-500');
+        }
+    });
+
+    element.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        element.classList.remove('bg-[#2b2b2f]', 'border-blue-500');
+
+        const tilePath = e.dataTransfer.getData('text/plain');
+        const filename = e.dataTransfer.getData('application/x-tile-filename');
+
+        if (tilePath) {
+            console.log('✅ Déplacement de la tuile (drag natif)...');
+            folderManager.moveTile(tilePath, folderId);
+            loadTiles();
+        }
+    });
+}
+
+/**
+ * Charge les tiles depuis le serveur et crée les éléments avec bouton de suppression
+ * @deprecated - Utiliser loadTiles() à la place
+ */
+async function loadTilesOld() {
     try {
         const res = await fetch('/api/tiles');
         const tiles = await res.json();
@@ -146,5 +586,4 @@ async function deleteTile(filename) {
     }
 }
 
-// Chargement initial
-loadTiles();
+// Le chargement initial est maintenant géré par initializeTileSystem() au début du fichier

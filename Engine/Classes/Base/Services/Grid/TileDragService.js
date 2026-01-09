@@ -253,13 +253,21 @@ class TileDragService {
             const [x, y] = posKey.split(',').map(Number);
             const spriteModel = tile.components.SpriteModel;
             
-            mapData.push({
+            const tileData = {
                 x,
                 y,
                 sprite: spriteModel.sprite.src,
                 isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
                 layer: tile.layer !== undefined ? tile.layer : 0
-            });
+            };
+
+            // Ajouter les données de téléportation si la tuile est un téléporteur
+            if (tile.isTeleporter) {
+                tileData.isTeleporter = true;
+                tileData.teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
+            }
+
+            mapData.push(tileData);
         });
         
         return mapData;
@@ -298,6 +306,14 @@ class TileDragService {
             // Restaurer les propriétés
             tile.isSolid = data.isSolid !== undefined ? data.isSolid : false;
             tile.layer = data.layer !== undefined ? data.layer : 0;
+
+            // Restaurer les propriétés de téléportation
+            if (data.isTeleporter) {
+                tile.isTeleporter = true;
+                tile.teleportData = data.teleportData || { map: '', x: 0, y: 0 };
+                // IMPORTANT: Les téléporteurs ne doivent JAMAIS être solides
+                tile.isSolid = false;
+            }
 
             // Activer le collider si la tuile est solide (layer 1)
             if (tile.components.BoxCollider) {

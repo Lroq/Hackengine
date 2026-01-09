@@ -21,27 +21,10 @@ class ExempleScene extends Scene {
         const background = new WGObject();
         const bgSprite = new SpriteModel();
         bgSprite.enabled = true;
-        bgSprite.sprite = Utils.createSprite("/Public/Assets/Game/temp_bg.png");
 
         // Dimensions du canvas (800x600 standard)
         const canvasWidth = 800;
         const canvasHeight = 600;
-
-        // Dimensions du sprite de fond
-        bgSprite.size.Width = canvasWidth;
-        bgSprite.size.Height = canvasHeight;
-
-        // Centrer le fond - position 0,0 car le fond prend toute la taille du canvas
-        background.coordinates.X = 0;
-        background.coordinates.Y = -5;
-
-        // Ajouter le composant sprite au fond
-        background.addComponent(bgSprite);
-
-        // Layer 0 pour que le fond soit derrière tout
-        background.layer = 0;
-
-        super.addWGObject(background);
 
         // === JOUEUR === //
         const PlayerInstance = new Player("Ewoukouskous");
