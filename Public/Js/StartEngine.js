@@ -1,12 +1,12 @@
 // -- :: Dependencies :: -- \\
-import {Engine}         from "/Engine/Classes/Base/Main/Engine.js";
+import {Engine} from "/Engine/Classes/Base/Main/Engine.js";
 import {CollisionGroup} from "/Engine/Classes/Base/Services/Collision/CollisionGroup.js";
-import {SceneLoader}    from  "/Engine/Classes/Base/Services/Scenes/SceneLoader.js";
-import {SceneService}   from  "/Engine/Classes/Base/Services/Scenes/SceneService.js";
-import {Size_2D}        from  "/Engine/Classes/Base/MicroClasses/Size_2D.js";
-import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
-import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/InputService.js";
-import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {SceneLoader} from "/Engine/Classes/Base/Services/Scenes/SceneLoader.js";
+import {SceneService} from "/Engine/Classes/Base/Services/Scenes/SceneService.js";
+import {Size_2D} from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
+import {PhysicService} from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
+import {InputService} from "../../Engine/Classes/Base/Services/Inputs/InputService.js";
+import {TutorialScene} from "/Engine/Classes/Custom/Scenes/TutorialScene.js";
 import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 // -- :: -- :: --:: -- :: -- \\
@@ -26,8 +26,7 @@ function updateMapNameDisplay(mapName) {
     }
 }
 
-async function main(){
-    // Afficher le sélecteur de map au démarrage
+async function main() {
     mapSelector = new window.MapSelector();
 
     await new Promise((resolve) => {
@@ -37,50 +36,40 @@ async function main(){
             resolve();
         });
     });
+
     const EngineInstance = new Engine({
-        SceneService :          new SceneService(),
-        SceneLoaderService :    new SceneLoader(),
-        CollisionGroupService : new CollisionGroup(),
-        PhysicService :         new PhysicService(),
-        InputService :          new InputService()
-    },
+            SceneService: new SceneService(),
+            SceneLoaderService: new SceneLoader(),
+            CollisionGroupService: new CollisionGroup(),
+            PhysicService: new PhysicService(),
+            InputService: new InputService()
+        },
         {
             TickRate: 10,
-            RefreshRate : 100,
+            RefreshRate: 100,
         }, Canvas)
 
-    EngineInstance.resize(new Size_2D(0,0),{
-        FullScreen : true,
+    EngineInstance.resize(new Size_2D(0, 0), {
+        FullScreen: true,
     })
 
-    const TestScene = new ExempleScene();
+    const TUTORIAL_SCENE = new TutorialScene();
 
-    EngineInstance.services.SceneService.addScene("TestScene",TestScene);
-    EngineInstance.services.SceneService.activeScene = TestScene;
-
-    // Exposer l'engine globalement pour TileContextMenu
-    window.engineInstance = EngineInstance;
-
-    // Initialiser le TileDragService
     const tileDragService = new TileDragService();
     tileDragService.initialize(EngineInstance, Canvas);
-
-    // Exposer le service globalement pour debug/export et pour TileLoader.js
     window.tileDragService = tileDragService;
 
-    // Charger la map sélectionnée
     await tileDragService.loadMapFromServer(currentMapName);
 
-    // Exposer le nom de la map actuelle
-    window.currentMapName = currentMapName;
+    EngineInstance.services.SceneService.addScene("Tutorial Scene", TUTORIAL_SCENE);
+    EngineInstance.services.SceneService.activeScene = TUTORIAL_SCENE;
 
-    // Exposer la fonction de mise à jour du nom de map
+    window.engineInstance = EngineInstance;
+    window.currentMapName = currentMapName;
     window.updateMapNameDisplay = updateMapNameDisplay;
 
-    // Mettre à jour l'affichage du nom de la map
     updateMapNameDisplay(currentMapName);
 
-    // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     window.tileContextMenu = tileContextMenu;
 
@@ -101,11 +90,12 @@ async function main(){
         });
     });
 }
+
 // -- :: -- :: --:: -- :: -- \\
 
 // -- :: Events :: -- \\
-window.addEventListener('load', function() {
-  Canvas = document.getElementById("game-canvas")
-  main();
+window.addEventListener('load', function () {
+    Canvas = document.getElementById("game-canvas")
+    main();
 })
 // -- :: -- :: --:: -- :: -- \\
