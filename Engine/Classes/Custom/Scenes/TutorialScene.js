@@ -36,6 +36,7 @@ class TutorialScene extends Scene {
         );
         tv.coordinates.X = 200;
         tv.coordinates.Y = 80;
+        tv.layer = 1;
 
         super.addWGObject(tv);
         this.#interactionManager.registerInteractable(tv);

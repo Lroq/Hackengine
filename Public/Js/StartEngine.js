@@ -6,7 +6,7 @@ import {SceneService} from "/Engine/Classes/Base/Services/Scenes/SceneService.js
 import {Size_2D} from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService} from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
 import {InputService} from "../../Engine/Classes/Base/Services/Inputs/InputService.js";
-import {EditorScene} from "/Engine/Classes/Custom/Scenes/EditorScene.js";
+import {TutorialScene} from "/Engine/Classes/Custom/Scenes/TutorialScene.js";
 import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 // -- :: -- :: --:: -- :: -- \\
@@ -53,20 +53,16 @@ async function main() {
         FullScreen: true,
     })
 
-    // ✅ Créer la scène
-    const editorScene = new EditorScene();
+    const TUTORIAL_SCENE = new TutorialScene();
 
-    // ✅ Initialiser le TileDragService AVANT d'ajouter la scène
     const tileDragService = new TileDragService();
     tileDragService.initialize(EngineInstance, Canvas);
     window.tileDragService = tileDragService;
 
-    // ✅ Charger la map AVANT d'activer la scène
     await tileDragService.loadMapFromServer(currentMapName);
 
-    // ✅ MAINTENANT on peut activer la scène
-    EngineInstance.services.SceneService.addScene("EditorScene", editorScene);
-    EngineInstance.services.SceneService.activeScene = editorScene;
+    EngineInstance.services.SceneService.addScene("Tutorial Scene", TUTORIAL_SCENE);
+    EngineInstance.services.SceneService.activeScene = TUTORIAL_SCENE;
 
     window.engineInstance = EngineInstance;
     window.currentMapName = currentMapName;
