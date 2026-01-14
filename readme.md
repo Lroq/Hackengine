@@ -29,7 +29,7 @@ Voir [TILE_FOLDER_SYSTEM.md](./TILE_FOLDER_SYSTEM.md) pour plus de détails.
 ## <a name="run-the-server"> 🛜 Run the server </a>
 
 ### Run the program with CLI
-Run the **Hack Engine** for the first time you need to write :
+Run the **Hack Engine** for the first time you need to write : 
 
 ```bash
 npm install 
