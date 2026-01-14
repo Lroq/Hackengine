@@ -1,0 +1,108 @@
+/* Styles pour le système de dossiers de tuiles */
+
+/* Conteneur de dossiers */
+#tiles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.folder-item {
+    margin-bottom: 0.25rem;
+}
+
+/* En-têtes de dossiers */
+.folder-item > .folder-header {
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.folder-item > .folder-header:hover {
+    transform: translateX(2px);
+}
+
+/* Grilles de tuiles dans les dossiers */
+.folder-item .tiles-grid {
+    padding-left: 1rem;
+}
+
+/* Zones de drop */
+.drop-zone {
+    transition: all 0.2s ease;
+}
+
+.drop-zone.drag-over {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgb(59, 130, 246) !important;
+}
+
+/* Tuiles draggables */
+.tile-draggable {
+    transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.tile-draggable:hover {
+    transform: scale(1.05);
+}
+
+.tile-draggable.dragging {
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.folder-item {
+    animation: fadeIn 0.2s ease;
+}
+
+/* Icônes de dossiers avec rotation */
+.folder-icon {
+    transition: transform 0.2s ease;
+}
+
+.folder-item.expanded .folder-icon {
+    transform: rotate(0deg);
+}
+
+.folder-item.collapsed .folder-icon {
+    transform: rotate(-90deg);
+}
+
+/* Boutons d'action des dossiers */
+.folder-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.folder-actions button {
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.folder-header:hover .folder-actions button {
+    opacity: 1;
+}
+
+/* Zone vide de dossier */
+.empty-folder-zone {
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-folder-zone:hover {
+    background-color: rgba(59, 130, 246, 0.05);
+    border-color: rgb(59, 130, 246);
+}
+

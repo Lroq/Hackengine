@@ -1,0 +1,62 @@
+{
+  "structure": {
+    "root": {
+      "name": "root",
+      "folders": [
+        "folder_1767866557195_b37mmuinp"
+      ],
+      "tiles": []
+    },
+    "folder_1767863296306_5jw6ozh7o": {
+      "name": "floor",
+      "parent": "folder_1767866557195_b37mmuinp",
+      "folders": [],
+      "tiles": [
+        "/Public/Assets/Game/Tiles/tile_floor_house_2.png",
+        "/Public/Assets/Game/Tiles/tile_floor_house_1.png"
+      ]
+    },
+    "folder_1767863324574_b93tfgiwb": {
+      "name": "placeholder",
+      "parent": "folder_1767866557195_b37mmuinp",
+      "folders": [],
+      "tiles": [
+        "/Public/Assets/Game/Tiles/invisible.png"
+      ]
+    },
+    "folder_1767863414045_gfdujcxx8": {
+      "name": "wall",
+      "parent": "folder_1767866557195_b37mmuinp",
+      "folders": [],
+      "tiles": [
+        "/Public/Assets/Game/Tiles/tile_wall_house_1.png"
+      ]
+    },
+    "folder_1767866557195_b37mmuinp": {
+      "name": "root",
+      "parent": "root",
+      "folders": [
+        "folder_1767863324574_b93tfgiwb",
+        "folder_1767863414045_gfdujcxx8",
+        "folder_1767863296306_5jw6ozh7o",
+        "folder_1767869268574_waya4vj9n"
+      ],
+      "tiles": [
+        "/Public/Assets/Game/Tiles/grandjuke27x27.png"
+      ]
+    },
+    "folder_1767869268574_waya4vj9n": {
+      "name": "teleporter",
+      "parent": "folder_1767866557195_b37mmuinp",
+      "folders": [],
+      "tiles": []
+    }
+  },
+  "expanded": [
+    "root",
+    "folder_1767863296306_5jw6ozh7o",
+    "folder_1767863324574_b93tfgiwb",
+    "folder_1767863414045_gfdujcxx8",
+    "folder_1767866557195_b37mmuinp"
+  ]
+}

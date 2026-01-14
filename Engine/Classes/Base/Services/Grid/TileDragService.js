@@ -253,13 +253,21 @@ class TileDragService {
             const [x, y] = posKey.split(',').map(Number);
             const spriteModel = tile.components.SpriteModel;
             
-            mapData.push({
+            const tileData = {
                 x,
                 y,
                 sprite: spriteModel.sprite.src,
                 isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
                 layer: tile.layer !== undefined ? tile.layer : 0
-            });
+            };
+
+            // Ajouter les données de téléportation si la tuile est un téléporteur
+            if (tile.isTeleporter) {
+                tileData.isTeleporter = true;
+                tileData.teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
+            }
+
+            mapData.push(tileData);
         });
         
         return mapData;
@@ -298,6 +306,14 @@ class TileDragService {
             // Restaurer les propriétés
             tile.isSolid = data.isSolid !== undefined ? data.isSolid : false;
             tile.layer = data.layer !== undefined ? data.layer : 0;
+
+            // Restaurer les propriétés de téléportation
+            if (data.isTeleporter) {
+                tile.isTeleporter = true;
+                tile.teleportData = data.teleportData || { map: '', x: 0, y: 0 };
+                // IMPORTANT: Les téléporteurs ne doivent JAMAIS être solides
+                tile.isSolid = false;
+            }
 
             // Activer le collider si la tuile est solide (layer 1)
             if (tile.components.BoxCollider) {
@@ -342,13 +358,14 @@ class TileDragService {
      */
     saveMap() {
         const mapData = this.exportMapData();
+        const mapName = window.currentMapName || 'default_map';
 
         fetch('/api/save-map', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ mapData })
+            body: JSON.stringify({ mapData, mapName })
         })
         .then(res => res.json())
         .then(data => {
@@ -361,17 +378,21 @@ class TileDragService {
 
     /**
      * Charge la map depuis le serveur
+     * @param {string} mapName - Nom de la map à charger
      */
-    async loadMapFromServer() {
+    async loadMapFromServer(mapName = 'default_map') {
         try {
-            const res = await fetch('/api/load-map');
+            const res = await fetch(`/api/load-map?name=${encodeURIComponent(mapName)}`);
             const mapData = await res.json();
 
+            // Toujours appeler loadMapData, même si la carte est vide
+            // Cela nettoiera les tiles de l'ancienne carte
+            this.loadMapData(mapData);
+
             if (mapData.length > 0) {
-                this.loadMapData(mapData);
-                console.log(`✅ Map chargée depuis le serveur : ${mapData.length} tuiles`);
+                console.log(`✅ Map "${mapName}" chargée depuis le serveur : ${mapData.length} tuiles`);
             } else {
-                console.log('ℹ️ Aucune map sauvegardée trouvée');
+                console.log(`✅ Map vierge "${mapName}" chargée (0 tuiles) - anciens tiles nettoyés`);
             }
         } catch (err) {
             console.error('❌ Erreur lors du chargement de la map:', err);

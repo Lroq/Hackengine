@@ -23,6 +23,30 @@ class SceneService {
             this.#ActiveScene = _Scene
         }
     }
+
+    /**
+     * Charge une nouvelle scène depuis un fichier JSON de map
+     * @param {string} mapName - Nom de la map à charger
+     * @returns {Promise<void>}
+     */
+    async LoadSceneFromJson(mapName) {
+        console.log(`🗺️ Chargement de la map : ${mapName}`);
+
+        // Utiliser le TileDragService global pour charger la map
+        if (window.tileDragService) {
+            await window.tileDragService.loadMapFromServer(mapName);
+            window.currentMapName = mapName;
+
+            // Mettre à jour l'affichage du nom de la map
+            if (window.updateMapNameDisplay) {
+                window.updateMapNameDisplay(mapName);
+            }
+
+            console.log(`✅ Map "${mapName}" chargée avec succès`);
+        } else {
+            throw new Error('TileDragService non disponible');
+        }
+    }
 }
 
 export {SceneService}

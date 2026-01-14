@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hackemon</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Public/Css/TileFolders.css">
+    <script src="/Public/Js/MapSelector.js"></script>
     <script type="module" src="/Public/Js/StartEngine.js" defer></script>
     <script type="module" src="/Public/Js/TileLoader.js" defer></script>
 </head>
@@ -16,11 +18,12 @@
         <div class="w-10 h-10 rounded-lg bg-[#2b2b2f] flex items-center justify-center font-bold text-lg">H</div>
         <div>
             <h1 class="text-lg font-semibold">Hackemon</h1>
-            <p class="text-xs text-gray-400">Hackengine — In Dev</p>
+            <p class="text-xs text-gray-400">Hackengine - In Dev - v1.2.1</p>
         </div>
     </div>
 
     <div class="flex space-x-2">
+        <button id="back-to-maps-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🗺️ Maps</button>
         <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
         <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
     </div>
@@ -31,22 +34,64 @@
     <!-- Zone de jeu -->
     <section class="flex-1 flex items-center justify-center bg-[#0d0d0f]">
         <div class="relative w-full h-full flex items-center justify-center max-w-[calc(100vw-20rem)]">
+            <!-- Indicateur de map actuelle -->
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-[#1a1a1d]/90 backdrop-blur-sm border border-gray-700 rounded-lg px-4 py-2 shadow-lg">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 text-sm">🗺️</span>
+                    <span class="text-white font-semibold text-sm" id="current-map-name">Chargement...</span>
+                </div>
+            </div>
+
             <canvas id="game-canvas" class="rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"></canvas>
         </div>
     </section>
 
     <!-- Panneau latéral -->
-    <aside class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
+    <aside id="assets-panel" class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
         <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
-        <div id="tiles-container" class="grid grid-cols-4 gap-2 mb-4"></div>
 
-        <!-- Bouton pour ajouter un tile -->
-        <div class="flex justify-center mt-auto">
-            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">➕ Ajouter</button>
+        <!-- Message d'aide -->
+        <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-2 mb-3 text-xs">
+            <p class="text-blue-300 mb-1">💡 <strong>Drag & Drop :</strong></p>
+            <p class="text-gray-400">• Clic gauche + glisser : placer sur le canvas</p>
+            <p class="text-gray-400">• Clic droit + maintenir : déplacer entre dossiers</p>
+        </div>
+
+        <div id="tiles-container" class="flex-1 overflow-y-auto mb-4"></div>
+
+        <!-- Boutons pour ajouter un tile et créer un dossier -->
+        <div class="flex gap-2 justify-center mt-auto">
+            <button id="create-folder-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition" title="Créer un nouveau dossier">📁 Dossier</button>
+            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition" title="Ajouter une tuile">➕ Tuile</button>
             <input type="file" id="tile-input" accept="image/png" style="display:none;">
         </div>
     </aside>
 </main>
+
+<!-- Modale de sélection de map -->
+<div id="map-selector-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+    <div class="bg-[#1a1a1d] border border-gray-700 rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h2 class="text-2xl font-bold text-white">Sélectionner une Map</h2>
+            <p class="text-sm text-gray-400 mt-1">Choisissez une map existante ou créez-en une nouvelle</p>
+        </div>
+
+        <!-- Liste des maps -->
+        <div id="maps-list" class="flex-1 overflow-y-auto p-4 grid grid-cols-2 gap-3 max-h-96">
+            <!-- Les maps seront chargées ici -->
+        </div>
+
+        <!-- Footer avec bouton Nouvelle Map -->
+        <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
+            <button id="create-new-map-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center gap-2">
+                <span>➕</span>
+                <span>Nouvelle Map</span>
+            </button>
+            <p class="text-xs text-gray-500">Cliquez sur une map pour la charger</p>
+        </div>
+    </div>
+</div>
 
 <!-- Menu contextuel pour les tuiles -->
 <div id="tile-context-menu" class="hidden fixed bg-[#1a1a1d] border border-gray-700 rounded-lg shadow-xl p-2 z-50" style="min-width: 220px;">
@@ -72,6 +117,34 @@
             <span>Solide (Mur)</span>
         </span>
     </button>
+
+    <div class="border-t border-gray-700 my-1"></div>
+
+    <button id="menu-toggle-teleport" class="w-full text-left px-3 py-2 hover:bg-[#2b2b2f] rounded flex items-center justify-between transition">
+        <span class="flex items-center gap-2">
+            <span id="menu-teleport-icon">☐</span>
+            <span>Téléporteur</span>
+        </span>
+    </button>
+
+    <!-- Paramètres de téléportation (affichés si téléporteur activé) -->
+    <div id="teleport-settings" class="hidden px-3 py-2 bg-[#0d0d0f] rounded mx-2 my-1">
+        <div class="mb-2">
+            <label class="text-xs text-gray-400 block mb-1">Map de destination</label>
+            <input type="text" id="menu-teleport-map" placeholder="Nom de la map" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <label class="text-xs text-gray-400 block mb-1">X</label>
+                <input type="number" id="menu-teleport-x" placeholder="0" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+            </div>
+            <div>
+                <label class="text-xs text-gray-400 block mb-1">Y</label>
+                <input type="number" id="menu-teleport-y" placeholder="0" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+            </div>
+        </div>
+    </div>
+
     <div class="border-t border-gray-700 my-1"></div>
     <button id="menu-delete-tile" class="w-full text-left px-3 py-2 hover:bg-red-900/30 text-red-400 rounded flex items-center gap-2 transition">
         <span>🗑️</span>
