@@ -155,6 +155,7 @@ app.get('/api/maps/list', (req, res) => {
 });
 
 // Créer une nouvelle map
+// Dans Server/Main.js, ligne ~183
 app.post('/api/maps/create', (req, res) => {
     const { name } = req.body;
 
@@ -174,27 +175,18 @@ app.post('/api/maps/create', (req, res) => {
         fs.mkdirSync(mapsDir, { recursive: true });
     }
 
-    // Charger la map exemple
-    const exampleMapPath = path.join(mapsDir, 'exemple_map.json');
-    let exampleData = [];
+    const emptyMapData = [];
 
-    if (fs.existsSync(exampleMapPath)) {
-        try {
-            exampleData = JSON.parse(fs.readFileSync(exampleMapPath, 'utf8'));
-        } catch (err) {
-            console.warn('Map exemple non disponible');
-        }
-    }
-
-    fs.writeFile(newMapPath, JSON.stringify(exampleData, null, 2), 'utf8', (err) => {
+    fs.writeFile(newMapPath, JSON.stringify(emptyMapData, null, 2), 'utf8', (err) => {
         if (err) {
             return res.status(500).json({ error: 'Erreur lors de la création de la map' });
         }
 
-        console.log(`Map "${sanitizedName}" créée`);
+        console.log(`Map "${sanitizedName}" créée (vide)`);
         res.json({ message: 'Map créée avec succès', name: sanitizedName });
     });
 });
+
 
 // Supprimer une map
 app.delete('/api/maps/delete', (req, res) => {
