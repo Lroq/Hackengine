@@ -38,15 +38,17 @@ class Camera extends WGObject {
         return this.#cameraSubject;
     }
 
+
     /**
-     * @param {WGObject} value - Object for the camera to follow
+     * @param {WGObject|null|undefined} value - Object for the camera to follow
      */
     set cameraSubject(value) {
-        if (!(value instanceof WGObject)) {
+        if (value !== null && value !== undefined && !(value instanceof WGObject)) {
             throw new TypeError("Camera subject must be a WGObject");
         }
         this.#cameraSubject = value;
     }
+
 
     /**
      * Updates camera position based on its type and subject.
