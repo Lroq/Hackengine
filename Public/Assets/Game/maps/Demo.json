@@ -94,8 +94,14 @@
     "x": 432,
     "y": 243,
     "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
-    "isSolid": true,
-    "layer": 1
+    "isSolid": false,
+    "layer": 1,
+    "isTeleporter": true,
+    "teleportData": {
+      "map": "test",
+      "x": 0,
+      "y": 0
+    }
   },
   {
     "x": 405,
