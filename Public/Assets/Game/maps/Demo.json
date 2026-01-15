@@ -704,7 +704,13 @@
     "y": 81,
     "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_floor_house_1.png",
     "isSolid": false,
-    "layer": 0
+    "layer": 0,
+    "isTeleporter": true,
+    "teleportData": {
+      "map": "a",
+      "x": 0,
+      "y": 0
+    }
   },
   {
     "x": 378,
@@ -1004,7 +1010,7 @@
     "x": 432,
     "y": 135,
     "sprite": "http://localhost:8080/Public/Assets/Game/Tiles/tile_wall_house_1.png",
-    "isSolid": true,
+    "isSolid": false,
     "layer": 1
   }
 ]
