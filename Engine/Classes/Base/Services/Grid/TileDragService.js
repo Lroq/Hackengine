@@ -17,7 +17,7 @@ class TileDragService {
     #ghostTile = null;
     #engine = null;
     #canvas = null;
-    #placedTiles = new Map(); // Stocke les tuiles placées par coordonnées "x,y"
+    #placedTiles = new Map(); // Stocke les tuiles placées par coordonnées "x,y,layer"
 
     constructor() {
         this.#gridSnapHelper = new GridSnapHelper();
@@ -149,12 +149,20 @@ class TileDragService {
             this.#canvas
         );
 
-        // Créer la clé pour identifier cette position
-        const posKey = `${finalPos.x},${finalPos.y}`;
+        // Récupérer le layer actif depuis l'interface (ou 0 par défaut)
+        const activeLayerSelect = document.getElementById('active-layer-select');
+        const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
 
-        // Vérifier si une tuile existe déjà à cette position
+        // Initialiser les propriétés par défaut
+        this.#ghostTile.isSolid = false;
+        this.#ghostTile.layer = activeLayer;
+
+        // Créer la clé pour identifier cette position + layer
+        const posKey = `${finalPos.x},${finalPos.y},${this.#ghostTile.layer}`;
+
+        // Vérifier si une tuile existe déjà à cette position sur le même layer
         if (this.#placedTiles.has(posKey)) {
-            console.log(`Une tuile existe déjà à la position (${finalPos.x}, ${finalPos.y})`);
+            console.log(`Une tuile existe déjà à la position (${finalPos.x}, ${finalPos.y}) sur le layer ${this.#ghostTile.layer}`);
             // Supprimer l'ancienne tuile de la scène
             const oldTile = this.#placedTiles.get(posKey);
             const index = scene.wgObjects.indexOf(oldTile);
@@ -168,19 +176,15 @@ class TileDragService {
         this.#ghostTile.coordinates.X = finalPos.x;
         this.#ghostTile.coordinates.Y = finalPos.y;
 
-        // Initialiser les propriétés par défaut
-        this.#ghostTile.isSolid = false;
-        this.#ghostTile.layer = 0; // Layer 0 (Sol) par défaut pour les tuiles
-
         // Désactiver le collider pour les tuiles placées (par défaut non-solide)
         if (this.#ghostTile.components.BoxCollider) {
             this.#ghostTile.components.BoxCollider.enabled = false;
         }
 
-        // Enregistrer la tuile placée
+        // Enregistrer la tuile placée avec le layer dans la clé
         this.#placedTiles.set(posKey, this.#ghostTile);
 
-        console.log(`Tuile placée à (${finalPos.x}, ${finalPos.y})`);
+        console.log(`Tuile placée à (${finalPos.x}, ${finalPos.y}) sur layer ${this.#ghostTile.layer}`);
 
         // Sauvegarder automatiquement la map
         this.#saveMapToServer();
@@ -214,32 +218,65 @@ class TileDragService {
      * Supprime une tuile à une position donnée
      * @param {number} worldX - Position X dans le monde
      * @param {number} worldY - Position Y dans le monde
-     * @returns {boolean} - True si une tuile a été supprimée
+     * @param {number} layer - (Optionnel) Layer spécifique à supprimer, si omis supprime tous les layers
+     * @returns {boolean} - True si au moins une tuile a été supprimée
      */
-    removeTileAt(worldX, worldY) {
-        const posKey = `${worldX},${worldY}`;
-        
-        if (this.#placedTiles.has(posKey)) {
-            const tile = this.#placedTiles.get(posKey);
-            const scene = this.#engine.services.SceneService.activeScene;
-            
-            if (scene) {
-                const index = scene.wgObjects.indexOf(tile);
-                if (index > -1) {
-                    scene.wgObjects.splice(index, 1);
-                }
-            }
-            
-            this.#placedTiles.delete(posKey);
-            console.log(`Tuile supprimée à (${worldX}, ${worldY})`);
+    removeTileAt(worldX, worldY, layer = null) {
+        const scene = this.#engine.services.SceneService.activeScene;
+        let removed = false;
 
+        if (layer !== null) {
+            // Supprimer uniquement le layer spécifié
+            const posKey = `${worldX},${worldY},${layer}`;
+
+            if (this.#placedTiles.has(posKey)) {
+                const tile = this.#placedTiles.get(posKey);
+
+                if (scene) {
+                    const index = scene.wgObjects.indexOf(tile);
+                    if (index > -1) {
+                        scene.wgObjects.splice(index, 1);
+                    }
+                }
+
+                this.#placedTiles.delete(posKey);
+                console.log(`Tuile supprimée à (${worldX}, ${worldY}) sur layer ${layer}`);
+                removed = true;
+            }
+        } else {
+            // Supprimer tous les layers à cette position
+            const keysToDelete = [];
+
+            this.#placedTiles.forEach((tile, key) => {
+                const [x, y, l] = key.split(',').map(Number);
+                if (x === worldX && y === worldY) {
+                    keysToDelete.push(key);
+
+                    if (scene) {
+                        const index = scene.wgObjects.indexOf(tile);
+                        if (index > -1) {
+                            scene.wgObjects.splice(index, 1);
+                        }
+                    }
+                }
+            });
+
+            keysToDelete.forEach(key => {
+                this.#placedTiles.delete(key);
+                removed = true;
+            });
+
+            if (removed) {
+                console.log(`${keysToDelete.length} tuile(s) supprimée(s) à (${worldX}, ${worldY})`);
+            }
+        }
+
+        if (removed) {
             // Sauvegarder automatiquement la map
             this.#saveMapToServer();
-
-            return true;
         }
         
-        return false;
+        return removed;
     }
 
     /**
@@ -250,7 +287,7 @@ class TileDragService {
         const mapData = [];
         
         this.#placedTiles.forEach((tile, posKey) => {
-            const [x, y] = posKey.split(',').map(Number);
+            const [x, y, layer] = posKey.split(',').map(Number);
             const spriteModel = tile.components.SpriteModel;
             
             const tileData = {
@@ -258,7 +295,7 @@ class TileDragService {
                 y,
                 sprite: spriteModel.sprite.src,
                 isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
-                layer: tile.layer !== undefined ? tile.layer : 0
+                layer: layer !== undefined ? layer : 0
             };
 
             // Ajouter les données de téléportation si la tuile est un téléporteur
@@ -321,7 +358,8 @@ class TileDragService {
             }
 
             scene.wgObjects.push(tile);
-            this.#placedTiles.set(`${data.x},${data.y}`, tile);
+            // Utiliser x,y,layer comme clé pour supporter plusieurs tiles sur la même position
+            this.#placedTiles.set(`${data.x},${data.y},${tile.layer}`, tile);
         });
 
         console.log(`${mapData.length} tuiles chargées`);
@@ -339,11 +377,68 @@ class TileDragService {
      * Récupère une tuile à une position donnée
      * @param {number} worldX - Position X dans le monde
      * @param {number} worldY - Position Y dans le monde
-     * @returns {Tile|null} - La tuile trouvée ou null
+     * @param {number} layer - (Optionnel) Layer spécifique, si omis retourne toutes les tiles
+     * @returns {Tile|Tile[]|null} - La tuile trouvée, un tableau de tuiles, ou null
      */
-    getTileAt(worldX, worldY) {
-        const posKey = `${worldX},${worldY}`;
-        return this.#placedTiles.get(posKey) || null;
+    getTileAt(worldX, worldY, layer = null) {
+        if (layer !== null) {
+            // Retourner la tile d'un layer spécifique
+            const posKey = `${worldX},${worldY},${layer}`;
+            return this.#placedTiles.get(posKey) || null;
+        } else {
+            // Retourner toutes les tiles à cette position
+            const tiles = [];
+            this.#placedTiles.forEach((tile, key) => {
+                const [x, y, l] = key.split(',').map(Number);
+                if (x === worldX && y === worldY) {
+                    tiles.push(tile);
+                }
+            });
+            return tiles.length > 0 ? tiles : null;
+        }
+    }
+
+    /**
+     * Change le layer d'une tuile existante
+     * @param {number} worldX - Position X
+     * @param {number} worldY - Position Y
+     * @param {number} oldLayer - Ancien layer
+     * @param {number} newLayer - Nouveau layer
+     * @returns {boolean} - True si la mise à jour a réussi
+     */
+    updateTileLayer(worldX, worldY, oldLayer, newLayer) {
+        const oldKey = `${worldX},${worldY},${oldLayer}`;
+        const newKey = `${worldX},${worldY},${newLayer}`;
+
+        if (!this.#placedTiles.has(oldKey)) {
+            console.warn(`Aucune tuile trouvée à (${worldX}, ${worldY}) sur layer ${oldLayer}`);
+            return false;
+        }
+
+        // Vérifier si une tuile existe déjà sur le nouveau layer
+        if (this.#placedTiles.has(newKey)) {
+            console.warn(`Une tuile existe déjà à (${worldX}, ${worldY}) sur layer ${newLayer}`);
+            // On pourrait la supprimer ou refuser l'opération
+            // Pour l'instant, on va supprimer l'ancienne
+            const oldTileOnNewLayer = this.#placedTiles.get(newKey);
+            const scene = this.#engine.services.SceneService.activeScene;
+            if (scene) {
+                const index = scene.wgObjects.indexOf(oldTileOnNewLayer);
+                if (index > -1) {
+                    scene.wgObjects.splice(index, 1);
+                }
+            }
+        }
+
+        // Déplacer la tuile vers le nouveau layer
+        const tile = this.#placedTiles.get(oldKey);
+        tile.layer = newLayer;
+
+        this.#placedTiles.delete(oldKey);
+        this.#placedTiles.set(newKey, tile);
+
+        console.log(`✅ Tuile déplacée de layer ${oldLayer} à layer ${newLayer} à (${worldX}, ${worldY})`);
+        return true;
     }
 
     /**

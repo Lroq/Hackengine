@@ -124,9 +124,24 @@ class TileContextMenu {
 
     /**
      * Cherche une tuile à une position donnée
+     * Si plusieurs tiles existent (différents layers), retourne celle du layer le plus élevé
      */
     #findTileAt(worldX, worldY) {
-        return this.#tileDragService.getTileAt(worldX, worldY);
+        const tiles = this.#tileDragService.getTileAt(worldX, worldY);
+
+        if (!tiles) return null;
+
+        // Si c'est un tableau (plusieurs tiles), retourner celle avec le layer le plus élevé
+        if (Array.isArray(tiles)) {
+            if (tiles.length === 0) return null;
+            if (tiles.length === 1) return tiles[0];
+
+            // Trier par layer décroissant et retourner le premier
+            return tiles.sort((a, b) => (b.layer || 0) - (a.layer || 0))[0];
+        }
+
+        // Si c'est une seule tile
+        return tiles;
     }
 
     /**
@@ -161,9 +176,15 @@ class TileContextMenu {
         const layerSelect = document.getElementById('menu-layer-select');
         layerSelect.value = tile.layer !== undefined ? tile.layer : 0;
 
-        // Mettre à jour la position affichée
+        // Compter combien de layers sont présents à cette position
+        const allTilesAtPos = this.#tileDragService.getTileAt(this.#currentPosition.x, this.#currentPosition.y);
+        const layerCount = Array.isArray(allTilesAtPos) ? allTilesAtPos.length : 1;
+        const currentLayer = tile.layer !== undefined ? tile.layer : 0;
+
+        // Mettre à jour la position affichée avec info sur les layers
+        const layerInfo = layerCount > 1 ? ` | Layer ${currentLayer} (${layerCount} layers)` : ` | Layer ${currentLayer}`;
         document.getElementById('menu-tile-pos').textContent =
-            `Position: (${this.#currentPosition.x}, ${this.#currentPosition.y})`;
+            `Position: (${this.#currentPosition.x}, ${this.#currentPosition.y})${layerInfo}`;
 
         // Positionner le menu
         this.#menuElement.style.left = `${x}px`;
@@ -290,14 +311,17 @@ class TileContextMenu {
     #deleteTile() {
         if (!this.#currentTile || !this.#currentPosition) return;
 
-        // Supprimer via le service
+        const tileLayer = this.#currentTile.layer || 0;
+
+        // Supprimer uniquement le layer de cette tuile
         const deleted = this.#tileDragService.removeTileAt(
             this.#currentPosition.x,
-            this.#currentPosition.y
+            this.#currentPosition.y,
+            tileLayer
         );
 
         if (deleted) {
-            console.log(`🗑️ Tuile supprimée à (${this.#currentPosition.x}, ${this.#currentPosition.y})`);
+            console.log(`🗑️ Tuile supprimée à (${this.#currentPosition.x}, ${this.#currentPosition.y}) sur layer ${tileLayer}`);
         }
 
         // Fermer le menu
@@ -311,9 +335,23 @@ class TileContextMenu {
         if (!this.#currentTile) return;
 
         const layerNames = ['🟫 Plan Sol (Derrière)', '🧱 Plan Murs/Déco (Milieu)', '🎨 Plan Sprites (Devant)'];
+        const oldLayer = this.#currentTile.layer || 0;
 
-        // Mettre à jour le layer
-        this.#currentTile.layer = newLayer;
+        // Si le layer n'a pas changé, ne rien faire
+        if (oldLayer === newLayer) return;
+
+        // Utiliser la méthode du service pour changer le layer
+        const success = this.#tileDragService.updateTileLayer(
+            this.#currentPosition.x,
+            this.#currentPosition.y,
+            oldLayer,
+            newLayer
+        );
+
+        if (!success) {
+            console.error(`Échec du changement de layer`);
+            return;
+        }
 
         // Layer 1 (Murs/Déco) : peut être solide ou non selon le checkbox
         // On ne change pas automatiquement isSolid ici

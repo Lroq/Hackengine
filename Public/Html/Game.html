@@ -50,6 +50,17 @@
     <aside id="assets-panel" class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
         <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
 
+        <!-- Sélecteur de Layer actif -->
+        <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-3 mb-3">
+            <label class="text-xs text-gray-400 block mb-2">🎨 Layer de placement :</label>
+            <select id="active-layer-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-3 py-2 text-sm font-medium">
+                <option value="0">🟫 Layer 0 - Sol (Derrière)</option>
+                <option value="1">🧱 Layer 1 - Murs/Déco (Milieu)</option>
+                <option value="2">🎨 Layer 2 - Sprites (Devant)</option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Les nouvelles tiles seront placées sur ce layer</p>
+        </div>
+
         <!-- Message d'aide -->
         <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-2 mb-3 text-xs">
             <p class="text-blue-300 mb-1">💡 <strong>Drag & Drop :</strong></p>
