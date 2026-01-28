@@ -15,6 +15,8 @@ class TileContextMenu {
     #menuElement;
     #currentTile = null;
     #currentPosition = null;
+    #isDrawing = false; // Tracking si on est en train de dessiner/effacer
+    #rightClickStartTime = 0; // Timestamp du début du clic droit
 
     constructor(tileDragService, canvas) {
         this.#tileDragService = tileDragService;
@@ -30,14 +32,51 @@ class TileContextMenu {
      * Configure les événements
      */
     #setupEventListeners() {
-        // Clic droit sur le canvas
+        // Tracker le début du clic droit (mousedown)
+        document.addEventListener('mousedown', (e) => {
+            if (e.button === 2) {
+                this.#isDrawing = false;
+                this.#rightClickStartTime = Date.now();
+            }
+        });
+
+        // Tracker le mouvement de la souris (si on bouge = dessin)
+        document.addEventListener('mousemove', (e) => {
+            if (e.buttons === 2) { // Clic droit maintenu
+                this.#isDrawing = true;
+            }
+        });
+
+        // Clic droit sur le canvas (contextmenu)
         this.#canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
 
             const mode = window.getMode ? window.getMode() : 'play';
             if (mode !== 'construction') return;
 
-            this.#handleContextMenu(e);
+            // Vérifier le mode d'édition
+            const editMode = window.getEditMode ? window.getEditMode() : 'brush';
+
+            // Calculer la durée du clic
+            const clickDuration = Date.now() - this.#rightClickStartTime;
+
+            // N'afficher le menu QUE si :
+            // 1. On n'a pas bougé (pas de dessin)
+            // 2. Le clic est court (< 200ms = clic simple)
+            // 3. On n'est PAS en mode pot de peinture (le pot utilise le clic droit)
+            if (!this.#isDrawing && clickDuration < 200 && editMode !== 'fill') {
+                this.#handleContextMenu(e);
+            }
+
+            // Réinitialiser l'état
+            this.#isDrawing = false;
+        });
+
+        // Réinitialiser l'état au relâchement du clic droit
+        document.addEventListener('mouseup', (e) => {
+            if (e.button === 2) {
+                this.#isDrawing = false;
+            }
         });
 
         // Fermer le menu si on clique ailleurs

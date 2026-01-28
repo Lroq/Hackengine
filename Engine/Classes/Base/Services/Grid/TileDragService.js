@@ -12,12 +12,11 @@ import { Tile } from '../../WebGameObjects/Tile.js';
  */
 class TileDragService {
     #gridSnapHelper;
-    #isDragging = false;
     #currentTileData = null;
-    #ghostTile = null;
     #engine = null;
     #canvas = null;
     #placedTiles = new Map(); // Stocke les tuiles placées par coordonnées "x,y,layer"
+    #lastBrushPosition = null; // Dernière position où une tile a été placée en mode pinceau
 
     constructor() {
         this.#gridSnapHelper = new GridSnapHelper();
@@ -39,23 +38,77 @@ class TileDragService {
      * Configure les événements de souris pour le drag and drop
      */
     #setupEventListeners() {
-        // Événement de déplacement de la souris (pour le drag)
+        let isDrawing = false; // Dessin avec clic droit maintenu
+
+        // Événement de déplacement de la souris
         document.addEventListener('mousemove', (e) => {
-            if (this.#isDragging && this.#ghostTile) {
-                this.#updateGhostPosition(e.clientX, e.clientY);
+            const editMode = window.getEditMode ? window.getEditMode() : 'brush';
+
+            if (isDrawing && this.#currentTileData) {
+                // Mode pinceau : dessiner
+                if (editMode === 'brush') {
+                    this.#drawTileAtPosition(e.clientX, e.clientY);
+                }
+                // Mode gomme : effacer en continu
+                else if (editMode === 'eraser') {
+                    this.#eraseTile(e.clientX, e.clientY);
+                }
             }
         });
 
-        // Événement de relâchement (pour le drop)
+        // Événement d'appui sur clic droit : commencer à dessiner/effacer/remplir
+        document.addEventListener('mousedown', (e) => {
+            const mode = window.getMode ? window.getMode() : 'play';
+            if (mode !== 'construction') return;
+
+            const editMode = window.getEditMode ? window.getEditMode() : 'brush';
+
+            if (e.button === 2) {
+                e.preventDefault();
+
+                if (editMode === 'brush') {
+                    // Mode pinceau : dessiner immédiatement sur la case cliquée
+                    isDrawing = true;
+                    if (this.#currentTileData) {
+                        this.#drawTileAtPosition(e.clientX, e.clientY);
+                        console.log('🖌️ Dessin au pinceau activé');
+                    } else {
+                        console.warn('🖌️ Sélectionnez d\'abord une tile dans la liste');
+                    }
+                } else if (editMode === 'eraser') {
+                    // Mode gomme : effacer immédiatement sur la case cliquée
+                    isDrawing = true;
+                    this.#eraseTile(e.clientX, e.clientY);
+                    console.log('🧹 Effacement activé');
+                } else if (editMode === 'fill') {
+                    // Mode pot de peinture : remplir immédiatement (pas besoin de isDrawing)
+                    this.#fillArea(e.clientX, e.clientY);
+                }
+            }
+        });
+
+        // Événement de relâchement : arrêter de dessiner/effacer
         document.addEventListener('mouseup', (e) => {
-            if (this.#isDragging && e.button === 0) {
-                this.#drop(e.clientX, e.clientY);
+            if (e.button === 2 && isDrawing) {
+                isDrawing = false;
+                this.#lastBrushPosition = null;
+
+                const editMode = window.getEditMode ? window.getEditMode() : 'brush';
+
+                // Sauvegarder une fois à la fin
+                if (editMode === 'brush' && this.#currentTileData) {
+                    this.#saveMapToServer();
+                    console.log('🖌️ Dessin terminé, sauvegarde effectuée');
+                } else if (editMode === 'eraser') {
+                    this.#saveMapToServer();
+                    console.log('🧹 Effacement terminé, sauvegarde effectuée');
+                }
             }
         });
     }
 
     /**
-     * Démarre le drag d'une tuile
+     * Démarre le drag d'une tuile (ou sélectionne une tile pour le pinceau)
      * Appelé depuis l'UI quand l'utilisateur clique sur une tuile
      * @param {string} tilePath - Chemin vers l'image de la tuile
      */
@@ -63,107 +116,60 @@ class TileDragService {
         // Vérifier qu'on est en mode construction
         const mode = window.getMode ? window.getMode() : 'play';
         if (mode !== 'construction') {
-            console.warn('Le drag and drop est uniquement disponible en mode construction');
+            console.warn('Le système de tiles est uniquement disponible en mode construction');
             return;
         }
 
-        this.#isDragging = true;
+        // Stocker les données de la tile pour tous les modes
         this.#currentTileData = { path: tilePath };
 
-        // Créer la tuile fantôme
-        this.#createGhostTile(tilePath);
+        const editMode = window.getEditMode ? window.getEditMode() : 'brush';
+
+        // En mode pinceau, on stocke juste la tile (pas de drag and drop)
+        if (editMode === 'brush') {
+            console.log('🖌️ Tile sélectionnée pour le pinceau. Maintenez clic droit pour dessiner.');
+        }
+
+        // En mode fill ou eraser, on stocke juste la tile pour les clics futurs
+        // (pas de drag nécessaire)
     }
 
     /**
-     * Crée une tuile "fantôme" qui suit la souris
-     * @param {string} tilePath - Chemin vers l'image
-     */
-    #createGhostTile(tilePath) {
-        const scene = this.#engine.services.SceneService.activeScene;
-        if (!scene) return;
-
-        // Créer une nouvelle instance de Tile
-        this.#ghostTile = new Tile();
-        
-        // Configurer le sprite
-        const spriteModel = this.#ghostTile.components.SpriteModel;
-        spriteModel.sprite = new Image();
-        spriteModel.sprite.src = tilePath;
-        spriteModel.size.Width = 27;
-        spriteModel.size.Height = 27;
-        spriteModel.enabled = true;
-
-        // Rendre la tuile semi-transparente pour indiquer qu'elle est en drag
-        this.#ghostTile.isGhost = true;
-
-        // Ajouter à la scène
-        scene.wgObjects.push(this.#ghostTile);
-    }
-
-    /**
-     * Met à jour la position de la tuile fantôme en fonction de la souris
+     * Dessine une tile à la position de la souris (mode pinceau)
      * @param {number} screenX - Position X de la souris
      * @param {number} screenY - Position Y de la souris
      */
-    #updateGhostPosition(screenX, screenY) {
-        if (!this.#ghostTile || !this.#canvas) return;
+    #drawTileAtPosition(screenX, screenY) {
+        if (!this.#canvas) return;
 
         const scene = this.#engine.services.SceneService.activeScene;
         if (!scene || !scene.activeCamera) return;
 
-        // Convertir et snapper la position
+        // Obtenir la position snappée
         const snappedPos = this.#gridSnapHelper.screenToGridSnap(
-            screenX, 
-            screenY, 
-            scene.activeCamera, 
+            screenX,
+            screenY,
+            scene.activeCamera,
             this.#canvas
         );
 
-        // Mettre à jour les coordonnées de la tuile fantôme
-        this.#ghostTile.coordinates.X = snappedPos.x;
-        this.#ghostTile.coordinates.Y = snappedPos.y;
-    }
-
-    /**
-     * Place la tuile à la position finale
-     * @param {number} screenX - Position X de la souris
-     * @param {number} screenY - Position Y de la souris
-     */
-    #drop(screenX, screenY) {
-        if (!this.#ghostTile || !this.#canvas) {
-            this.#cancelDrag();
-            return;
+        // Vérifier si on est sur une nouvelle case (éviter de placer plusieurs fois sur la même)
+        const posString = `${snappedPos.x},${snappedPos.y}`;
+        if (this.#lastBrushPosition === posString) {
+            return; // Déjà placé sur cette case
         }
+        this.#lastBrushPosition = posString;
 
-        const scene = this.#engine.services.SceneService.activeScene;
-        if (!scene || !scene.activeCamera) {
-            this.#cancelDrag();
-            return;
-        }
-
-        // Obtenir la position finale snappée
-        const finalPos = this.#gridSnapHelper.screenToGridSnap(
-            screenX, 
-            screenY, 
-            scene.activeCamera, 
-            this.#canvas
-        );
-
-        // Récupérer le layer actif depuis l'interface (ou 0 par défaut)
+        // Récupérer le layer actif
         const activeLayerSelect = document.getElementById('active-layer-select');
         const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
 
-        // Initialiser les propriétés par défaut
-        this.#ghostTile.isSolid = false;
-        this.#ghostTile.layer = activeLayer;
+        // Créer la clé pour cette position + layer
+        const posKey = `${snappedPos.x},${snappedPos.y},${activeLayer}`;
 
-        // Créer la clé pour identifier cette position + layer
-        const posKey = `${finalPos.x},${finalPos.y},${this.#ghostTile.layer}`;
-
-        // Vérifier si une tuile existe déjà à cette position sur le même layer
+        // Vérifier si une tuile existe déjà à cette position sur ce layer
         if (this.#placedTiles.has(posKey)) {
-            console.log(`Une tuile existe déjà à la position (${finalPos.x}, ${finalPos.y}) sur le layer ${this.#ghostTile.layer}`);
-            // Supprimer l'ancienne tuile de la scène
+            // Supprimer l'ancienne tuile
             const oldTile = this.#placedTiles.get(posKey);
             const index = scene.wgObjects.indexOf(oldTile);
             if (index > -1) {
@@ -171,47 +177,164 @@ class TileDragService {
             }
         }
 
-        // Convertir la tuile fantôme en tuile réelle
-        this.#ghostTile.isGhost = false;
-        this.#ghostTile.coordinates.X = finalPos.x;
-        this.#ghostTile.coordinates.Y = finalPos.y;
+        // Créer une nouvelle tile
+        const newTile = new Tile();
+        newTile.coordinates.X = snappedPos.x;
+        newTile.coordinates.Y = snappedPos.y;
 
-        // Désactiver le collider pour les tuiles placées (par défaut non-solide)
-        if (this.#ghostTile.components.BoxCollider) {
-            this.#ghostTile.components.BoxCollider.enabled = false;
+        // Configurer le sprite (copier depuis currentTileData)
+        const spriteModel = newTile.components.SpriteModel;
+        spriteModel.sprite = new Image();
+        spriteModel.sprite.src = this.#currentTileData.path;
+        spriteModel.size.Width = 27;
+        spriteModel.size.Height = 27;
+        spriteModel.enabled = true;
+
+        // Propriétés par défaut
+        newTile.isSolid = false;
+        newTile.layer = activeLayer;
+        newTile.isGhost = false;
+
+        // Désactiver le collider
+        if (newTile.components.BoxCollider) {
+            newTile.components.BoxCollider.enabled = false;
         }
 
-        // Enregistrer la tuile placée avec le layer dans la clé
-        this.#placedTiles.set(posKey, this.#ghostTile);
-
-        console.log(`Tuile placée à (${finalPos.x}, ${finalPos.y}) sur layer ${this.#ghostTile.layer}`);
-
-        // Sauvegarder automatiquement la map
-        this.#saveMapToServer();
-
-        // Réinitialiser l'état
-        this.#ghostTile = null;
-        this.#isDragging = false;
-        this.#currentTileData = null;
+        // Ajouter à la scène et enregistrer
+        scene.wgObjects.push(newTile);
+        this.#placedTiles.set(posKey, newTile);
     }
 
     /**
-     * Annule le drag en cours
+     * Efface une tile à la position cliquée (mode gomme)
+     * @param {number} screenX - Position X de la souris
+     * @param {number} screenY - Position Y de la souris
      */
-    #cancelDrag() {
-        if (this.#ghostTile) {
-            const scene = this.#engine.services.SceneService.activeScene;
-            if (scene) {
-                const index = scene.wgObjects.indexOf(this.#ghostTile);
-                if (index > -1) {
-                    scene.wgObjects.splice(index, 1);
+    #eraseTile(screenX, screenY) {
+        const scene = this.#engine.services.SceneService.activeScene;
+        if (!scene || !scene.activeCamera) return;
+
+        // Obtenir la position snappée
+        const snappedPos = this.#gridSnapHelper.screenToGridSnap(
+            screenX,
+            screenY,
+            scene.activeCamera,
+            this.#canvas
+        );
+
+        // Vérifier si on est sur une nouvelle case (éviter d'effacer plusieurs fois la même)
+        const posString = `${snappedPos.x},${snappedPos.y}`;
+        if (this.#lastBrushPosition === posString) {
+            return; // Déjà effacé sur cette case
+        }
+        this.#lastBrushPosition = posString;
+
+        // Récupérer le layer actif
+        const activeLayerSelect = document.getElementById('active-layer-select');
+        const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
+
+        // Supprimer la tile sur ce layer
+        const deleted = this.removeTileAt(snappedPos.x, snappedPos.y, activeLayer);
+
+        if (deleted) {
+            console.log(`🧹 Tile effacée à (${snappedPos.x}, ${snappedPos.y}) sur layer ${activeLayer}`);
+        }
+    }
+
+    /**
+     * Remplit une zone avec la tile sélectionnée (mode pot de peinture)
+     * @param {number} screenX - Position X de la souris
+     * @param {number} screenY - Position Y de la souris
+     */
+    #fillArea(screenX, screenY) {
+        // Vérifier qu'une tile est sélectionnée pour le remplissage
+        if (!this.#currentTileData) {
+            console.warn('🪣 Sélectionnez d\'abord une tile à placer');
+            return;
+        }
+
+        const scene = this.#engine.services.SceneService.activeScene;
+        if (!scene || !scene.activeCamera) return;
+
+        // Obtenir la position de départ
+        const startPos = this.#gridSnapHelper.screenToGridSnap(
+            screenX,
+            screenY,
+            scene.activeCamera,
+            this.#canvas
+        );
+
+        // Récupérer le layer actif
+        const activeLayerSelect = document.getElementById('active-layer-select');
+        const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
+
+        // Vérifier la tile existante à cette position
+        const startKey = `${startPos.x},${startPos.y},${activeLayer}`;
+        const existingTile = this.#placedTiles.get(startKey);
+        const targetSprite = existingTile ? existingTile.components.SpriteModel.sprite.src : null;
+
+        // Algorithme de remplissage (flood fill)
+        const visited = new Set();
+        const queue = [{ x: startPos.x, y: startPos.y }];
+        let tilesPlaced = 0;
+
+        while (queue.length > 0 && tilesPlaced < 1000) { // Limite de sécurité
+            const pos = queue.shift();
+            const posKey = `${pos.x},${pos.y},${activeLayer}`;
+
+            if (visited.has(posKey)) continue;
+            visited.add(posKey);
+
+            // Vérifier la tile actuelle
+            const currentTile = this.#placedTiles.get(posKey);
+            const currentSprite = currentTile ? currentTile.components.SpriteModel.sprite.src : null;
+
+            // Si la tile actuelle correspond à la tile cible, la remplacer
+            if (currentSprite === targetSprite) {
+                // Supprimer l'ancienne tile si elle existe
+                if (currentTile) {
+                    const index = scene.wgObjects.indexOf(currentTile);
+                    if (index > -1) {
+                        scene.wgObjects.splice(index, 1);
+                    }
                 }
+
+                // Créer une nouvelle tile
+                const newTile = new Tile();
+                newTile.coordinates.X = pos.x;
+                newTile.coordinates.Y = pos.y;
+
+                const spriteModel = newTile.components.SpriteModel;
+                spriteModel.sprite = new Image();
+                spriteModel.sprite.src = this.#currentTileData.path;
+                spriteModel.size.Width = 27;
+                spriteModel.size.Height = 27;
+                spriteModel.enabled = true;
+
+                newTile.isSolid = false;
+                newTile.layer = activeLayer;
+                newTile.isGhost = false;
+
+                if (newTile.components.BoxCollider) {
+                    newTile.components.BoxCollider.enabled = false;
+                }
+
+                scene.wgObjects.push(newTile);
+                this.#placedTiles.set(posKey, newTile);
+                tilesPlaced++;
+
+                // Ajouter les voisins à la queue
+                queue.push({ x: pos.x + 27, y: pos.y });
+                queue.push({ x: pos.x - 27, y: pos.y });
+                queue.push({ x: pos.x, y: pos.y + 27 });
+                queue.push({ x: pos.x, y: pos.y - 27 });
             }
         }
 
-        this.#ghostTile = null;
-        this.#isDragging = false;
-        this.#currentTileData = null;
+        console.log(`🪣 Zone remplie : ${tilesPlaced} tiles placées sur layer ${activeLayer}`);
+
+        // Sauvegarder la map
+        this.#saveMapToServer();
     }
 
     /**
@@ -365,13 +488,6 @@ class TileDragService {
         console.log(`${mapData.length} tuiles chargées`);
     }
 
-    /**
-     * Vérifie si le service est en train de dragger
-     * @returns {boolean}
-     */
-    isDragging() {
-        return this.#isDragging;
-    }
 
     /**
      * Récupère une tuile à une position donnée

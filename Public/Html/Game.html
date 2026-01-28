@@ -42,6 +42,41 @@
                 </div>
             </div>
 
+            <!-- Sélecteur de mode d'édition -->
+            <div class="absolute top-4 left-4 z-10 bg-[#1a1a1d]/90 backdrop-blur-sm border border-gray-700 rounded-lg shadow-lg">
+                <div class="px-3 py-2 border-b border-gray-700">
+                    <span class="text-gray-400 text-xs font-medium">🛠️ Mode d'édition</span>
+                </div>
+                <div class="p-2 flex flex-col gap-1">
+                    <!-- Mode Pinceau -->
+                    <button id="mode-brush" class="mode-button active flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="brush">
+                        <span class="text-xl">🖌️</span>
+                        <div class="text-left">
+                            <div class="text-sm font-medium text-white">Pinceau</div>
+                            <div class="text-xs text-gray-400">Clic droit maintenu</div>
+                        </div>
+                    </button>
+
+                    <!-- Mode Pot de peinture -->
+                    <button id="mode-fill" class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="fill">
+                        <span class="text-xl">🪣</span>
+                        <div class="text-left">
+                            <div class="text-sm font-medium text-white">Pot de peinture</div>
+                            <div class="text-xs text-gray-400">Clic droit pour remplir</div>
+                        </div>
+                    </button>
+
+                    <!-- Mode Gomme -->
+                    <button id="mode-eraser" class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="eraser">
+                        <span class="text-xl">🧹</span>
+                        <div class="text-left">
+                            <div class="text-sm font-medium text-white">Gomme</div>
+                            <div class="text-xs text-gray-400">Clic droit maintenu</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
             <canvas id="game-canvas" class="rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"></canvas>
         </div>
     </section>
@@ -166,11 +201,33 @@
     </div>
 </div>
 
+<style>
+    /* Styles pour les boutons de mode d'édition */
+    .mode-button {
+        background-color: rgba(43, 43, 47, 0.3);
+        border: 2px solid transparent;
+    }
+
+    .mode-button.active {
+        background-color: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.6);
+    }
+
+    .mode-button:hover {
+        background-color: rgba(43, 43, 47, 0.6);
+    }
+
+    .mode-button.active:hover {
+        background-color: rgba(59, 130, 246, 0.3);
+    }
+</style>
+
 <script>
     /**
      * Gestion du canvas, des modes et du déplacement de la caméra
      */
     let mode = 'construction';
+    let editMode = 'brush'; // Mode d'édition : 'brush', 'fill', 'eraser'
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -203,8 +260,15 @@
     function updateLayout() {
         const aside = document.querySelector('aside');
         const mainSection = document.querySelector('section.flex-1');
+        const editModePanel = document.querySelector('.absolute.top-4.left-4');
 
         aside.style.display = mode === 'play' ? 'none' : 'flex';
+
+        // Afficher/masquer le panneau de modes d'édition
+        if (editModePanel) {
+            editModePanel.style.display = mode === 'play' ? 'none' : 'block';
+        }
+
         mainSection.style.flex = '1';
 
         setTimeout(() => {
@@ -325,10 +389,31 @@
         if (typeof stop === 'function') stop();
     });
 
+    // Gestion des boutons de mode d'édition
+    const modeButtons = document.querySelectorAll('.mode-button');
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Retirer la classe active de tous les boutons
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Ajouter la classe active au bouton cliqué
+            button.classList.add('active');
+
+            // Mettre à jour le mode d'édition
+            editMode = button.getAttribute('data-mode');
+            console.log(`🛠️ Mode d'édition changé : ${editMode}`);
+
+            // Mettre à jour le mode global pour le moteur
+            window.editMode = editMode;
+        });
+    });
+
     // Export pour le moteur
     window.gameCanvas = canvas;
     window.gameContext = ctx;
     window.getMode = () => mode;
+    window.getEditMode = () => editMode;
+    window.editMode = editMode; // Export initial
     window.getCameraPan = () => ({ x: cameraPanVelocityX, y: cameraPanVelocityY });
 </script>
 

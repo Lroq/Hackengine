@@ -91,9 +91,9 @@
       "parent": "folder_1769590006730_1xw4dtu58",
       "folders": [],
       "tiles": [
+        "/Public/Assets/Game/Tiles/left-white-lane.png",
         "/Public/Assets/Game/Tiles/right-white-lane.png",
-        "/Public/Assets/Game/Tiles/middle-white-lane.png",
-        "/Public/Assets/Game/Tiles/left-white-lane.png"
+        "/Public/Assets/Game/Tiles/middle-white-lane.png"
       ]
     },
     "folder_1769590536161_dn0nys4ko": {
@@ -110,13 +110,12 @@
     "root",
     "folder_1767863296306_5jw6ozh7o",
     "folder_1767863414045_gfdujcxx8",
-    "folder_1767863324574_b93tfgiwb",
     "folder_1769589991027_8z7ms094u",
     "folder_1769590002134_qhcqoim0s",
     "folder_1769590010690_qx3h221s6",
     "folder_1769590006730_1xw4dtu58",
     "folder_1769590536161_dn0nys4ko",
     "folder_1769590047981_6bvzew6d8",
-    "folder_1767866557195_b37mmuinp"
+    "folder_1767863324574_b93tfgiwb"
   ]
 }
