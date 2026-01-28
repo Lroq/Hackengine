@@ -66,6 +66,45 @@ class ConstructionGrid {
             context.stroke();
         }
 
+        // ===== INDICATEUR DE L'ORIGINE (0, 0) =====
+        const originX = camera.coordinates.X;
+        const originY = camera.coordinates.Y;
+
+        // Dessiner les axes principaux en couleurs discrètes
+        context.lineWidth = 1.5;
+
+        // Axe X (rouge discret)
+        context.strokeStyle = 'rgba(255, 100, 100, 0.5)';
+        context.beginPath();
+        context.moveTo(originX - 30, originY);
+        context.lineTo(originX + 30, originY);
+        context.stroke();
+
+        // Axe Y (vert discret)
+        context.strokeStyle = 'rgba(100, 255, 100, 0.5)';
+        context.beginPath();
+        context.moveTo(originX, originY - 30);
+        context.lineTo(originX, originY + 30);
+        context.stroke();
+
+        // Dessiner un petit cercle au centre
+        context.beginPath();
+        context.arc(originX, originY, 3, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        context.fill();
+        context.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+        context.lineWidth = 1;
+        context.stroke();
+
+        // Ajouter le label "(0, 0)" discret
+        context.font = '11px monospace';
+        context.fillStyle = 'rgba(200, 200, 200, 0.7)';
+        context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+        context.lineWidth = 2;
+        const label = '(0, 0)';
+        context.strokeText(label, originX + 8, originY - 8);
+        context.fillText(label, originX + 8, originY - 8);
+
         context.restore();
     }
 
