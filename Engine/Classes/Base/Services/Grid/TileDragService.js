@@ -17,6 +17,8 @@ class TileDragService {
     #canvas = null;
     #placedTiles = new Map(); // Stocke les tuiles placées par coordonnées "x,y,layer"
     #lastBrushPosition = null; // Dernière position où une tile a été placée en mode pinceau
+    #history = []; // Historique des actions pour Ctrl+Z
+    #maxHistorySize = 50; // Limite de l'historique
 
     constructor() {
         this.#gridSnapHelper = new GridSnapHelper();
@@ -32,6 +34,20 @@ class TileDragService {
         this.#engine = engine;
         this.#canvas = canvas;
         this.#setupEventListeners();
+        this.#setupUndoShortcut();
+    }
+
+    /**
+     * Configure le raccourci Ctrl+Z pour annuler
+     */
+    #setupUndoShortcut() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Z (Windows/Linux) ou Cmd+Z (Mac)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                this.undo();
+            }
+        });
     }
 
     /**
@@ -39,6 +55,7 @@ class TileDragService {
      */
     #setupEventListeners() {
         let isDrawing = false; // Dessin avec clic droit maintenu
+        let currentActionTiles = []; // Tiles de l'action en cours
 
         // Événement de déplacement de la souris
         document.addEventListener('mousemove', (e) => {
@@ -47,11 +64,17 @@ class TileDragService {
             if (isDrawing && this.#currentTileData) {
                 // Mode pinceau : dessiner
                 if (editMode === 'brush') {
-                    this.#drawTileAtPosition(e.clientX, e.clientY);
+                    const tileData = this.#drawTileAtPosition(e.clientX, e.clientY);
+                    if (tileData) {
+                        currentActionTiles.push(tileData);
+                    }
                 }
                 // Mode gomme : effacer en continu
                 else if (editMode === 'eraser') {
-                    this.#eraseTile(e.clientX, e.clientY);
+                    const erasedTile = this.#eraseTile(e.clientX, e.clientY, true);
+                    if (erasedTile) {
+                        currentActionTiles.push(erasedTile);
+                    }
                 }
             }
         });
@@ -65,12 +88,16 @@ class TileDragService {
 
             if (e.button === 2) {
                 e.preventDefault();
+                currentActionTiles = []; // Réinitialiser pour la nouvelle action
 
                 if (editMode === 'brush') {
                     // Mode pinceau : dessiner immédiatement sur la case cliquée
                     isDrawing = true;
                     if (this.#currentTileData) {
-                        this.#drawTileAtPosition(e.clientX, e.clientY);
+                        const tileData = this.#drawTileAtPosition(e.clientX, e.clientY);
+                        if (tileData) {
+                            currentActionTiles.push(tileData);
+                        }
                         console.log('🖌️ Dessin au pinceau activé');
                     } else {
                         console.warn('🖌️ Sélectionnez d\'abord une tile dans la liste');
@@ -78,7 +105,10 @@ class TileDragService {
                 } else if (editMode === 'eraser') {
                     // Mode gomme : effacer immédiatement sur la case cliquée
                     isDrawing = true;
-                    this.#eraseTile(e.clientX, e.clientY);
+                    const erasedTile = this.#eraseTile(e.clientX, e.clientY, true);
+                    if (erasedTile) {
+                        currentActionTiles.push(erasedTile);
+                    }
                     console.log('🧹 Effacement activé');
                 } else if (editMode === 'fill') {
                     // Mode pot de peinture : remplir immédiatement (pas besoin de isDrawing)
@@ -95,14 +125,20 @@ class TileDragService {
 
                 const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
-                // Sauvegarder une fois à la fin
-                if (editMode === 'brush' && this.#currentTileData) {
-                    this.#saveMapToServer();
-                    console.log('🖌️ Dessin terminé, sauvegarde effectuée');
-                } else if (editMode === 'eraser') {
-                    this.#saveMapToServer();
-                    console.log('🧹 Effacement terminé, sauvegarde effectuée');
+                // Enregistrer dans l'historique et sauvegarder
+                if (currentActionTiles.length > 0) {
+                    if (editMode === 'brush') {
+                        this.#addToHistory('place', currentActionTiles);
+                        this.#saveMapToServer();
+                        console.log('🖌️ Dessin terminé, sauvegarde effectuée');
+                    } else if (editMode === 'eraser') {
+                        this.#addToHistory('erase', currentActionTiles);
+                        this.#saveMapToServer();
+                        console.log('🧹 Effacement terminé, sauvegarde effectuée');
+                    }
                 }
+
+                currentActionTiles = [];
             }
         });
     }
@@ -135,15 +171,147 @@ class TileDragService {
     }
 
     /**
+     * Enregistre une action dans l'historique pour Ctrl+Z
+     * @param {string} type - Type d'action : 'place', 'erase', 'fill'
+     * @param {Array} tilesData - Données des tiles affectées
+     */
+    #addToHistory(type, tilesData) {
+        this.#history.push({
+            type,
+            tiles: tilesData,
+            timestamp: Date.now()
+        });
+
+        // Limiter la taille de l'historique
+        if (this.#history.length > this.#maxHistorySize) {
+            this.#history.shift();
+        }
+
+        console.log(`📝 Action enregistrée: ${type} (${tilesData.length} tile(s))`);
+    }
+
+    /**
+     * Annule la dernière action (Ctrl+Z)
+     */
+    undo() {
+        if (this.#history.length === 0) {
+            console.log('⚠️ Aucune action à annuler');
+            return;
+        }
+
+        const action = this.#history.pop();
+        const scene = this.#engine.services.SceneService.activeScene;
+        if (!scene) return;
+
+        console.log(`↶ Annulation: ${action.type} (${action.tiles.length} tile(s))`);
+
+        switch (action.type) {
+            case 'place':
+                // Annuler un placement = supprimer les tiles placées
+                action.tiles.forEach(tileData => {
+                    const posKey = `${tileData.x},${tileData.y},${tileData.layer}`;
+                    const tile = this.#placedTiles.get(posKey);
+                    if (tile) {
+                        const index = scene.wgObjects.indexOf(tile);
+                        if (index > -1) {
+                            scene.wgObjects.splice(index, 1);
+                        }
+                        this.#placedTiles.delete(posKey);
+                    }
+                });
+                break;
+
+            case 'erase':
+                // Annuler un effacement = replacer les tiles effacées
+                action.tiles.forEach(tileData => {
+                    const tile = new Tile();
+                    tile.coordinates.X = tileData.x;
+                    tile.coordinates.Y = tileData.y;
+
+                    const spriteModel = tile.components.SpriteModel;
+                    spriteModel.sprite = new Image();
+                    spriteModel.sprite.src = tileData.sprite;
+                    spriteModel.size.Width = 27;
+                    spriteModel.size.Height = 27;
+                    spriteModel.enabled = true;
+
+                    tile.isSolid = tileData.isSolid;
+                    tile.layer = tileData.layer;
+
+                    if (tileData.isTeleporter) {
+                        tile.isTeleporter = true;
+                        tile.teleportData = tileData.teleportData;
+                    }
+
+                    if (tile.components.BoxCollider) {
+                        tile.components.BoxCollider.enabled = tile.isSolid;
+                    }
+
+                    scene.wgObjects.push(tile);
+                    this.#placedTiles.set(`${tileData.x},${tileData.y},${tileData.layer}`, tile);
+                });
+                break;
+
+            case 'fill':
+                // Annuler un remplissage = restaurer les tiles d'avant
+                action.tiles.forEach(tileData => {
+                    const posKey = `${tileData.x},${tileData.y},${tileData.layer}`;
+
+                    // Supprimer la nouvelle tile
+                    const currentTile = this.#placedTiles.get(posKey);
+                    if (currentTile) {
+                        const index = scene.wgObjects.indexOf(currentTile);
+                        if (index > -1) {
+                            scene.wgObjects.splice(index, 1);
+                        }
+                    }
+
+                    // Restaurer l'ancienne tile si elle existait
+                    if (tileData.oldSprite) {
+                        const tile = new Tile();
+                        tile.coordinates.X = tileData.x;
+                        tile.coordinates.Y = tileData.y;
+
+                        const spriteModel = tile.components.SpriteModel;
+                        spriteModel.sprite = new Image();
+                        spriteModel.sprite.src = tileData.oldSprite;
+                        spriteModel.size.Width = 27;
+                        spriteModel.size.Height = 27;
+                        spriteModel.enabled = true;
+
+                        tile.isSolid = tileData.isSolid || false;
+                        tile.layer = tileData.layer;
+
+                        if (tile.components.BoxCollider) {
+                            tile.components.BoxCollider.enabled = tile.isSolid;
+                        }
+
+                        scene.wgObjects.push(tile);
+                        this.#placedTiles.set(posKey, tile);
+                    } else {
+                        // Si pas d'ancienne tile, on supprime juste
+                        this.#placedTiles.delete(posKey);
+                    }
+                });
+                break;
+        }
+
+        // Sauvegarder après l'annulation
+        this.#saveMapToServer();
+        console.log('✅ Annulation effectuée et sauvegardée');
+    }
+
+    /**
      * Dessine une tile à la position de la souris (mode pinceau)
      * @param {number} screenX - Position X de la souris
      * @param {number} screenY - Position Y de la souris
+     * @returns {Object|null} - Données de la tile placée ou null
      */
     #drawTileAtPosition(screenX, screenY) {
-        if (!this.#canvas) return;
+        if (!this.#canvas) return null;
 
         const scene = this.#engine.services.SceneService.activeScene;
-        if (!scene || !scene.activeCamera) return;
+        if (!scene || !scene.activeCamera) return null;
 
         // Obtenir la position snappée
         const snappedPos = this.#gridSnapHelper.screenToGridSnap(
@@ -156,7 +324,7 @@ class TileDragService {
         // Vérifier si on est sur une nouvelle case (éviter de placer plusieurs fois sur la même)
         const posString = `${snappedPos.x},${snappedPos.y}`;
         if (this.#lastBrushPosition === posString) {
-            return; // Déjà placé sur cette case
+            return null; // Déjà placé sur cette case
         }
         this.#lastBrushPosition = posString;
 
@@ -203,16 +371,27 @@ class TileDragService {
         // Ajouter à la scène et enregistrer
         scene.wgObjects.push(newTile);
         this.#placedTiles.set(posKey, newTile);
+
+        // Retourner les données pour l'historique
+        return {
+            x: snappedPos.x,
+            y: snappedPos.y,
+            layer: activeLayer,
+            sprite: this.#currentTileData.path,
+            isSolid: false
+        };
     }
 
     /**
      * Efface une tile à la position cliquée (mode gomme)
      * @param {number} screenX - Position X de la souris
      * @param {number} screenY - Position Y de la souris
+     * @param {boolean} returnData - Si true, retourne les données de la tile effacée
+     * @returns {Object|null} - Données de la tile effacée ou null
      */
-    #eraseTile(screenX, screenY) {
+    #eraseTile(screenX, screenY, returnData = false) {
         const scene = this.#engine.services.SceneService.activeScene;
-        if (!scene || !scene.activeCamera) return;
+        if (!scene || !scene.activeCamera) return null;
 
         // Obtenir la position snappée
         const snappedPos = this.#gridSnapHelper.screenToGridSnap(
@@ -225,7 +404,7 @@ class TileDragService {
         // Vérifier si on est sur une nouvelle case (éviter d'effacer plusieurs fois la même)
         const posString = `${snappedPos.x},${snappedPos.y}`;
         if (this.#lastBrushPosition === posString) {
-            return; // Déjà effacé sur cette case
+            return null; // Déjà effacé sur cette case
         }
         this.#lastBrushPosition = posString;
 
@@ -233,12 +412,32 @@ class TileDragService {
         const activeLayerSelect = document.getElementById('active-layer-select');
         const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
 
+        // Sauvegarder les données de la tile avant suppression si demandé
+        let tileData = null;
+        if (returnData) {
+            const posKey = `${snappedPos.x},${snappedPos.y},${activeLayer}`;
+            const tile = this.#placedTiles.get(posKey);
+            if (tile) {
+                tileData = {
+                    x: snappedPos.x,
+                    y: snappedPos.y,
+                    layer: activeLayer,
+                    sprite: tile.components.SpriteModel.sprite.src,
+                    isSolid: tile.isSolid || false,
+                    isTeleporter: tile.isTeleporter || false,
+                    teleportData: tile.teleportData || null
+                };
+            }
+        }
+
         // Supprimer la tile sur ce layer
         const deleted = this.removeTileAt(snappedPos.x, snappedPos.y, activeLayer);
 
         if (deleted) {
             console.log(`🧹 Tile effacée à (${snappedPos.x}, ${snappedPos.y}) sur layer ${activeLayer}`);
         }
+
+        return returnData ? tileData : null;
     }
 
     /**
@@ -277,6 +476,7 @@ class TileDragService {
         const visited = new Set();
         const queue = [{ x: startPos.x, y: startPos.y }];
         let tilesPlaced = 0;
+        const fillHistory = []; // Pour l'historique Ctrl+Z
 
         while (queue.length > 0 && tilesPlaced < 1000) { // Limite de sécurité
             const pos = queue.shift();
@@ -291,6 +491,16 @@ class TileDragService {
 
             // Si la tile actuelle correspond à la tile cible, la remplacer
             if (currentSprite === targetSprite) {
+                // Sauvegarder l'ancienne tile pour l'historique
+                fillHistory.push({
+                    x: pos.x,
+                    y: pos.y,
+                    layer: activeLayer,
+                    oldSprite: currentSprite,
+                    sprite: this.#currentTileData.path,
+                    isSolid: currentTile ? currentTile.isSolid : false
+                });
+
                 // Supprimer l'ancienne tile si elle existe
                 if (currentTile) {
                     const index = scene.wgObjects.indexOf(currentTile);
@@ -332,6 +542,11 @@ class TileDragService {
         }
 
         console.log(`🪣 Zone remplie : ${tilesPlaced} tiles placées sur layer ${activeLayer}`);
+
+        // Enregistrer dans l'historique
+        if (fillHistory.length > 0) {
+            this.#addToHistory('fill', fillHistory);
+        }
 
         // Sauvegarder la map
         this.#saveMapToServer();
