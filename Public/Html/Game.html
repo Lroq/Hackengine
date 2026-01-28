@@ -171,8 +171,8 @@
     let isPanning = false;
     let panStartX = 0;
     let panStartY = 0;
-    let cameraPanX = 0;
-    let cameraPanY = 0;
+    let cameraPanVelocityX = 0;
+    let cameraPanVelocityY = 0;
 
     // --- Fonctions principales ---
     function resizeCanvas() {
@@ -210,8 +210,8 @@
 
         if (mode === "construction") {
             // 🧭 Réinitialise le pan caméra
-            cameraPanX = 0;
-            cameraPanY = 0;
+            cameraPanVelocityX = 0;
+            cameraPanVelocityY = 0;
             isPanning = false;
 
             // ❗ Détache la caméra du joueur pour la rendre libre
@@ -247,7 +247,7 @@
 
     // --- Événements pour le pan de caméra ---
     canvas.addEventListener('mousedown', (e) => {
-        if (mode === 'construction' && e.button === 2) {
+        if (mode === 'construction' && e.button === 0) {
             isPanning = true;
             panStartX = e.clientX;
             panStartY = e.clientY;
@@ -260,8 +260,11 @@
         if (isPanning && mode === 'construction') {
             const deltaX = e.clientX - panStartX;
             const deltaY = e.clientY - panStartY;
-            cameraPanX += deltaX;
-            cameraPanY += deltaY;
+
+            // Mettre à jour les vélocités
+            cameraPanVelocityX = deltaX;
+            cameraPanVelocityY = deltaY;
+
             panStartX = e.clientX;
             panStartY = e.clientY;
 
@@ -275,8 +278,10 @@
     });
 
     canvas.addEventListener('mouseup', (e) => {
-        if (e.button === 2) {
+        if (e.button === 0) {
             isPanning = false;
+            cameraPanVelocityX = 0;
+            cameraPanVelocityY = 0;
             updateCursor();
         }
     });
@@ -284,6 +289,8 @@
     canvas.addEventListener('mouseleave', () => {
         if (isPanning) {
             isPanning = false;
+            cameraPanVelocityX = 0;
+            cameraPanVelocityY = 0;
             updateCursor();
         }
     });
@@ -311,7 +318,7 @@
     window.gameCanvas = canvas;
     window.gameContext = ctx;
     window.getMode = () => mode;
-    window.getCameraPan = () => ({ x: cameraPanX, y: cameraPanY });
+    window.getCameraPan = () => ({ x: cameraPanVelocityX, y: cameraPanVelocityY });
 </script>
 
 <script>
