@@ -145,16 +145,14 @@ class TileDragService {
 
                 const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
-                // Enregistrer dans l'historique et sauvegarder
+                // Enregistrer dans l'historique
                 if (currentActionTiles.length > 0) {
                     if (editMode === 'brush') {
                         this.#addToHistory('place', currentActionTiles);
-                        this.#saveMapToServer();
-                        console.log('🖌️ Dessin terminé, sauvegarde effectuée');
+                        console.log('🖌️ Dessin terminé');
                     } else if (editMode === 'eraser') {
                         this.#addToHistory('erase', currentActionTiles);
-                        this.#saveMapToServer();
-                        console.log('🧹 Effacement terminé, sauvegarde effectuée');
+                        console.log('🧹 Effacement terminé');
                     }
                 }
 
@@ -326,9 +324,7 @@ class TileDragService {
                 break;
         }
 
-        // Sauvegarder après l'annulation
-        this.#saveMapToServer();
-        console.log('✅ Annulation effectuée et sauvegardée');
+        console.log('✅ Annulation effectuée');
     }
 
     /**
@@ -445,9 +441,7 @@ class TileDragService {
                 break;
         }
 
-        // Sauvegarder après le redo
-        this.#saveMapToServer();
-        console.log('✅ Action refaite et sauvegardée');
+        console.log('✅ Action refaite');
     }
 
     /**
@@ -705,8 +699,7 @@ class TileDragService {
             this.#addToHistory('fill', fillHistory);
         }
 
-        // Sauvegarder la map
-        this.#saveMapToServer();
+        console.log('🪣 Remplissage terminé');
     }
 
     /**
@@ -766,11 +759,6 @@ class TileDragService {
             }
         }
 
-        if (removed) {
-            // Sauvegarder automatiquement la map
-            this.#saveMapToServer();
-        }
-        
         return removed;
     }
 

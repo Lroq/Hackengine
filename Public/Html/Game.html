@@ -23,6 +23,10 @@
     </div>
 
     <div class="flex space-x-2">
+        <button id="save-map-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-sm transition flex items-center gap-2" title="Sauvegarder la map (Ctrl+S)">
+            <span>💾</span>
+            <span>Sauvegarder</span>
+        </button>
         <button id="back-to-maps-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🗺️ Maps</button>
         <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
         <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
@@ -420,6 +424,70 @@
             // Mettre à jour le mode global pour le moteur
             window.editMode = editMode;
         });
+    });
+
+    // Fonction de sauvegarde manuelle
+    function saveMapManually() {
+        if (window.tileDragService) {
+            window.tileDragService.saveMap();
+            // Feedback visuel
+            const saveBtn = document.getElementById('save-map-btn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<span>✅</span><span>Sauvegardé !</span>';
+            saveBtn.classList.add('bg-green-700');
+            setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.classList.remove('bg-green-700');
+            }, 2000);
+        } else {
+            console.warn('⚠️ TileDragService non disponible');
+        }
+    }
+
+    // Gestion du bouton de sauvegarde manuel
+    document.getElementById('save-map-btn').addEventListener('click', () => {
+        saveMapManually();
+    });
+
+    // Raccourci clavier Ctrl+S pour sauvegarder
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveMapManually();
+        }
+    });
+
+    // Sauvegarde automatique toutes les minutes (60000 ms)
+    let autoSaveInterval = null;
+
+    function startAutoSave() {
+        // Arrêter l'intervalle existant si présent
+        if (autoSaveInterval) {
+            clearInterval(autoSaveInterval);
+        }
+
+        // Démarrer la sauvegarde automatique
+        autoSaveInterval = setInterval(() => {
+            if (mode === 'construction' && window.tileDragService) {
+                console.log('🕒 Sauvegarde automatique...');
+                window.tileDragService.saveMap();
+            }
+        }, 60000); // 60000 ms = 1 minute
+
+        console.log('✅ Sauvegarde automatique activée (toutes les minutes)');
+    }
+
+    function stopAutoSave() {
+        if (autoSaveInterval) {
+            clearInterval(autoSaveInterval);
+            autoSaveInterval = null;
+            console.log('⏸️ Sauvegarde automatique désactivée');
+        }
+    }
+
+    // Démarrer la sauvegarde automatique au chargement
+    window.addEventListener('load', () => {
+        startAutoSave();
     });
 
     // Export pour le moteur

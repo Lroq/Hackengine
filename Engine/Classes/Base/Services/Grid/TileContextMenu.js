@@ -276,9 +276,6 @@ class TileContextMenu {
         // Mettre à jour l'icône
         const iconElement = document.getElementById('menu-solid-icon');
         iconElement.textContent = newState ? '☑' : '☐';
-
-        // Sauvegarder automatiquement via la méthode publique
-        this.#tileDragService.saveMap();
     }
 
     /**
@@ -326,9 +323,6 @@ class TileContextMenu {
         } else {
             teleportSettings.classList.add('hidden');
         }
-
-        // Sauvegarder automatiquement
-        this.#tileDragService.saveMap();
     }
 
     /**
@@ -346,9 +340,6 @@ class TileContextMenu {
         this.#currentTile.teleportData[field] = value;
 
         console.log(`🌀 Téléporteur à (${this.#currentPosition.x}, ${this.#currentPosition.y}) → ${field}: ${value}`);
-
-        // Sauvegarder automatiquement
-        this.#tileDragService.saveMap();
     }
 
     /**
@@ -409,9 +400,6 @@ class TileContextMenu {
         }
 
         console.log(`📐 Tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y}) → ${layerNames[newLayer]}`);
-
-        // Sauvegarder automatiquement
-        this.#tileDragService.saveMap();
     }
 }
 
