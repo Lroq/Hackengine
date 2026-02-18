@@ -99,12 +99,15 @@ class TileDragService {
             const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
             if (e.button === 0) {
-                // Ne pas bloquer les interactions avec les éléments de formulaire
+                // Ne pas bloquer les interactions avec les éléments de formulaire et le panneau des assets
                 const target = e.target;
+                const assetsPanel = document.getElementById('assets-panel');
+
                 if (target.tagName === 'SELECT' || target.tagName === 'OPTION' ||
                     target.tagName === 'INPUT' || target.tagName === 'BUTTON' ||
-                    target.closest('select') || target.closest('button') || target.closest('input')) {
-                    return; // Laisser le comportement par défaut pour les formulaires
+                    target.closest('select') || target.closest('button') || target.closest('input') ||
+                    (assetsPanel && assetsPanel.contains(target))) {
+                    return; // Laisser le comportement par défaut pour les formulaires et le panneau des assets
                 }
 
                 e.preventDefault();
