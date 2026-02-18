@@ -118,9 +118,31 @@ async function loadTiles() {
         const structure = folderManager.getStructure();
         renderFolder('root', structure, container, 0);
 
+        // Restaurer la sélection si une tile est active
+        restoreSelection();
+
     } catch (err) {
         console.error('Erreur en chargeant les tiles :', err);
     }
+}
+
+/**
+ * Restaure la sélection visuelle de la tile actuellement active dans le TileDragService
+ */
+function restoreSelection() {
+    if (!window.tileDragService) return;
+
+    const selectedTilePath = window.tileDragService.getSelectedTilePath();
+    if (!selectedTilePath) return;
+
+    // Trouver la tile correspondante dans le DOM
+    const allTileWrappers = document.querySelectorAll('[data-tile-path]');
+    allTileWrappers.forEach(wrapper => {
+        const img = wrapper.querySelector('img');
+        if (img && img.src === selectedTilePath) {
+            wrapper.classList.add('tile-selected');
+        }
+    });
 }
 
 /**
@@ -344,6 +366,14 @@ function createTileElement(tilePath, filename, folderId) {
         if (e.button === 0) { // Clic gauche - drag vers canvas
             e.preventDefault();
             if (window.tileDragService) {
+                // Retirer la sélection de toutes les autres tiles
+                document.querySelectorAll('.tile-selected').forEach(tile => {
+                    tile.classList.remove('tile-selected');
+                });
+
+                // Ajouter la classe de sélection à cette tile
+                tileWrapper.classList.add('tile-selected');
+
                 window.tileDragService.startDrag(img.src);
                 img.classList.add('opacity-50');
             }
@@ -516,6 +546,14 @@ async function loadTilesOld() {
             img.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 if (window.tileDragService) {
+                    // Retirer la sélection de toutes les autres tiles
+                    document.querySelectorAll('.tile-selected').forEach(tile => {
+                        tile.classList.remove('tile-selected');
+                    });
+
+                    // Ajouter la classe de sélection à cette tile
+                    tileWrapper.classList.add('tile-selected');
+
                     window.tileDragService.startDrag(img.src);
                     img.classList.add('opacity-50');
                 }

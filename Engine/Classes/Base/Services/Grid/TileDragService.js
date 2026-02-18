@@ -803,6 +803,14 @@ class TileDragService {
     }
 
     /**
+     * Retourne le chemin de la tile actuellement sélectionnée
+     * @returns {string|null} Le chemin de la tile sélectionnée ou null
+     */
+    getSelectedTilePath() {
+        return this.#currentTileData ? this.#currentTileData.path : null;
+    }
+
+    /**
      * Charge la map depuis le serveur
      * @param {string} mapName - Nom de la map à charger
      */
