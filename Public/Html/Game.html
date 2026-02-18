@@ -18,7 +18,7 @@
         <div class="w-10 h-10 rounded-lg bg-[#2b2b2f] flex items-center justify-center font-bold text-lg">H</div>
         <div>
             <h1 class="text-lg font-semibold">Hackemon</h1>
-            <p class="text-xs text-gray-400">Hackengine - In Dev - v1.2.1</p>
+            <p class="text-xs text-gray-400">Hackengine v2</p>
         </div>
     </div>
 
@@ -190,11 +190,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">▶️ Mode Play</div>
-                        <div class="text-sm text-gray-400">Teste ta map en temps réel</div>
+                        <div class="text-sm text-gray-400">Teste ta map en temps réel avec le personnage jouable</div>
+                        <div class="text-xs text-green-400 mt-1">Bordure verte = Mode Play actif</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🧱 Mode Construction</div>
-                        <div class="text-sm text-gray-400">Édite et construit ta map</div>
+                        <div class="text-sm text-gray-400">Édite et construit ta map avec tous les outils</div>
+                        <div class="text-xs text-blue-400 mt-1">Bordure bleue = Mode Construction actif</div>
                     </div>
                 </div>
             </div>
@@ -207,16 +209,31 @@
                 </h3>
                 <div class="space-y-2">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🖌️ Pinceau</div>
-                        <div class="text-sm text-gray-400">Place des tiles une par une en maintenant le clic gauche</div>
+                        <div class="font-semibold text-white mb-1 flex items-center gap-2">
+                            <span>🖌️</span>
+                            <span>Pinceau</span>
+                        </div>
+                        <div class="text-sm text-gray-400">Place des tiles une par une</div>
+                        <div class="text-xs text-gray-500 mt-1">• Clic gauche maintenu : dessine en continu</div>
+                        <div class="text-xs text-gray-500">• Idéal pour les détails précis</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🪣 Pot de Peinture</div>
-                        <div class="text-sm text-gray-400">Remplit une zone avec la tile sélectionnée (clic gauche)</div>
+                        <div class="font-semibold text-white mb-1 flex items-center gap-2">
+                            <span>🪣</span>
+                            <span>Pot de Peinture</span>
+                        </div>
+                        <div class="text-sm text-gray-400">Remplit une zone adjacente avec la tile sélectionnée</div>
+                        <div class="text-xs text-gray-500 mt-1">• Clic gauche sur une zone : remplit automatiquement</div>
+                        <div class="text-xs text-gray-500">• Parfait pour remplir de grandes surfaces rapidement</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🧹 Gomme</div>
-                        <div class="text-sm text-gray-400">Efface des tiles en maintenant le clic gauche</div>
+                        <div class="font-semibold text-white mb-1 flex items-center gap-2">
+                            <span>🧹</span>
+                            <span>Gomme</span>
+                        </div>
+                        <div class="text-sm text-gray-400">Efface des tiles existantes</div>
+                        <div class="text-xs text-gray-500 mt-1">• Clic gauche maintenu : efface en continu</div>
+                        <div class="text-xs text-gray-500">• Supprime toutes les tiles sur la position (tous layers)</div>
                     </div>
                 </div>
             </div>
@@ -229,17 +246,24 @@
                 </h3>
                 <div class="grid grid-cols-1 gap-2">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
-                        <span class="text-gray-300">Annuler une action</span>
+                        <span class="text-gray-300">Annuler la dernière action</span>
                         <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Ctrl + Z</kbd>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
-                        <span class="text-gray-300">Refaire une action</span>
+                        <span class="text-gray-300">Refaire une action annulée</span>
                         <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Ctrl + Y</kbd>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
-                        <span class="text-gray-300">Sauvegarder la map</span>
+                        <span class="text-gray-300">Sauvegarder la map manuellement</span>
                         <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Ctrl + S</kbd>
                     </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
+                        <span class="text-gray-300">Fermer les menus et modales</span>
+                        <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Échap</kbd>
+                    </div>
+                </div>
+                <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-2 mt-2">
+                    <p class="text-xs text-blue-300">💡 Historique de 50 actions maximum</p>
                 </div>
             </div>
 
@@ -251,21 +275,54 @@
                 </h3>
                 <div class="space-y-2">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">Clic Gauche (maintenu)</div>
-                        <div class="text-sm text-gray-400">Dessiner / Effacer selon le mode actif</div>
+                        <div class="font-semibold text-white mb-1">🖱️ Clic Gauche</div>
+                        <div class="text-sm text-gray-400 mb-1">En mode Construction :</div>
+                        <div class="text-xs text-gray-500">• Simple : Placer une tile (Pinceau) / Remplir (Pot) / Effacer (Gomme)</div>
+                        <div class="text-xs text-gray-500">• Maintenu : Dessiner/Effacer en continu</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">Clic Droit (maintenu)</div>
-                        <div class="text-sm text-gray-400">Déplacer la caméra en mode construction</div>
+                        <div class="font-semibold text-white mb-1">🖱️ Clic Droit (maintenu)</div>
+                        <div class="text-sm text-gray-400">Déplacer la caméra librement en mode construction</div>
+                        <div class="text-xs text-gray-500 mt-1">• Maintenez et bougez la souris pour naviguer</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">Alt + Clic Gauche</div>
+                        <div class="font-semibold text-white mb-1">⌨️ Alt + 🖱️ Clic Gauche</div>
                         <div class="text-sm text-gray-400">Ouvrir le menu contextuel d'une tile placée</div>
+                        <div class="text-xs text-gray-500 mt-1">• Configure les téléporteurs</div>
+                        <div class="text-xs text-gray-500">• Supprime une tile spécifique</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section Configuration -->
+            <!-- Section Configuration Assets -->
+            <div>
+                <h3 class="text-lg font-semibold text-pink-400 mb-3 flex items-center gap-2">
+                    <span>🎨</span>
+                    <span>Panneau des Assets</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">📂 Organisation des Tiles</div>
+                        <div class="text-sm text-gray-400">• Créez des dossiers pour organiser vos assets</div>
+                        <div class="text-sm text-gray-400">• Glissez-déposez les tiles entre dossiers</div>
+                        <div class="text-sm text-gray-400">• Renommez et supprimez les dossiers via le menu ⋮</div>
+                        <div class="text-xs text-blue-400 mt-1">💡 Structure sauvegardée automatiquement</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🔵 Sélection d'Asset</div>
+                        <div class="text-sm text-gray-400">L'asset sélectionné a un contour bleu</div>
+                        <div class="text-xs text-gray-500 mt-1">• Cliquez sur une tile pour la sélectionner</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">📤 Upload de Tiles</div>
+                        <div class="text-sm text-gray-400">Cliquez sur "➕ Tuile" pour uploader une image PNG</div>
+                        <div class="text-xs text-gray-500 mt-1">• Format recommandé : 27×27 pixels</div>
+                        <div class="text-xs text-gray-500">• Formats supportés : PNG, JPG, GIF, SVG</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Configuration Tiles -->
             <div>
                 <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center gap-2">
                     <span>⚙️</span>
@@ -273,18 +330,30 @@
                 </h3>
                 <div class="space-y-2">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🎨 Layer de placement</div>
-                        <div class="text-sm text-gray-400">Layer 0 (Sol), Layer 1 (Murs/Déco), Layer 2 (Sprites)</div>
+                        <div class="font-semibold text-white mb-1">🎨 Layers (Plans)</div>
+                        <div class="text-sm text-gray-400 mb-1">Configuré AVANT placement dans le panneau Assets :</div>
+                        <div class="text-xs text-gray-500">• <strong>Layer 0 (Sol)</strong> : Arrière-plan, herbe, routes...</div>
+                        <div class="text-xs text-gray-500">• <strong>Layer 1 (Murs/Déco)</strong> : Murs, objets, décorations...</div>
+                        <div class="text-xs text-gray-500">• <strong>Layer 2 (Sprites)</strong> : Personnages, éléments au premier plan</div>
+                        <div class="text-xs text-blue-400 mt-1">💡 Les layers s'empilent : 0 derrière, 2 devant</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🛡️ Collision</div>
-                        <div class="text-sm text-gray-400">Non solide (traversable) ou Solide (bloque le joueur)</div>
+                        <div class="font-semibold text-white mb-1">🛡️ Collision (Solide/Non Solide)</div>
+                        <div class="text-sm text-gray-400 mb-1">Configuré AVANT placement dans le panneau Assets :</div>
+                        <div class="text-xs text-gray-500">• <strong>Non Solide</strong> : Le joueur peut traverser (herbe, sol...)</div>
+                        <div class="text-xs text-gray-500">• <strong>Solide</strong> : Bloque le joueur (murs, obstacles...)</div>
+                        <div class="text-xs text-red-400 mt-1">🧱 Indicateur rouge sur les tiles solides en mode construction</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🌀 Téléporteurs</div>
-                        <div class="text-sm text-gray-400">Alt+Clic sur une tile → Activer "Téléporteur"</div>
-                        <div class="text-sm text-gray-400 mt-1">Les coordonnées X;Y sont en <strong>tiles</strong> (1 tile = 27 pixels)</div>
-                        <div class="text-sm text-blue-400 mt-1">💡 Utilisez "📍 Copier position actuelle du sprite" pour obtenir les coordonnées</div>
+                        <div class="text-sm text-gray-400 mb-1">Configuré APRÈS placement via Alt+Clic :</div>
+                        <div class="text-xs text-gray-500">1. Placez une tile</div>
+                        <div class="text-xs text-gray-500">2. Alt+Clic sur la tile</div>
+                        <div class="text-xs text-gray-500">3. Activez "🌀 Téléporteur"</div>
+                        <div class="text-xs text-gray-500">4. Configurez : Map de destination + Coordonnées (en tiles)</div>
+                        <div class="text-xs text-blue-400 mt-1">💡 Utilisez "📍 Copier position actuelle du sprite" pour les coordonnées</div>
+                        <div class="text-xs text-blue-400">💡 1 tile = 27 pixels (ex: X=5 → position 135)</div>
+                        <div class="text-xs text-cyan-400 mt-1">🌀 Indicateur bleu sur les téléporteurs en mode construction</div>
                     </div>
                 </div>
             </div>
@@ -293,21 +362,79 @@
             <div>
                 <h3 class="text-lg font-semibold text-cyan-400 mb-3 flex items-center gap-2">
                     <span>🧭</span>
-                    <span>Navigation Rapide</span>
+                    <span>Navigation & Caméra</span>
                 </h3>
                 <div class="space-y-2">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🎯 Centrer sur sprite</div>
-                        <div class="text-sm text-gray-400">Téléporte la caméra sur le personnage</div>
+                        <div class="font-semibold text-white mb-1">🎯 Centrer sur Sprite</div>
+                        <div class="text-sm text-gray-400">Bouton dans le panneau de gauche</div>
+                        <div class="text-xs text-gray-500 mt-1">• Téléporte instantanément la caméra sur votre personnage</div>
+                        <div class="text-xs text-gray-500">• Utile après avoir exploré loin sur la carte</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">⊕ Aller au centre (0;0)</div>
-                        <div class="text-sm text-gray-400">Téléporte la caméra au centre de la grille</div>
+                        <div class="font-semibold text-white mb-1">⊕ Aller au Centre (0;0)</div>
+                        <div class="text-sm text-gray-400">Bouton dans le panneau de gauche</div>
+                        <div class="text-xs text-gray-500 mt-1">• Téléporte la caméra au centre exact de la grille</div>
+                        <div class="text-xs text-gray-500">• Point de référence marqué par une croix rouge/verte</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🖱️ Déplacement Manuel</div>
+                        <div class="text-sm text-gray-400">Clic droit maintenu + mouvement de la souris</div>
+                        <div class="text-xs text-gray-500 mt-1">• Navigation libre dans toute la zone de construction</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section Limites -->
+            <!-- Section Gestion des Maps -->
+            <div>
+                <h3 class="text-lg font-semibold text-indigo-400 mb-3 flex items-center gap-2">
+                    <span>🗺️</span>
+                    <span>Gestion des Maps</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">➕ Créer une Nouvelle Map</div>
+                        <div class="text-sm text-gray-400">Bouton "🗺️ Maps" → "➕ Nouvelle Map"</div>
+                        <div class="text-xs text-gray-500 mt-1">• Choisissez un nom unique</div>
+                        <div class="text-xs text-gray-500">• Sélectionnez la taille : Petite (25×25), Moyenne (50×50), Grande (75×75), Très Grande (100×100) ou Personnalisée</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🔄 Changer de Map</div>
+                        <div class="text-sm text-gray-400">Bouton "🗺️ Maps" → Sélectionnez une map</div>
+                        <div class="text-xs text-gray-500 mt-1">• Les anciennes tiles sont automatiquement nettoyées</div>
+                        <div class="text-xs text-gray-500">• La grille s'adapte à la taille de la nouvelle map</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🗑️ Supprimer une Map</div>
+                        <div class="text-sm text-gray-400">Bouton "🗑️" sur la carte dans le sélecteur</div>
+                        <div class="text-xs text-red-400 mt-1">⚠️ Action IRRÉVERSIBLE - Toutes les tiles seront perdues</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Sauvegarde -->
+            <div>
+                <h3 class="text-lg font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+                    <span>💾</span>
+                    <span>Sauvegarde</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">⏰ Sauvegarde Automatique</div>
+                        <div class="text-sm text-gray-400">Toutes les <strong>60 secondes</strong> automatiquement</div>
+                        <div class="text-xs text-gray-500 mt-1">• Aucune action nécessaire</div>
+                        <div class="text-xs text-green-400">✓ Notification "🕒 Sauvegarde automatique..." dans la console</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">💾 Sauvegarde Manuelle</div>
+                        <div class="text-sm text-gray-400">Bouton "💾 Sauvegarder" ou <kbd class="px-2 py-0.5 bg-gray-700 rounded text-xs">Ctrl+S</kbd></div>
+                        <div class="text-xs text-gray-500 mt-1">• Sauvegarde immédiate de la map actuelle</div>
+                        <div class="text-xs text-green-400">✓ Feedback visuel : bouton devient vert "✅ Sauvegardé !"</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Limites & Règles -->
             <div>
                 <h3 class="text-lg font-semibold text-orange-400 mb-3 flex items-center gap-2">
                     <span>📏</span>
@@ -317,25 +444,99 @@
                     <ul class="space-y-2 text-sm text-gray-300">
                         <li class="flex items-start gap-2">
                             <span class="text-green-400">✓</span>
-                            <span>La grille fait <strong>50×50 tiles</strong> (de -675 à +675)</span>
+                            <span>La grille de placement est <strong>configurable par map</strong> (25×25 à 200×200)</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-green-400">✓</span>
-                            <span>Le centre <strong>(0;0)</strong> est marqué par une croix rouge/verte</span>
+                            <span>Le centre <strong>(0;0)</strong> est marqué par une croix rouge (horizontal) et verte (vertical)</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-green-400">✓</span>
-                            <span>Les tiles ne peuvent être placées que <strong>dans la grille bordée</strong></span>
+                            <span>Les tiles ne peuvent être placées que <strong>dans la bordure blanche de la grille</strong></span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-green-400">✓</span>
-                            <span>Sauvegarde <strong>automatique toutes les minutes</strong></span>
+                            <span>La grille visuelle s'adapte automatiquement à la <strong>taille de la map</strong></span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-green-400">✓</span>
                             <span>Jusqu'à <strong>3 layers</strong> peuvent coexister sur une même position</span>
                         </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>Historique de <strong>50 actions</strong> (Ctrl+Z / Ctrl+Y)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>Sauvegarde automatique <strong>toutes les 60 secondes</strong></span>
+                        </li>
                     </ul>
+                </div>
+            </div>
+
+            <!-- Section Indicateurs Visuels -->
+            <div>
+                <h3 class="text-lg font-semibold text-fuchsia-400 mb-3 flex items-center gap-2">
+                    <span>👁️</span>
+                    <span>Indicateurs Visuels</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🎨 Modes</div>
+                        <div class="text-xs text-gray-500">• <span class="text-blue-400">🧱 Mode Construction</span> - Bordure bleue dans le header</div>
+                        <div class="text-xs text-gray-500">• <span class="text-green-400">▶️ Mode Play</span> - Bordure verte dans le header</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🏷️ Propriétés des Tiles (mode construction uniquement)</div>
+                        <div class="text-xs text-gray-500">• <span class="text-red-400">🧱 Icône rouge</span> = Tile solide (collision activée)</div>
+                        <div class="text-xs text-gray-500">• <span class="text-blue-400">🌀 Icône bleue</span> = Téléporteur configuré</div>
+                        <div class="text-xs text-gray-500">• Les deux peuvent coexister sur une même tile</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">📍 Grille & Repères</div>
+                        <div class="text-xs text-gray-500">• Grille blanche : zone de placement des tiles</div>
+                        <div class="text-xs text-gray-500">• Croix rouge (horizontale) + verte (verticale) = centre (0;0)</div>
+                        <div class="text-xs text-gray-500">• Bordure blanche : limite de la grille</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🔵 Sélections</div>
+                        <div class="text-xs text-gray-500">• Contour bleu = Asset sélectionné dans le panneau</div>
+                        <div class="text-xs text-gray-500">• Fond bleu actif = Outil d'édition actif (Pinceau/Pot/Gomme)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Astuces & Tips -->
+            <div>
+                <h3 class="text-lg font-semibold text-amber-400 mb-3 flex items-center gap-2">
+                    <span>💡</span>
+                    <span>Astuces & Tips</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-amber-900/20 border border-amber-700 rounded-lg p-3">
+                        <div class="text-sm text-amber-200 font-semibold mb-1">🎨 Organisation</div>
+                        <div class="text-xs text-amber-100">Créez des dossiers thématiques : "Sol", "Murs", "Décorations", "Personnages" pour retrouver vos assets facilement</div>
+                    </div>
+                    <div class="bg-blue-900/20 border border-blue-700 rounded-lg p-3">
+                        <div class="text-sm text-blue-200 font-semibold mb-1">⚡ Workflow Rapide</div>
+                        <div class="text-xs text-blue-100">1. Sélectionnez le Layer + Collision AVANT de placer → 2. Utilisez le Pot de peinture pour les grandes zones → 3. Peaufinez avec le Pinceau</div>
+                    </div>
+                    <div class="bg-purple-900/20 border border-purple-700 rounded-lg p-3">
+                        <div class="text-sm text-purple-200 font-semibold mb-1">🌀 Téléporteurs</div>
+                        <div class="text-xs text-purple-100">Positionnez votre sprite là où vous voulez arriver, puis copiez les coordonnées avec le bouton 📍 - Plus besoin de calculer !</div>
+                    </div>
+                    <div class="bg-green-900/20 border border-green-700 rounded-lg p-3">
+                        <div class="text-sm text-green-200 font-semibold mb-1">💾 Sauvegarde</div>
+                        <div class="text-xs text-green-100">Pas de stress : La sauvegarde automatique fonctionne toutes les minutes. Utilisez Ctrl+S pour être sûr après un gros changement</div>
+                    </div>
+                    <div class="bg-red-900/20 border border-red-700 rounded-lg p-3">
+                        <div class="text-sm text-red-200 font-semibold mb-1">🔄 Erreurs</div>
+                        <div class="text-xs text-red-100">Vous avez fait une erreur ? Ctrl+Z annule jusqu'à 50 actions. Vous pouvez même Ctrl+Y pour refaire si vous annulez trop !</div>
+                    </div>
+                    <div class="bg-cyan-900/20 border border-cyan-700 rounded-lg p-3">
+                        <div class="text-sm text-cyan-200 font-semibold mb-1">📏 Layers Multiples</div>
+                        <div class="text-xs text-cyan-100">Utilisez Layer 0 pour le sol, Layer 1 pour les murs/objets, et Layer 2 pour les éléments décoratifs au premier plan. Ça crée de la profondeur !</div>
+                    </div>
                 </div>
             </div>
 
@@ -343,7 +544,7 @@
 
         <!-- Footer -->
         <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
-            <p class="text-xs text-gray-500">Hackengine v1.2.1 - Mode Construction</p>
+            <p class="text-xs text-gray-500">Hackengine v2 - Mode Construction</p>
             <button id="close-help-btn-2" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
                 Fermer
             </button>

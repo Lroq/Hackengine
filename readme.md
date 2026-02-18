@@ -1,4 +1,4 @@
-# Hackengine
+# Hackengine v2
 
 Moteur de jeu 2D pour le projet Hackemon avec système d'organisation des assets.
 
