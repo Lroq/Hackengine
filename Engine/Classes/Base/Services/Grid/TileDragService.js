@@ -21,9 +21,23 @@ class TileDragService {
     #redoHistory = []; // Historique des actions annulées pour Ctrl+Y
     #maxHistorySize = 50; // Limite de l'historique
 
+    // Limites de la grille (en coordonnées monde, basé sur des tiles de 27x27)
+    // Le 0;0 est au centre, la grille s'étend de -675 à +675 sur chaque axe
+    // Soit 50 tiles dans chaque direction (25 tiles avant 0, 25 tiles après 0)
+    #gridBounds = {
+        minX: -27 * 25, // -675
+        minY: -27 * 25, // -675
+        maxX: 27 * 25,  // +675
+        maxY: 27 * 25   // +675
+    };
+
     constructor() {
         this.#gridSnapHelper = new GridSnapHelper();
         this.#gridSnapHelper.setCellSize(27);
+
+        console.log('🗺️ Grille initialisée avec les limites:', this.#gridBounds);
+        console.log(`📐 Taille de la grille: ${(this.#gridBounds.maxX - this.#gridBounds.minX) / 27}x${(this.#gridBounds.maxY - this.#gridBounds.minY) / 27} tiles`);
+        console.log(`📍 Centre de la grille: (0, 0)`);
     }
 
     /**
@@ -213,6 +227,19 @@ class TileDragService {
         }
 
         console.log(`📝 Action enregistrée: ${type} (${tilesData.length} tile(s))`);
+    }
+
+    /**
+     * Vérifie si une position est dans les limites de la grille
+     * @param {number} x - Position X en coordonnées monde
+     * @param {number} y - Position Y en coordonnées monde
+     * @returns {boolean} - True si la position est dans la grille
+     */
+    #isInGridBounds(x, y) {
+        return x >= this.#gridBounds.minX &&
+               x < this.#gridBounds.maxX &&
+               y >= this.#gridBounds.minY &&
+               y < this.#gridBounds.maxY;
     }
 
     /**
@@ -467,6 +494,12 @@ class TileDragService {
             this.#canvas
         );
 
+        // Vérifier si la position est dans les limites de la grille
+        if (!this.#isInGridBounds(snappedPos.x, snappedPos.y)) {
+            console.warn(`⚠️ Position hors grille: (${snappedPos.x}, ${snappedPos.y})`);
+            return null;
+        }
+
         // Vérifier si on est sur une nouvelle case (éviter de placer plusieurs fois sur la même)
         const posString = `${snappedPos.x},${snappedPos.y}`;
         if (this.#lastBrushPosition === posString) {
@@ -550,6 +583,11 @@ class TileDragService {
             scene.activeCamera,
             this.#canvas
         );
+
+        // Vérifier si la position est dans les limites de la grille
+        if (!this.#isInGridBounds(snappedPos.x, snappedPos.y)) {
+            return null;
+        }
 
         // Vérifier si on est sur une nouvelle case (éviter d'effacer plusieurs fois la même)
         const posString = `${snappedPos.x},${snappedPos.y}`;
@@ -638,6 +676,11 @@ class TileDragService {
 
             if (visited.has(posKey)) continue;
             visited.add(posKey);
+
+            // Vérifier si la position est dans les limites de la grille
+            if (!this.#isInGridBounds(pos.x, pos.y)) {
+                continue;
+            }
 
             // Vérifier la tile actuelle
             const currentTile = this.#placedTiles.get(posKey);

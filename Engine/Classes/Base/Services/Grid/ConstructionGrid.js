@@ -30,19 +30,21 @@ class ConstructionGrid {
         context.strokeStyle = this.#gridColor;
         context.lineWidth = this.#lineWidth;
 
-        // Calculer une grille infinie couvrant tout l'écran visible
-        // Au lieu de centrer en (0,0), on dessine une grille beaucoup plus large
-        const largeGridSize = 2000; // Grille plus grande
-        const halfGridSize = largeGridSize / 2;
+        // Zone de placement des tiles : 50x50 tiles = 1350x1350 unités
+        // Limites : -675 à +675 sur chaque axe (25 tiles dans chaque direction depuis 0,0)
+        const gridBoundsMinX = -27 * 25; // -675
+        const gridBoundsMinY = -27 * 25; // -675
+        const gridBoundsMaxX = 27 * 25;  // +675
+        const gridBoundsMaxY = 27 * 25;  // +675
 
         // Centrer la grille autour de (0, 0) du monde
-        const worldStartX = -halfGridSize;
-        const worldStartY = -halfGridSize;
-        const worldEndX = halfGridSize;
-        const worldEndY = halfGridSize;
+        const worldStartX = gridBoundsMinX;
+        const worldStartY = gridBoundsMinY;
+        const worldEndX = gridBoundsMaxX;
+        const worldEndY = gridBoundsMaxY;
 
-        // Nombre de lignes à dessiner
-        const numLines = Math.floor(largeGridSize / this.#cellSize);
+        // Nombre de lignes à dessiner (50 tiles)
+        const numLines = 50;
 
         // Dessiner les lignes verticales
         for (let i = 0; i <= numLines; i++) {
@@ -65,6 +67,20 @@ class ConstructionGrid {
             context.lineTo(camera.coordinates.X + worldEndX, screenY);
             context.stroke();
         }
+
+        // ===== BORDURE DE LA ZONE DE PLACEMENT =====
+        context.strokeStyle = 'rgba(255, 100, 100, 0.6)'; // Rouge semi-transparent
+        context.lineWidth = 3;
+        context.strokeRect(
+            camera.coordinates.X + worldStartX,
+            camera.coordinates.Y + worldStartY,
+            worldEndX - worldStartX,
+            worldEndY - worldStartY
+        );
+
+        // Réinitialiser le style pour le reste
+        context.strokeStyle = this.#gridColor;
+        context.lineWidth = this.#lineWidth;
 
         // ===== INDICATEUR DE L'ORIGINE (0, 0) =====
         const originX = camera.coordinates.X;
