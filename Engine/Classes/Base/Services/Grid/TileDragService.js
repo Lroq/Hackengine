@@ -54,7 +54,7 @@ class TileDragService {
      * Configure les événements de souris pour le drag and drop
      */
     #setupEventListeners() {
-        let isDrawing = false; // Dessin avec clic droit maintenu
+        let isDrawing = false; // Dessin avec clic gauche maintenu
         let currentActionTiles = []; // Tiles de l'action en cours
 
         // Événement de déplacement de la souris
@@ -79,14 +79,14 @@ class TileDragService {
             }
         });
 
-        // Événement d'appui sur clic droit : commencer à dessiner/effacer/remplir
+        // Événement d'appui sur clic gauche : commencer à dessiner/effacer/remplir
         document.addEventListener('mousedown', (e) => {
             const mode = window.getMode ? window.getMode() : 'play';
             if (mode !== 'construction') return;
 
             const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
-            if (e.button === 2) {
+            if (e.button === 0) {
                 e.preventDefault();
                 currentActionTiles = []; // Réinitialiser pour la nouvelle action
 
@@ -119,7 +119,7 @@ class TileDragService {
 
         // Événement de relâchement : arrêter de dessiner/effacer
         document.addEventListener('mouseup', (e) => {
-            if (e.button === 2 && isDrawing) {
+            if (e.button === 0 && isDrawing) {
                 isDrawing = false;
                 this.#lastBrushPosition = null;
 
@@ -163,7 +163,7 @@ class TileDragService {
 
         // En mode pinceau, on stocke juste la tile (pas de drag and drop)
         if (editMode === 'brush') {
-            console.log('🖌️ Tile sélectionnée pour le pinceau. Maintenez clic droit pour dessiner.');
+            console.log('🖌️ Tile sélectionnée pour le pinceau. Maintenez clic gauche pour dessiner.');
         }
 
         // En mode fill ou eraser, on stocke juste la tile pour les clics futurs
@@ -478,7 +478,7 @@ class TileDragService {
         let tilesPlaced = 0;
         const fillHistory = []; // Pour l'historique Ctrl+Z
 
-        while (queue.length > 0 && tilesPlaced < 1000) { // Limite de sécurité
+        while (queue.length > 0 && tilesPlaced < 500) { // Limite de sécurité réduite
             const pos = queue.shift();
             const posKey = `${pos.x},${pos.y},${activeLayer}`;
 

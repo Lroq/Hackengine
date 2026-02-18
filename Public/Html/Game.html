@@ -323,7 +323,7 @@
 
     // --- Événements pour le pan de caméra ---
     canvas.addEventListener('mousedown', (e) => {
-        if (mode === 'construction' && e.button === 0) {
+        if (mode === 'construction' && e.button === 2) {
             isPanning = true;
             panStartX = e.clientX;
             panStartY = e.clientY;
@@ -354,7 +354,7 @@
     });
 
     canvas.addEventListener('mouseup', (e) => {
-        if (e.button === 0) {
+        if (e.button === 2) {
             isPanning = false;
             cameraPanVelocityX = 0;
             cameraPanVelocityY = 0;

@@ -32,9 +32,12 @@ class TileContextMenu {
      * Configure les événements
      */
     #setupEventListeners() {
-        // Tracker le début du clic droit (mousedown)
+        // Menu contextuel désactivé : le clic droit sert maintenant à déplacer la caméra
+        // Le clic gauche est utilisé pour dessiner/effacer/remplir
+
+        // Tracker le début du clic gauche (mousedown)
         document.addEventListener('mousedown', (e) => {
-            if (e.button === 2) {
+            if (e.button === 0) {
                 this.#isDrawing = false;
                 this.#rightClickStartTime = Date.now();
             }
@@ -42,12 +45,15 @@ class TileContextMenu {
 
         // Tracker le mouvement de la souris (si on bouge = dessin)
         document.addEventListener('mousemove', (e) => {
-            if (e.buttons === 2) { // Clic droit maintenu
+            if (e.buttons === 1) { // Clic gauche maintenu
                 this.#isDrawing = true;
             }
         });
 
-        // Clic droit sur le canvas (contextmenu)
+        // Clic gauche sur le canvas avec menu contextuel
+        // Note : Pour l'instant désactivé car on privilégie le dessin direct
+        // Le menu contextuel pourrait être réactivé avec un autre raccourci si nécessaire
+        /*
         this.#canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
 
@@ -71,10 +77,11 @@ class TileContextMenu {
             // Réinitialiser l'état
             this.#isDrawing = false;
         });
+        */
 
-        // Réinitialiser l'état au relâchement du clic droit
+        // Réinitialiser l'état au relâchement du clic gauche
         document.addEventListener('mouseup', (e) => {
-            if (e.button === 2) {
+            if (e.button === 0) {
                 this.#isDrawing = false;
             }
         });
