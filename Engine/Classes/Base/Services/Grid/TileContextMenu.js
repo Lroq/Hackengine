@@ -50,6 +50,14 @@ class TileContextMenu {
             }
         });
 
+        // Bouton de fermeture du menu contextuel
+        const closeTileMenuBtn = document.getElementById('close-tile-menu-btn');
+        if (closeTileMenuBtn) {
+            closeTileMenuBtn.addEventListener('click', () => {
+                this.#hideMenu();
+            });
+        }
+
         // Bouton toggle téléporteur
         const toggleTeleportBtn = document.getElementById('menu-toggle-teleport');
         if (toggleTeleportBtn) {
