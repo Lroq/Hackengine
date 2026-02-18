@@ -111,24 +111,22 @@
         <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
 
         <!-- Sélecteur de Layer actif -->
-        <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-3 mb-3">
-            <label class="text-xs text-gray-400 block mb-2">🎨 Layer de placement :</label>
-            <select id="active-layer-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-3 py-2 text-sm font-medium">
-                <option value="0">🟫 Layer 0 - Sol (Derrière)</option>
-                <option value="1">🧱 Layer 1 - Murs/Déco (Milieu)</option>
-                <option value="2">🎨 Layer 2 - Sprites (Devant)</option>
+        <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-2 mb-2">
+            <label class="text-[10px] text-gray-400 block mb-1">🎨 Layer de placement :</label>
+            <select id="active-layer-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs font-medium">
+                <option value="0">🟫 Layer 0 - Sol</option>
+                <option value="1">🧱 Layer 1 - Murs/Déco</option>
+                <option value="2">🎨 Layer 2 - Sprites</option>
             </select>
-            <p class="text-xs text-gray-500 mt-1">Les nouvelles tiles seront placées sur ce layer</p>
         </div>
 
         <!-- Sélecteur de solidité des tiles -->
-        <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-3 mb-3">
-            <label class="text-xs text-gray-400 block mb-2">🛡️ Collision des tiles :</label>
-            <select id="tile-solid-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-3 py-2 text-sm font-medium">
-                <option value="false">🚶 Non solide (traversable)</option>
-                <option value="true">🧱 Solide (bloque le joueur)</option>
+        <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-2 mb-2">
+            <label class="text-[10px] text-gray-400 block mb-1">🛡️ Collision :</label>
+            <select id="tile-solid-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs font-medium">
+                <option value="false">🚶 Non solide</option>
+                <option value="true">🧱 Solide</option>
             </select>
-            <p class="text-xs text-gray-500 mt-1">Définit si les nouvelles tiles auront un collider actif</p>
         </div>
 
         <!-- Message d'aide -->
