@@ -144,7 +144,7 @@ app.get('/api/maps/list', (req, res) => {
         }
 
         const maps = files
-            .filter(f => f.endsWith('.json'))
+            .filter(f => f.endsWith('.json') && !f.endsWith('.meta.json')) // Exclure les fichiers .meta.json
             .map(f => ({
                 name: f.replace('.json', ''),
                 displayName: f.replace('.json', '').replace(/_/g, ' ')
