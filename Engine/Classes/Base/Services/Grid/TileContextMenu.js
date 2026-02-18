@@ -91,8 +91,11 @@ class TileContextMenu {
         if (teleportXInput) {
             teleportXInput.addEventListener('change', () => {
                 if (this.#currentTile && this.#currentTile.isTeleporter) {
-                    this.#currentTile.teleportData.x = parseInt(teleportXInput.value) || 0;
+                    // Multiplier par 27 pour se caler sur la grille
+                    const tileX = parseInt(teleportXInput.value) || 0;
+                    this.#currentTile.teleportData.x = tileX * 27;
                     this.#tileDragService.saveMap();
+                    console.log(`📍 Coordonnée X téléporteur: ${tileX} tiles → ${tileX * 27} pixels`);
                 }
             });
         }
@@ -100,9 +103,20 @@ class TileContextMenu {
         if (teleportYInput) {
             teleportYInput.addEventListener('change', () => {
                 if (this.#currentTile && this.#currentTile.isTeleporter) {
-                    this.#currentTile.teleportData.y = parseInt(teleportYInput.value) || 0;
+                    // Multiplier par 27 pour se caler sur la grille
+                    const tileY = parseInt(teleportYInput.value) || 0;
+                    this.#currentTile.teleportData.y = tileY * 27;
                     this.#tileDragService.saveMap();
+                    console.log(`📍 Coordonnée Y téléporteur: ${tileY} tiles → ${tileY * 27} pixels`);
                 }
+            });
+        }
+
+        // Bouton pour copier les coordonnées actuelles du sprite
+        const copySpriteCoords = document.getElementById('copy-sprite-coords-btn');
+        if (copySpriteCoords) {
+            copySpriteCoords.addEventListener('click', () => {
+                this.#copySpriteCoordinates();
             });
         }
 
@@ -199,14 +213,15 @@ class TileContextMenu {
                 teleportSettings.classList.remove('hidden');
 
                 // Remplir les champs avec les données existantes
+                // Diviser par 27 pour afficher en coordonnées tiles au lieu de pixels
                 const teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
                 const mapInput = document.getElementById('menu-teleport-map');
                 const xInput = document.getElementById('menu-teleport-x');
                 const yInput = document.getElementById('menu-teleport-y');
 
                 if (mapInput) mapInput.value = teleportData.map || '';
-                if (xInput) xInput.value = teleportData.x || 0;
-                if (yInput) yInput.value = teleportData.y || 0;
+                if (xInput) xInput.value = Math.round((teleportData.x || 0) / 27);
+                if (yInput) yInput.value = Math.round((teleportData.y || 0) / 27);
             } else {
                 teleportSettings.classList.add('hidden');
             }
@@ -392,7 +407,63 @@ class TileContextMenu {
             this.#currentTile.components.BoxCollider.enabled = this.#currentTile.isSolid || false;
         }
 
-        console.log(`📐 Tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y}) → ${layerNames[newLayer]}`);
+        console.log(`Layer changé de ${oldLayer} à ${newLayer} pour la tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y})`);
+    }
+
+    /**
+     * Copie les coordonnées actuelles du sprite dans les champs de téléportation
+     */
+    #copySpriteCoordinates() {
+        if (!this.#currentTile || !this.#currentTile.isTeleporter) return;
+
+        // Récupérer le sprite du joueur
+        const playerInstance = window.playerInstance;
+        if (!playerInstance) {
+            console.warn('⚠️ Sprite du joueur non disponible');
+            return;
+        }
+
+        // Récupérer les coordonnées actuelles du sprite en pixels
+        const spriteXPixels = Math.round(playerInstance.coordinates.X);
+        const spriteYPixels = Math.round(playerInstance.coordinates.Y);
+
+        // Convertir en coordonnées tiles pour l'affichage
+        const spriteXTiles = Math.round(spriteXPixels / 27);
+        const spriteYTiles = Math.round(spriteYPixels / 27);
+
+        // Mettre à jour les champs (affichage en tiles)
+        const xInput = document.getElementById('menu-teleport-x');
+        const yInput = document.getElementById('menu-teleport-y');
+
+        if (xInput && yInput) {
+            xInput.value = spriteXTiles;
+            yInput.value = spriteYTiles;
+
+            // Mettre à jour les données du téléporteur (stockage en pixels)
+            if (!this.#currentTile.teleportData) {
+                this.#currentTile.teleportData = { map: '', x: 0, y: 0 };
+            }
+            this.#currentTile.teleportData.x = spriteXPixels;
+            this.#currentTile.teleportData.y = spriteYPixels;
+
+            // Sauvegarder
+            this.#tileDragService.saveMap();
+
+            // Feedback visuel
+            const btn = document.getElementById('copy-sprite-coords-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>✅</span><span>Coordonnées copiées !</span>';
+            btn.classList.add('bg-green-600');
+            btn.classList.remove('bg-blue-600');
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600');
+                btn.classList.add('bg-blue-600');
+            }, 1500);
+
+            console.log(`📍 Coordonnées du sprite copiées: (${spriteXTiles}, ${spriteYTiles}) tiles → (${spriteXPixels}, ${spriteYPixels}) pixels`);
+        }
     }
 }
 
