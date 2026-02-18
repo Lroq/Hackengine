@@ -8,10 +8,20 @@
  * - Visible uniquement en mode construction
  */
 class ConstructionGrid {
-    #gridSize = 500;           // Taille totale de la grille (non utilisée, remplacée par largeGridSize)
+    #gridSize = 500;           // Taille totale de la grille (legacy, non utilisé)
     #cellSize = 27;            // Taille d'une cellule
     #gridColor = 'rgba(255, 255, 255, 0.3)';   // Couleur des lignes (blanc semi-transparent)
     #lineWidth = 1;            // Épaisseur des lignes
+    #gridTileSize = 50;        // Nombre de tiles (50x50 par défaut)
+
+    /**
+     * Définit la taille de la grille en nombre de tiles
+     * @param {number} size - Nombre de tiles (ex: 50 pour 50×50, 100 pour 100×100)
+     */
+    setGridSize(size) {
+        this.#gridTileSize = size;
+        console.log(`🗺️ Grille visuelle mise à jour: ${size}×${size} tiles`);
+    }
 
     /**
      * Dessine la grille sur le canvas
@@ -30,19 +40,21 @@ class ConstructionGrid {
         context.strokeStyle = this.#gridColor;
         context.lineWidth = this.#lineWidth;
 
-        // Calculer une grille infinie couvrant tout l'écran visible
-        // Au lieu de centrer en (0,0), on dessine une grille beaucoup plus large
-        const largeGridSize = 2000; // Grille plus grande
-        const halfGridSize = largeGridSize / 2;
+        // Calculer les limites en fonction de this.#gridTileSize
+        const halfSize = Math.floor(this.#gridTileSize / 2);
+        const gridBoundsMinX = -this.#cellSize * halfSize;
+        const gridBoundsMinY = -this.#cellSize * halfSize;
+        const gridBoundsMaxX = this.#cellSize * halfSize;
+        const gridBoundsMaxY = this.#cellSize * halfSize;
 
         // Centrer la grille autour de (0, 0) du monde
-        const worldStartX = -halfGridSize;
-        const worldStartY = -halfGridSize;
-        const worldEndX = halfGridSize;
-        const worldEndY = halfGridSize;
+        const worldStartX = gridBoundsMinX;
+        const worldStartY = gridBoundsMinY;
+        const worldEndX = gridBoundsMaxX;
+        const worldEndY = gridBoundsMaxY;
 
-        // Nombre de lignes à dessiner
-        const numLines = Math.floor(largeGridSize / this.#cellSize);
+        // Nombre de lignes à dessiner (basé sur this.#gridTileSize)
+        const numLines = this.#gridTileSize;
 
         // Dessiner les lignes verticales
         for (let i = 0; i <= numLines; i++) {
@@ -65,6 +77,59 @@ class ConstructionGrid {
             context.lineTo(camera.coordinates.X + worldEndX, screenY);
             context.stroke();
         }
+
+        // ===== BORDURE DE LA ZONE DE PLACEMENT =====
+        context.strokeStyle = 'rgba(255, 100, 100, 0.6)'; // Rouge semi-transparent
+        context.lineWidth = 3;
+        context.strokeRect(
+            camera.coordinates.X + worldStartX,
+            camera.coordinates.Y + worldStartY,
+            worldEndX - worldStartX,
+            worldEndY - worldStartY
+        );
+
+        // Réinitialiser le style pour le reste
+        context.strokeStyle = this.#gridColor;
+        context.lineWidth = this.#lineWidth;
+
+        // ===== INDICATEUR DE L'ORIGINE (0, 0) =====
+        const originX = camera.coordinates.X;
+        const originY = camera.coordinates.Y;
+
+        // Dessiner les axes principaux en couleurs discrètes
+        context.lineWidth = 1.5;
+
+        // Axe X (rouge discret)
+        context.strokeStyle = 'rgba(255, 100, 100, 0.5)';
+        context.beginPath();
+        context.moveTo(originX - 30, originY);
+        context.lineTo(originX + 30, originY);
+        context.stroke();
+
+        // Axe Y (vert discret)
+        context.strokeStyle = 'rgba(100, 255, 100, 0.5)';
+        context.beginPath();
+        context.moveTo(originX, originY - 30);
+        context.lineTo(originX, originY + 30);
+        context.stroke();
+
+        // Dessiner un petit cercle au centre
+        context.beginPath();
+        context.arc(originX, originY, 3, 0, Math.PI * 2);
+        context.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        context.fill();
+        context.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+        context.lineWidth = 1;
+        context.stroke();
+
+        // Ajouter le label "(0, 0)" discret
+        context.font = '11px monospace';
+        context.fillStyle = 'rgba(200, 200, 200, 0.7)';
+        context.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+        context.lineWidth = 2;
+        const label = '(0, 0)';
+        context.strokeText(label, originX + 8, originY - 8);
+        context.fillText(label, originX + 8, originY - 8);
 
         context.restore();
     }

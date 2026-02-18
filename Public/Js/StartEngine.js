@@ -38,12 +38,12 @@ async function main(){
         });
     });
     const EngineInstance = new Engine({
-        SceneService :          new SceneService(),
-        SceneLoaderService :    new SceneLoader(),
-        CollisionGroupService : new CollisionGroup(),
-        PhysicService :         new PhysicService(),
-        InputService :          new InputService()
-    },
+            SceneService :          new SceneService(),
+            SceneLoaderService :    new SceneLoader(),
+            CollisionGroupService : new CollisionGroup(),
+            PhysicService :         new PhysicService(),
+            InputService :          new InputService()
+        },
         {
             TickRate: 10,
             RefreshRate : 100,
@@ -87,7 +87,7 @@ async function main(){
     // Bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
     backToMapsBtn.addEventListener('click', () => {
-        // Réouvrir le sélecteur de maps
+        // Réouvrir le sélecteur de maps avec le bouton de fermeture
         mapSelector.show(async (selectedMapName) => {
             currentMapName = selectedMapName;
             window.currentMapName = currentMapName;
@@ -98,14 +98,14 @@ async function main(){
 
             // Mettre à jour l'affichage du nom de la map
             updateMapNameDisplay(currentMapName);
-        });
+        }, true); // true = afficher le bouton de fermeture
     });
 }
 // -- :: -- :: --:: -- :: -- \\
 
 // -- :: Events :: -- \\
 window.addEventListener('load', function() {
-  Canvas = document.getElementById("game-canvas")
-  main();
+    Canvas = document.getElementById("game-canvas")
+    main();
 })
 // -- :: -- :: --:: -- :: -- \\

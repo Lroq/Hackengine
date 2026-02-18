@@ -1,5 +1,6 @@
 class InputService {
     #inputs = {};
+    #previousInputs = {};
 
     constructor() {
         document.addEventListener("keydown", (event) => {
@@ -12,13 +13,23 @@ class InputService {
 
     IsKeyDown(key) {
         const mode = window.getMode ? window.getMode() : "play";
-        if (mode !== "play") return false; // ❌ Désactive les inputs en mode construction
+        if (mode !== "play") return false;
         return this.#inputs[key.toLowerCase()] || false;
+    }
+
+    IsKeyPressed(key) {
+        const mode = window.getMode ? window.getMode() : "play";
+        if (mode !== "play") return false;
+
+        const currentState = this.#inputs[key.toLowerCase()] || false;
+        const previousState = this.#previousInputs[key.toLowerCase()] || false;
+
+        return currentState && !previousState;
     }
 
     IsEitherKeyDown(keys) {
         const mode = window.getMode ? window.getMode() : "play";
-        if (mode !== "play") return false; // ❌ Bloque aussi les groupes de touches
+        if (mode !== "play") return false;
 
         for (const key of keys) {
             if (this.#inputs[key.toLowerCase()]) {
@@ -26,6 +37,10 @@ class InputService {
             }
         }
         return false;
+    }
+
+    updatePreviousInputs() {
+        this.#previousInputs = { ...this.#inputs };
     }
 }
 

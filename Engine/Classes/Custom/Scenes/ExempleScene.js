@@ -29,9 +29,9 @@ class ExempleScene extends Scene {
         // === JOUEUR === //
         const PlayerInstance = new Player("Ewoukouskous");
 
-        // Placer le joueur à des coordonnées précises (par exemple au centre de la map)
-        PlayerInstance.coordinates.X = 20; // Centre horizontal (800/2)
-        PlayerInstance.coordinates.Y = 560; // Centre vertical (600/2)
+        // Placer le joueur en position 0,0 (origine de la map)
+        PlayerInstance.coordinates.X = 0;
+        PlayerInstance.coordinates.Y = 0;
 
         super.addWGObject(PlayerInstance);
 
@@ -88,8 +88,6 @@ class ExempleScene extends Scene {
 
         console.log("✅ Battle scene loaded!");
     }
-
-
     constructor() {
         super();
         this.buildScene();

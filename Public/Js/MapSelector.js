@@ -2,6 +2,8 @@
  * MapSelector - Gestion de la sélection de map au démarrage
  */
 
+import { CustomDialog } from './CustomDialog.js';
+
 class MapSelector {
     #modal;
     #mapsList;
@@ -26,11 +28,65 @@ class MapSelector {
 
     /**
      * Affiche la modale et charge les maps
+     * @param {Function} onMapSelected - Callback appelé quand une map est sélectionnée
+     * @param {boolean} showCloseButton - Si true, affiche le bouton de fermeture
      */
-    async show(onMapSelected) {
+    async show(onMapSelected, showCloseButton = false) {
         this.#onMapSelected = onMapSelected;
+        this.#modal.style.display = ''; // Réinitialiser le display au cas où
         this.#modal.classList.remove('hidden');
+
+        // Gérer le bouton de fermeture
+        this.#toggleCloseButton(showCloseButton);
+
         await this.#loadMaps();
+    }
+
+    /**
+     * Affiche ou cache le bouton de fermeture
+     * @param {boolean} show - Si true, affiche le bouton
+     */
+    #toggleCloseButton(show) {
+        const header = this.#modal.querySelector('.px-6.py-4.border-b');
+        if (!header) return;
+
+        // Supprimer le bouton existant s'il y en a un
+        const existingBtn = header.querySelector('#close-map-selector-btn');
+        if (existingBtn) {
+            existingBtn.remove();
+        }
+
+        if (show) {
+            // Ajouter le bouton de fermeture
+            header.classList.add('flex', 'items-center', 'justify-between');
+
+            // Wrapper le contenu existant dans un div
+            const title = header.querySelector('h2');
+            const subtitle = header.querySelector('p');
+
+            if (title && !title.parentElement.classList.contains('header-content')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'header-content';
+                title.parentNode.insertBefore(wrapper, title);
+                wrapper.appendChild(title);
+                if (subtitle) wrapper.appendChild(subtitle);
+            }
+
+            // Créer et ajouter le bouton
+            const closeBtn = document.createElement('button');
+            closeBtn.id = 'close-map-selector-btn';
+            closeBtn.className = 'text-gray-400 hover:text-white text-2xl transition';
+            closeBtn.title = 'Fermer';
+            closeBtn.textContent = '✕';
+            closeBtn.addEventListener('click', () => {
+                this.hide();
+            });
+
+            header.appendChild(closeBtn);
+        } else {
+            // Retirer les classes flex si pas de bouton
+            header.classList.remove('flex', 'items-center', 'justify-between');
+        }
     }
 
     /**
@@ -127,26 +183,29 @@ class MapSelector {
     }
 
     /**
-     * Crée une nouvelle map
+     * Crée une nouvelle map avec choix de taille
      */
     async #createNewMap() {
-        const mapName = prompt('Nom de la nouvelle map :');
+        const result = await CustomDialog.createMapDialog();
 
-        if (!mapName || mapName.trim() === '') {
-            return;
+        if (!result) {
+            return; // Annulé
         }
 
         try {
             const res = await fetch('/api/maps/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: mapName })
+                body: JSON.stringify({
+                    name: result.name,
+                    size: result.size
+                })
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                alert(`Erreur : ${data.error}`);
+                await CustomDialog.alert(data.error, '❌ Erreur');
                 return;
             }
 
@@ -156,12 +215,11 @@ class MapSelector {
             await this.#loadMaps();
 
             // Charger automatiquement la nouvelle carte vierge
-            // Cela nettoiera tous les tiles de l'ancienne carte
             this.#selectMap(data.name);
 
         } catch (err) {
             console.error('Erreur lors de la création de la map:', err);
-            alert('Erreur lors de la création de la map');
+            await CustomDialog.alert('Erreur lors de la création de la map', '❌ Erreur');
         }
     }
 
@@ -169,9 +227,9 @@ class MapSelector {
      * Supprime une map avec confirmation
      */
     async #deleteMap(mapName, displayName) {
-        const confirmed = window.confirm(
-            `Voulez-vous vraiment supprimer la map "${displayName}" ?\n\n` +
-            `Cette action est IRRÉVERSIBLE et supprimera toutes les tuiles de cette map.`
+        const confirmed = await CustomDialog.confirm(
+            `Voulez-vous vraiment supprimer la map "${displayName}" ?\n\nCette action est IRRÉVERSIBLE et supprimera toutes les tuiles de cette map.`,
+            '🗑️ Supprimer la map'
         );
 
         if (!confirmed) {
@@ -188,7 +246,7 @@ class MapSelector {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(`Erreur : ${data.error}`);
+                await CustomDialog.alert(data.error, '❌ Erreur');
                 return;
             }
 
@@ -199,7 +257,7 @@ class MapSelector {
 
         } catch (err) {
             console.error('Erreur lors de la suppression de la map:', err);
-            alert('Erreur lors de la suppression de la map');
+            await CustomDialog.alert('Erreur lors de la suppression de la map', '❌ Erreur');
         }
     }
 

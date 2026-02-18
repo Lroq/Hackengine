@@ -129,6 +129,38 @@ app.get('/api/load-map', (req, res) => {
     });
 });
 
+// Récupérer les métadonnées d'une map
+app.get('/api/map-metadata', (req, res) => {
+    const mapName = req.query.name;
+
+    if (!mapName) {
+        return res.status(400).json({ error: 'Nom de map requis' });
+    }
+
+    const mapsDir = path.join(__dirname, '../Public/Assets/Game/maps');
+    const metaPath = path.join(mapsDir, `${mapName}.meta.json`);
+
+    // Si pas de fichier de métadonnées, retourner valeur par défaut
+    if (!fs.existsSync(metaPath)) {
+        return res.json({ name: mapName, size: 50 });
+    }
+
+    fs.readFile(metaPath, 'utf8', (err, data) => {
+        if (err) {
+            console.warn(`⚠️ Erreur lecture métadonnées pour ${mapName}:`, err);
+            return res.json({ name: mapName, size: 50 });
+        }
+
+        try {
+            const metadata = JSON.parse(data);
+            res.json(metadata);
+        } catch (parseErr) {
+            console.warn(`⚠️ Métadonnées corrompues pour ${mapName}`);
+            res.json({ name: mapName, size: 50 });
+        }
+    });
+});
+
 // Lister toutes les maps
 app.get('/api/maps/list', (req, res) => {
     const mapsDir = path.join(__dirname, '../Public/Assets/Game/maps');
@@ -144,7 +176,7 @@ app.get('/api/maps/list', (req, res) => {
         }
 
         const maps = files
-            .filter(f => f.endsWith('.json'))
+            .filter(f => f.endsWith('.json') && !f.endsWith('.meta.json')) // Exclure les fichiers .meta.json
             .map(f => ({
                 name: f.replace('.json', ''),
                 displayName: f.replace('.json', '').replace(/_/g, ' ')
@@ -155,16 +187,19 @@ app.get('/api/maps/list', (req, res) => {
 });
 
 // Créer une nouvelle map
+// Dans Server/Main.js, ligne ~183
 app.post('/api/maps/create', (req, res) => {
-    const { name } = req.body;
+    const { name, size } = req.body;
 
     if (!name || name.trim() === '') {
         return res.status(400).json({ error: 'Nom de map requis' });
     }
 
     const sanitizedName = name.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const mapSize = size || 50; // Taille par défaut: 50×50
     const mapsDir = path.join(__dirname, '../Public/Assets/Game/maps');
     const newMapPath = path.join(mapsDir, `${sanitizedName}.json`);
+    const metaPath = path.join(mapsDir, `${sanitizedName}.meta.json`);
 
     if (fs.existsSync(newMapPath)) {
         return res.status(400).json({ error: 'Une map avec ce nom existe déjà' });
@@ -174,27 +209,31 @@ app.post('/api/maps/create', (req, res) => {
         fs.mkdirSync(mapsDir, { recursive: true });
     }
 
-    // Charger la map exemple
-    const exampleMapPath = path.join(mapsDir, 'exemple_map.json');
-    let exampleData = [];
+    const emptyMapData = [];
+    const metadata = {
+        name: sanitizedName,
+        size: mapSize,
+        createdAt: new Date().toISOString()
+    };
 
-    if (fs.existsSync(exampleMapPath)) {
-        try {
-            exampleData = JSON.parse(fs.readFileSync(exampleMapPath, 'utf8'));
-        } catch (err) {
-            console.warn('Map exemple non disponible');
-        }
-    }
-
-    fs.writeFile(newMapPath, JSON.stringify(exampleData, null, 2), 'utf8', (err) => {
+    // Créer le fichier de map vide
+    fs.writeFile(newMapPath, JSON.stringify(emptyMapData, null, 2), 'utf8', (err) => {
         if (err) {
             return res.status(500).json({ error: 'Erreur lors de la création de la map' });
         }
 
-        console.log(`Map "${sanitizedName}" créée`);
-        res.json({ message: 'Map créée avec succès', name: sanitizedName });
+        // Créer le fichier de métadonnées
+        fs.writeFile(metaPath, JSON.stringify(metadata, null, 2), 'utf8', (metaErr) => {
+            if (metaErr) {
+                console.warn('⚠️ Erreur lors de la création des métadonnées:', metaErr);
+            }
+        });
+
+        console.log(`✅ Map "${sanitizedName}" créée (${mapSize}×${mapSize})`);
+        res.json({ message: 'Map créée avec succès', name: sanitizedName, size: mapSize });
     });
 });
+
 
 // Supprimer une map
 app.delete('/api/maps/delete', (req, res) => {

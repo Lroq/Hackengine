@@ -1,4 +1,4 @@
-# Hackengine
+# Hackengine v2
 
 Moteur de jeu 2D pour le projet Hackemon avec système d'organisation des assets.
 
@@ -29,7 +29,7 @@ Voir [TILE_FOLDER_SYSTEM.md](./TILE_FOLDER_SYSTEM.md) pour plus de détails.
 ## <a name="run-the-server"> 🛜 Run the server </a>
 
 ### Run the program with CLI
-Run the **Hack Engine** for the first time you need to write :
+Run the **Hack Engine** for the first time you need to write : 
 
 ```bash
 npm install 
@@ -43,7 +43,7 @@ npm start
 
 After that, open your web browser and go to [http://localhost:80/](http://localhost:80/) to use the hack engine.
 
-The server will be hosted on your localhost address on the port **80**
+The server will be hosted on your localhost address on the port **80** 
 
 > ❗A firewall warning may appear, be trustfully 😊 some firewall need that to host the server on your localhost address.
 

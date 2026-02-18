@@ -38,6 +38,10 @@ class WGObject {
         }
     }
 
+    getComponent(ComponentClass) {
+        return this.#Components[ComponentClass.name];
+    }
+
     get components() {
         return this.#Components;
     }

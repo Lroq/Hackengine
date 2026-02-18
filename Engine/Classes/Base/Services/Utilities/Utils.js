@@ -1,4 +1,4 @@
-class Utils {
+export class Utils {
     static async wait(Seconds) {
         return new Promise(resolve => setTimeout(resolve, Seconds * 1000));
     }
@@ -11,4 +11,3 @@ class Utils {
     }
 }
 
-export { Utils };
