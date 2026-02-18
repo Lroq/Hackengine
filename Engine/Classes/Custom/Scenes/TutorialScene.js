@@ -11,8 +11,8 @@ class TutorialScene extends Scene {
 
     async buildScene() {
         this.#player = new Player("Joueur");
-        this.#player.coordinates.X = 200;
-        this.#player.coordinates.Y = 150;
+        this.#player.coordinates.X = 0;
+        this.#player.coordinates.Y = 0;
 
         super.addWGObject(this.#player);
 
