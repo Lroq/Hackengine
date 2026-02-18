@@ -28,11 +28,65 @@ class MapSelector {
 
     /**
      * Affiche la modale et charge les maps
+     * @param {Function} onMapSelected - Callback appelé quand une map est sélectionnée
+     * @param {boolean} showCloseButton - Si true, affiche le bouton de fermeture
      */
-    async show(onMapSelected) {
+    async show(onMapSelected, showCloseButton = false) {
         this.#onMapSelected = onMapSelected;
+        this.#modal.style.display = ''; // Réinitialiser le display au cas où
         this.#modal.classList.remove('hidden');
+
+        // Gérer le bouton de fermeture
+        this.#toggleCloseButton(showCloseButton);
+
         await this.#loadMaps();
+    }
+
+    /**
+     * Affiche ou cache le bouton de fermeture
+     * @param {boolean} show - Si true, affiche le bouton
+     */
+    #toggleCloseButton(show) {
+        const header = this.#modal.querySelector('.px-6.py-4.border-b');
+        if (!header) return;
+
+        // Supprimer le bouton existant s'il y en a un
+        const existingBtn = header.querySelector('#close-map-selector-btn');
+        if (existingBtn) {
+            existingBtn.remove();
+        }
+
+        if (show) {
+            // Ajouter le bouton de fermeture
+            header.classList.add('flex', 'items-center', 'justify-between');
+
+            // Wrapper le contenu existant dans un div
+            const title = header.querySelector('h2');
+            const subtitle = header.querySelector('p');
+
+            if (title && !title.parentElement.classList.contains('header-content')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'header-content';
+                title.parentNode.insertBefore(wrapper, title);
+                wrapper.appendChild(title);
+                if (subtitle) wrapper.appendChild(subtitle);
+            }
+
+            // Créer et ajouter le bouton
+            const closeBtn = document.createElement('button');
+            closeBtn.id = 'close-map-selector-btn';
+            closeBtn.className = 'text-gray-400 hover:text-white text-2xl transition';
+            closeBtn.title = 'Fermer';
+            closeBtn.textContent = '✕';
+            closeBtn.addEventListener('click', () => {
+                this.hide();
+            });
+
+            header.appendChild(closeBtn);
+        } else {
+            // Retirer les classes flex si pas de bouton
+            header.classList.remove('flex', 'items-center', 'justify-between');
+        }
     }
 
     /**

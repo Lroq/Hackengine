@@ -87,7 +87,7 @@ async function main(){
     // Bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
     backToMapsBtn.addEventListener('click', () => {
-        // Réouvrir le sélecteur de maps
+        // Réouvrir le sélecteur de maps avec le bouton de fermeture
         mapSelector.show(async (selectedMapName) => {
             currentMapName = selectedMapName;
             window.currentMapName = currentMapName;
@@ -98,7 +98,7 @@ async function main(){
 
             // Mettre à jour l'affichage du nom de la map
             updateMapNameDisplay(currentMapName);
-        });
+        }, true); // true = afficher le bouton de fermeture
     });
 }
 // -- :: -- :: --:: -- :: -- \\
