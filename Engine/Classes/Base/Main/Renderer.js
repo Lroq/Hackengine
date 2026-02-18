@@ -11,6 +11,9 @@ class Renderer {
 
     constructor(Engine) {
         this.#Engine = Engine;
+
+        // Exposer ConstructionGrid globalement pour permettre la mise à jour de la taille
+        window.constructionGrid = this.#ConstructionGrid;
     }
 
     clearScreen() {

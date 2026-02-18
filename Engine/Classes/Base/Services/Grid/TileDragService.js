@@ -1007,20 +1007,52 @@ class TileDragService {
      */
     async loadMapFromServer(mapName = 'default_map') {
         try {
+            // ÉTAPE 1: Charger les métadonnées pour obtenir la taille
+            const metaRes = await fetch(`/api/map-metadata?name=${encodeURIComponent(mapName)}`);
+            const metadata = await metaRes.json();
+            const mapSize = metadata.size || 50;
+
+            // ÉTAPE 2: Appliquer la taille AVANT de charger les tiles
+            this.setGridSize(mapSize);
+            console.log(`📐 Taille de grille appliquée: ${mapSize}×${mapSize}`);
+
+            // ÉTAPE 3: Charger les tiles
             const res = await fetch(`/api/load-map?name=${encodeURIComponent(mapName)}`);
             const mapData = await res.json();
 
-            // Toujours appeler loadMapData, même si la carte est vide
-            // Cela nettoiera les tiles de l'ancienne carte
+            // ÉTAPE 4: Charger les données (nettoie automatiquement les anciennes tiles)
             this.loadMapData(mapData);
 
             if (mapData.length > 0) {
-                console.log(`✅ Map "${mapName}" chargée depuis le serveur : ${mapData.length} tuiles`);
+                console.log(`✅ Map "${mapName}" chargée: ${mapData.length} tuiles (${mapSize}×${mapSize})`);
             } else {
-                console.log(`✅ Map vierge "${mapName}" chargée (0 tuiles) - anciens tiles nettoyés`);
+                console.log(`✅ Map vierge "${mapName}" chargée (${mapSize}×${mapSize})`);
             }
         } catch (err) {
             console.error('❌ Erreur lors du chargement de la map:', err);
+        }
+    }
+
+    /**
+     * Définit la taille de la grille de placement
+     * @param {number} tileSize - Nombre de tiles (ex: 50 pour 50×50, 100 pour 100×100)
+     */
+    setGridSize(tileSize) {
+        const halfSize = Math.floor(tileSize / 2);
+        const cellSize = 27;
+
+        this.#gridBounds = {
+            minX: -cellSize * halfSize,
+            minY: -cellSize * halfSize,
+            maxX: cellSize * halfSize,
+            maxY: cellSize * halfSize
+        };
+
+        console.log(`📏 Limites de placement mises à jour: ${tileSize}×${tileSize} tiles`, this.#gridBounds);
+
+        // Mettre à jour la grille visuelle aussi
+        if (window.constructionGrid) {
+            window.constructionGrid.setGridSize(tileSize);
         }
     }
 }

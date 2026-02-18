@@ -6,7 +6,7 @@
     <title>Hackemon</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/Public/Css/TileFolders.css">
-    <script src="/Public/Js/MapSelector.js"></script>
+    <script type="module" src="/Public/Js/MapSelector.js"></script>
     <script type="module" src="/Public/Js/StartEngine.js" defer></script>
     <script type="module" src="/Public/Js/TileLoader.js" defer></script>
 </head>
@@ -418,6 +418,24 @@
 
     .mode-button.active:hover {
         background-color: rgba(59, 130, 246, 0.3);
+    }
+
+    /* ========================================
+       ANIMATION MODALES
+       ======================================== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.2s ease-out;
     }
 
     /* ========================================

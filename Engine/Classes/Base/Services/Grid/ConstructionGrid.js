@@ -8,10 +8,20 @@
  * - Visible uniquement en mode construction
  */
 class ConstructionGrid {
-    #gridSize = 500;           // Taille totale de la grille (non utilisée, remplacée par largeGridSize)
+    #gridSize = 500;           // Taille totale de la grille (legacy, non utilisé)
     #cellSize = 27;            // Taille d'une cellule
     #gridColor = 'rgba(255, 255, 255, 0.3)';   // Couleur des lignes (blanc semi-transparent)
     #lineWidth = 1;            // Épaisseur des lignes
+    #gridTileSize = 50;        // Nombre de tiles (50x50 par défaut)
+
+    /**
+     * Définit la taille de la grille en nombre de tiles
+     * @param {number} size - Nombre de tiles (ex: 50 pour 50×50, 100 pour 100×100)
+     */
+    setGridSize(size) {
+        this.#gridTileSize = size;
+        console.log(`🗺️ Grille visuelle mise à jour: ${size}×${size} tiles`);
+    }
 
     /**
      * Dessine la grille sur le canvas
@@ -30,12 +40,12 @@ class ConstructionGrid {
         context.strokeStyle = this.#gridColor;
         context.lineWidth = this.#lineWidth;
 
-        // Zone de placement des tiles : 50x50 tiles = 1350x1350 unités
-        // Limites : -675 à +675 sur chaque axe (25 tiles dans chaque direction depuis 0,0)
-        const gridBoundsMinX = -27 * 25; // -675
-        const gridBoundsMinY = -27 * 25; // -675
-        const gridBoundsMaxX = 27 * 25;  // +675
-        const gridBoundsMaxY = 27 * 25;  // +675
+        // Calculer les limites en fonction de this.#gridTileSize
+        const halfSize = Math.floor(this.#gridTileSize / 2);
+        const gridBoundsMinX = -this.#cellSize * halfSize;
+        const gridBoundsMinY = -this.#cellSize * halfSize;
+        const gridBoundsMaxX = this.#cellSize * halfSize;
+        const gridBoundsMaxY = this.#cellSize * halfSize;
 
         // Centrer la grille autour de (0, 0) du monde
         const worldStartX = gridBoundsMinX;
@@ -43,8 +53,8 @@ class ConstructionGrid {
         const worldEndX = gridBoundsMaxX;
         const worldEndY = gridBoundsMaxY;
 
-        // Nombre de lignes à dessiner (50 tiles)
-        const numLines = 50;
+        // Nombre de lignes à dessiner (basé sur this.#gridTileSize)
+        const numLines = this.#gridTileSize;
 
         // Dessiner les lignes verticales
         for (let i = 0; i <= numLines; i++) {
