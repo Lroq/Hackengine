@@ -18,6 +18,7 @@ class TileDragService {
     #placedTiles = new Map(); // Stocke les tuiles placées par coordonnées "x,y,layer"
     #lastBrushPosition = null; // Dernière position où une tile a été placée en mode pinceau
     #history = []; // Historique des actions pour Ctrl+Z
+    #redoHistory = []; // Historique des actions annulées pour Ctrl+Y
     #maxHistorySize = 50; // Limite de l'historique
 
     constructor() {
@@ -38,14 +39,19 @@ class TileDragService {
     }
 
     /**
-     * Configure le raccourci Ctrl+Z pour annuler
+     * Configure les raccourcis Ctrl+Z (undo) et Ctrl+Y (redo)
      */
     #setupUndoShortcut() {
         document.addEventListener('keydown', (e) => {
-            // Ctrl+Z (Windows/Linux) ou Cmd+Z (Mac)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+            // Ctrl+Z (Windows/Linux) ou Cmd+Z (Mac) - Annuler
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 this.undo();
+            }
+            // Ctrl+Y (Windows/Linux) ou Cmd+Y (Mac) - Refaire
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                this.redo();
             }
         });
     }
@@ -196,6 +202,10 @@ class TileDragService {
             timestamp: Date.now()
         });
 
+        // Vider le redo history car on fait une nouvelle action
+        // (on ne peut plus refaire les anciennes actions annulées)
+        this.#redoHistory = [];
+
         // Limiter la taille de l'historique
         if (this.#history.length > this.#maxHistorySize) {
             this.#history.shift();
@@ -216,6 +226,12 @@ class TileDragService {
         const action = this.#history.pop();
         const scene = this.#engine.services.SceneService.activeScene;
         if (!scene) return;
+
+        // Sauvegarder l'action dans redoHistory
+        this.#redoHistory.push(action);
+        if (this.#redoHistory.length > this.#maxHistorySize) {
+            this.#redoHistory.shift();
+        }
 
         console.log(`↶ Annulation: ${action.type} (${action.tiles.length} tile(s))`);
 
@@ -313,6 +329,125 @@ class TileDragService {
         // Sauvegarder après l'annulation
         this.#saveMapToServer();
         console.log('✅ Annulation effectuée et sauvegardée');
+    }
+
+    /**
+     * Refait la dernière action annulée (Ctrl+Y)
+     */
+    redo() {
+        if (this.#redoHistory.length === 0) {
+            console.log('⚠️ Aucune action à refaire');
+            return;
+        }
+
+        const action = this.#redoHistory.pop();
+        const scene = this.#engine.services.SceneService.activeScene;
+        if (!scene) return;
+
+        // Remettre l'action dans l'historique principal
+        this.#history.push(action);
+        if (this.#history.length > this.#maxHistorySize) {
+            this.#history.shift();
+        }
+
+        console.log(`↷ Refaire: ${action.type} (${action.tiles.length} tile(s))`);
+
+        switch (action.type) {
+            case 'place':
+                // Refaire un placement = replacer les tiles
+                action.tiles.forEach(tileData => {
+                    const posKey = `${tileData.x},${tileData.y},${tileData.layer}`;
+
+                    // Supprimer une éventuelle tile existante
+                    const existingTile = this.#placedTiles.get(posKey);
+                    if (existingTile) {
+                        const index = scene.wgObjects.indexOf(existingTile);
+                        if (index > -1) {
+                            scene.wgObjects.splice(index, 1);
+                        }
+                    }
+
+                    // Recréer la tile
+                    const tile = new Tile();
+                    tile.coordinates.X = tileData.x;
+                    tile.coordinates.Y = tileData.y;
+
+                    const spriteModel = tile.components.SpriteModel;
+                    spriteModel.sprite = new Image();
+                    spriteModel.sprite.src = tileData.sprite;
+                    spriteModel.size.Width = 27;
+                    spriteModel.size.Height = 27;
+                    spriteModel.enabled = true;
+
+                    tile.isSolid = tileData.isSolid;
+                    tile.layer = tileData.layer;
+
+                    if (tile.components.BoxCollider) {
+                        tile.components.BoxCollider.enabled = tile.isSolid;
+                    }
+
+                    scene.wgObjects.push(tile);
+                    this.#placedTiles.set(posKey, tile);
+                });
+                break;
+
+            case 'erase':
+                // Refaire un effacement = supprimer à nouveau les tiles
+                action.tiles.forEach(tileData => {
+                    const posKey = `${tileData.x},${tileData.y},${tileData.layer}`;
+                    const tile = this.#placedTiles.get(posKey);
+                    if (tile) {
+                        const index = scene.wgObjects.indexOf(tile);
+                        if (index > -1) {
+                            scene.wgObjects.splice(index, 1);
+                        }
+                        this.#placedTiles.delete(posKey);
+                    }
+                });
+                break;
+
+            case 'fill':
+                // Refaire un remplissage = replacer les nouvelles tiles
+                action.tiles.forEach(tileData => {
+                    const posKey = `${tileData.x},${tileData.y},${tileData.layer}`;
+
+                    // Supprimer l'ancienne tile si elle existe
+                    const currentTile = this.#placedTiles.get(posKey);
+                    if (currentTile) {
+                        const index = scene.wgObjects.indexOf(currentTile);
+                        if (index > -1) {
+                            scene.wgObjects.splice(index, 1);
+                        }
+                    }
+
+                    // Recréer la nouvelle tile
+                    const tile = new Tile();
+                    tile.coordinates.X = tileData.x;
+                    tile.coordinates.Y = tileData.y;
+
+                    const spriteModel = tile.components.SpriteModel;
+                    spriteModel.sprite = new Image();
+                    spriteModel.sprite.src = tileData.sprite;
+                    spriteModel.size.Width = 27;
+                    spriteModel.size.Height = 27;
+                    spriteModel.enabled = true;
+
+                    tile.isSolid = tileData.isSolid || false;
+                    tile.layer = tileData.layer;
+
+                    if (tile.components.BoxCollider) {
+                        tile.components.BoxCollider.enabled = tile.isSolid;
+                    }
+
+                    scene.wgObjects.push(tile);
+                    this.#placedTiles.set(posKey, tile);
+                });
+                break;
+        }
+
+        // Sauvegarder après le redo
+        this.#saveMapToServer();
+        console.log('✅ Action refaite et sauvegardée');
     }
 
     /**
