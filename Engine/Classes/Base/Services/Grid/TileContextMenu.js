@@ -15,8 +15,6 @@ class TileContextMenu {
     #menuElement;
     #currentTile = null;
     #currentPosition = null;
-    #isDrawing = false; // Tracking si on est en train de dessiner/effacer
-    #rightClickStartTime = 0; // Timestamp du début du clic droit
 
     constructor(tileDragService, canvas) {
         this.#tileDragService = tileDragService;
@@ -32,99 +30,73 @@ class TileContextMenu {
      * Configure les événements
      */
     #setupEventListeners() {
-        // Menu contextuel désactivé : le clic droit sert maintenant à déplacer la caméra
-        // Le clic gauche est utilisé pour dessiner/effacer/remplir
-
-        // Tracker le début du clic gauche (mousedown)
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 0) {
-                this.#isDrawing = false;
-                this.#rightClickStartTime = Date.now();
-            }
-        });
-
-        // Tracker le mouvement de la souris (si on bouge = dessin)
-        document.addEventListener('mousemove', (e) => {
-            if (e.buttons === 1) { // Clic gauche maintenu
-                this.#isDrawing = true;
-            }
-        });
-
-        // Clic gauche sur le canvas avec menu contextuel
-        // Note : Pour l'instant désactivé car on privilégie le dessin direct
-        // Le menu contextuel pourrait être réactivé avec un autre raccourci si nécessaire
-        /*
-        this.#canvas.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-
+        // Alt+Clic gauche sur le canvas - afficher le menu contextuel sur les tiles placées
+        this.#canvas.addEventListener('click', (e) => {
             const mode = window.getMode ? window.getMode() : 'play';
             if (mode !== 'construction') return;
 
-            // Vérifier le mode d'édition
-            const editMode = window.getEditMode ? window.getEditMode() : 'brush';
-
-            // Calculer la durée du clic
-            const clickDuration = Date.now() - this.#rightClickStartTime;
-
-            // N'afficher le menu QUE si :
-            // 1. On n'a pas bougé (pas de dessin)
-            // 2. Le clic est court (< 200ms = clic simple)
-            // 3. On n'est PAS en mode pot de peinture (le pot utilise le clic droit)
-            if (!this.#isDrawing && clickDuration < 200 && editMode !== 'fill') {
+            // Vérifier si Alt est pressé
+            if (e.altKey) {
+                console.log('📋 Alt+Clic détecté');
+                e.preventDefault();
                 this.#handleContextMenu(e);
-            }
-
-            // Réinitialiser l'état
-            this.#isDrawing = false;
-        });
-        */
-
-        // Réinitialiser l'état au relâchement du clic gauche
-        document.addEventListener('mouseup', (e) => {
-            if (e.button === 0) {
-                this.#isDrawing = false;
             }
         });
 
         // Fermer le menu si on clique ailleurs
         document.addEventListener('click', (e) => {
-            if (!this.#menuElement.contains(e.target)) {
+            if (!this.#menuElement.contains(e.target) && !e.altKey) {
                 this.#hideMenu();
             }
         });
 
-        // Bouton toggle solid
-        document.getElementById('menu-toggle-solid').addEventListener('click', () => {
-            this.#toggleSolid();
-        });
-
-        // Bouton toggle teleport
-        document.getElementById('menu-toggle-teleport').addEventListener('click', () => {
-            this.#toggleTeleport();
-        });
-
-        // Champs de téléportation
-        document.getElementById('menu-teleport-map').addEventListener('input', (e) => {
-            this.#updateTeleportData('map', e.target.value);
-        });
-
-        document.getElementById('menu-teleport-x').addEventListener('input', (e) => {
-            this.#updateTeleportData('x', parseFloat(e.target.value) || 0);
-        });
-
-        document.getElementById('menu-teleport-y').addEventListener('input', (e) => {
-            this.#updateTeleportData('y', parseFloat(e.target.value) || 0);
-        });
+        // Bouton toggle téléporteur
+        const toggleTeleportBtn = document.getElementById('menu-toggle-teleport');
+        if (toggleTeleportBtn) {
+            toggleTeleportBtn.addEventListener('click', () => {
+                this.#toggleTeleport();
+            });
+        }
 
         // Bouton supprimer
-        document.getElementById('menu-delete-tile').addEventListener('click', () => {
-            this.#deleteTile();
-        });
+        const deleteBtn = document.getElementById('menu-delete-tile');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                this.#deleteTile();
+            });
+        }
 
-        // Sélecteur de layer
-        document.getElementById('menu-layer-select').addEventListener('change', (e) => {
-            this.#changeLayer(parseInt(e.target.value));
-        });
+        // Inputs de téléportation
+        const teleportMapInput = document.getElementById('menu-teleport-map');
+        const teleportXInput = document.getElementById('menu-teleport-x');
+        const teleportYInput = document.getElementById('menu-teleport-y');
+
+        if (teleportMapInput) {
+            teleportMapInput.addEventListener('change', () => {
+                if (this.#currentTile && this.#currentTile.isTeleporter) {
+                    this.#currentTile.teleportData.map = teleportMapInput.value;
+                    this.#tileDragService.saveMap();
+                }
+            });
+        }
+
+        if (teleportXInput) {
+            teleportXInput.addEventListener('change', () => {
+                if (this.#currentTile && this.#currentTile.isTeleporter) {
+                    this.#currentTile.teleportData.x = parseInt(teleportXInput.value) || 0;
+                    this.#tileDragService.saveMap();
+                }
+            });
+        }
+
+        if (teleportYInput) {
+            teleportYInput.addEventListener('change', () => {
+                if (this.#currentTile && this.#currentTile.isTeleporter) {
+                    this.#currentTile.teleportData.y = parseInt(teleportYInput.value) || 0;
+                    this.#tileDragService.saveMap();
+                }
+            });
+        }
 
         // Fermer le menu avec Escape
         document.addEventListener('keydown', (e) => {
@@ -138,12 +110,20 @@ class TileContextMenu {
      * Gère le clic droit sur le canvas
      */
     #handleContextMenu(e) {
+        console.log('📋 handleContextMenu appelé');
+
         // Récupérer la scène via l'engine global
         const engine = window.engineInstance;
-        if (!engine) return;
+        if (!engine) {
+            console.warn('⚠️ Engine non disponible');
+            return;
+        }
 
         const scene = engine.services.SceneService.activeScene;
-        if (!scene || !scene.activeCamera) return;
+        if (!scene || !scene.activeCamera) {
+            console.warn('⚠️ Scène ou caméra non disponible');
+            return;
+        }
 
         // Convertir la position de la souris en coordonnées monde
         const worldPos = this.#gridSnapHelper.screenToWorld(
@@ -155,15 +135,18 @@ class TileContextMenu {
 
         // Snapper sur la grille pour trouver la tuile
         const snappedPos = this.#gridSnapHelper.snapToGrid(worldPos.x, worldPos.y);
+        console.log(`🎯 Position snappée: (${snappedPos.x}, ${snappedPos.y})`);
 
         // Chercher une tuile à cette position
         const tile = this.#findTileAt(snappedPos.x, snappedPos.y);
 
         if (tile) {
+            console.log('🔍 Tile trouvée:', tile);
             this.#currentTile = tile;
             this.#currentPosition = { x: snappedPos.x, y: snappedPos.y };
             this.#showMenu(e.clientX, e.clientY, tile);
         } else {
+            console.log('❌ Aucune tile à cette position');
             this.#hideMenu();
         }
     }
@@ -194,48 +177,49 @@ class TileContextMenu {
      * Affiche le menu contextuel
      */
     #showMenu(x, y, tile) {
-        // Mettre à jour l'état du checkbox solide
-        const isSolid = tile.isSolid || false;
-        const iconElement = document.getElementById('menu-solid-icon');
-        iconElement.textContent = isSolid ? '☑' : '☐';
+        console.log('✅ Affichage du menu contextuel');
 
         // Mettre à jour l'état du téléporteur
         const isTeleporter = tile.isTeleporter || false;
         const teleportIcon = document.getElementById('menu-teleport-icon');
-        teleportIcon.textContent = isTeleporter ? '☑' : '☐';
+        if (teleportIcon) teleportIcon.textContent = isTeleporter ? '☑' : '☐';
 
         // Afficher/masquer les paramètres de téléportation
         const teleportSettings = document.getElementById('teleport-settings');
-        if (isTeleporter) {
-            teleportSettings.classList.remove('hidden');
+        if (teleportSettings) {
+            if (isTeleporter) {
+                teleportSettings.classList.remove('hidden');
 
-            // Remplir les champs avec les données existantes
-            const teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
-            document.getElementById('menu-teleport-map').value = teleportData.map || '';
-            document.getElementById('menu-teleport-x').value = teleportData.x || 0;
-            document.getElementById('menu-teleport-y').value = teleportData.y || 0;
-        } else {
-            teleportSettings.classList.add('hidden');
+                // Remplir les champs avec les données existantes
+                const teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
+                const mapInput = document.getElementById('menu-teleport-map');
+                const xInput = document.getElementById('menu-teleport-x');
+                const yInput = document.getElementById('menu-teleport-y');
+
+                if (mapInput) mapInput.value = teleportData.map || '';
+                if (xInput) xInput.value = teleportData.x || 0;
+                if (yInput) yInput.value = teleportData.y || 0;
+            } else {
+                teleportSettings.classList.add('hidden');
+            }
         }
 
-        // Mettre à jour le layer sélectionné
-        const layerSelect = document.getElementById('menu-layer-select');
-        layerSelect.value = tile.layer !== undefined ? tile.layer : 0;
+        // Mettre à jour la position affichée
+        const posElement = document.getElementById('menu-tile-pos');
+        if (posElement) {
+            posElement.textContent = `Position: (${this.#currentPosition.x}, ${this.#currentPosition.y})`;
+        }
 
-        // Compter combien de layers sont présents à cette position
-        const allTilesAtPos = this.#tileDragService.getTileAt(this.#currentPosition.x, this.#currentPosition.y);
-        const layerCount = Array.isArray(allTilesAtPos) ? allTilesAtPos.length : 1;
-        const currentLayer = tile.layer !== undefined ? tile.layer : 0;
-
-        // Mettre à jour la position affichée avec info sur les layers
-        const layerInfo = layerCount > 1 ? ` | Layer ${currentLayer} (${layerCount} layers)` : ` | Layer ${currentLayer}`;
-        document.getElementById('menu-tile-pos').textContent =
-            `Position: (${this.#currentPosition.x}, ${this.#currentPosition.y})${layerInfo}`;
-
-        // Positionner le menu
+        // Positionner le menu et FORCER l'affichage
         this.#menuElement.style.left = `${x}px`;
         this.#menuElement.style.top = `${y}px`;
+        this.#menuElement.style.display = 'block';
+        this.#menuElement.style.visibility = 'visible';
+        this.#menuElement.style.opacity = '1';
+        this.#menuElement.style.zIndex = '250';
         this.#menuElement.classList.remove('hidden');
+
+        console.log('📍 Menu positionné à:', { x, y });
 
         // Ajuster si le menu dépasse de l'écran
         const rect = this.#menuElement.getBoundingClientRect();
@@ -251,6 +235,7 @@ class TileContextMenu {
      * Cache le menu contextuel
      */
     #hideMenu() {
+        this.#menuElement.style.display = 'none';
         this.#menuElement.classList.add('hidden');
         this.#currentTile = null;
         this.#currentPosition = null;
