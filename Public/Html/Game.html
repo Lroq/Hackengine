@@ -23,6 +23,7 @@
     </div>
 
     <div class="flex space-x-2">
+        <button id="help-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-sm transition" title="Aide et raccourcis">❓</button>
         <button id="save-map-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-sm transition flex items-center gap-2" title="Sauvegarder la map (Ctrl+S)">
             <span>💾</span>
             <span>Sauvegarder</span>
@@ -50,10 +51,6 @@
             <div class="absolute top-4 left-4 z-10 bg-[#1a1a1d]/90 backdrop-blur-sm border border-gray-700 rounded-lg shadow-lg">
                 <div class="px-3 py-2 border-b border-gray-700 flex items-center justify-between">
                     <span class="text-gray-400 text-xs font-medium">🛠️ Mode d'édition</span>
-                    <div class="flex flex-col gap-0.5">
-                        <span class="text-gray-500 text-xs">ctrl+z undo</span>
-                        <span class="text-gray-500 text-xs">ctrl+y redo</span>
-                    </div>
                 </div>
                 <div class="p-2 flex flex-col gap-1">
                     <!-- Mode Pinceau -->
@@ -61,7 +58,6 @@
                         <span class="text-xl">🖌️</span>
                         <div class="text-left">
                             <div class="text-sm font-medium text-white">Pinceau</div>
-                            <div class="text-xs text-gray-400">Clic droit maintenu</div>
                         </div>
                     </button>
 
@@ -70,7 +66,6 @@
                         <span class="text-xl">🪣</span>
                         <div class="text-left">
                             <div class="text-sm font-medium text-white">Pot de peinture</div>
-                            <div class="text-xs text-gray-400">Clic droit pour remplir</div>
                         </div>
                     </button>
 
@@ -79,7 +74,6 @@
                         <span class="text-xl">🧹</span>
                         <div class="text-left">
                             <div class="text-sm font-medium text-white">Gomme</div>
-                            <div class="text-xs text-gray-400">Clic droit maintenu</div>
                         </div>
                     </button>
 
@@ -129,14 +123,6 @@
             </select>
         </div>
 
-        <!-- Message d'aide -->
-        <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-2 mb-3 text-xs">
-            <p class="text-blue-300 mb-1">💡 <strong>Raccourcis :</strong></p>
-            <p class="text-gray-400">• Clic gauche : dessiner/placer</p>
-            <p class="text-gray-400">• Clic droit : déplacer la caméra</p>
-            <p class="text-gray-400">• Alt+Clic : menu contextuel tile</p>
-        </div>
-
         <div id="tiles-container" class="flex-1 overflow-y-auto mb-4"></div>
 
         <!-- Boutons pour ajouter un tile et créer un dossier -->
@@ -169,6 +155,185 @@
                 <span>Nouvelle Map</span>
             </button>
             <p class="text-xs text-gray-500">Cliquez sur une map pour la charger</p>
+        </div>
+    </div>
+</div>
+
+<!-- Modale d'aide -->
+<div id="help-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[200]">
+    <div class="bg-[#1a1a1d] border border-gray-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-white">❓ Aide & Raccourcis</h2>
+                <p class="text-sm text-gray-400 mt-1">Toutes les commandes pour utiliser l'éditeur</p>
+            </div>
+            <button id="close-help-btn" class="text-gray-400 hover:text-white text-2xl transition">✕</button>
+        </div>
+
+        <!-- Contenu scrollable -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Section Modes -->
+            <div>
+                <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                    <span>🎮</span>
+                    <span>Modes de Jeu</span>
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">▶️ Mode Play</div>
+                        <div class="text-sm text-gray-400">Teste ta map en temps réel</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🧱 Mode Construction</div>
+                        <div class="text-sm text-gray-400">Édite et construit ta map</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Outils d'édition -->
+            <div>
+                <h3 class="text-lg font-semibold text-green-400 mb-3 flex items-center gap-2">
+                    <span>🛠️</span>
+                    <span>Outils d'Édition</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🖌️ Pinceau</div>
+                        <div class="text-sm text-gray-400">Place des tiles une par une en maintenant le clic gauche</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🪣 Pot de Peinture</div>
+                        <div class="text-sm text-gray-400">Remplit une zone avec la tile sélectionnée (clic gauche)</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🧹 Gomme</div>
+                        <div class="text-sm text-gray-400">Efface des tiles en maintenant le clic gauche</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Raccourcis Clavier -->
+            <div>
+                <h3 class="text-lg font-semibold text-purple-400 mb-3 flex items-center gap-2">
+                    <span>⌨️</span>
+                    <span>Raccourcis Clavier</span>
+                </h3>
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
+                        <span class="text-gray-300">Annuler une action</span>
+                        <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Ctrl + Z</kbd>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
+                        <span class="text-gray-300">Refaire une action</span>
+                        <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Ctrl + Y</kbd>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700 flex justify-between items-center">
+                        <span class="text-gray-300">Sauvegarder la map</span>
+                        <kbd class="px-3 py-1 bg-gray-700 rounded text-sm font-mono">Ctrl + S</kbd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Contrôles Souris -->
+            <div>
+                <h3 class="text-lg font-semibold text-yellow-400 mb-3 flex items-center gap-2">
+                    <span>🖱️</span>
+                    <span>Contrôles Souris</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">Clic Gauche (maintenu)</div>
+                        <div class="text-sm text-gray-400">Dessiner / Effacer selon le mode actif</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">Clic Droit (maintenu)</div>
+                        <div class="text-sm text-gray-400">Déplacer la caméra en mode construction</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">Alt + Clic Gauche</div>
+                        <div class="text-sm text-gray-400">Ouvrir le menu contextuel d'une tile placée</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Configuration -->
+            <div>
+                <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center gap-2">
+                    <span>⚙️</span>
+                    <span>Configuration des Tiles</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🎨 Layer de placement</div>
+                        <div class="text-sm text-gray-400">Layer 0 (Sol), Layer 1 (Murs/Déco), Layer 2 (Sprites)</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🛡️ Collision</div>
+                        <div class="text-sm text-gray-400">Non solide (traversable) ou Solide (bloque le joueur)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Navigation -->
+            <div>
+                <h3 class="text-lg font-semibold text-cyan-400 mb-3 flex items-center gap-2">
+                    <span>🧭</span>
+                    <span>Navigation Rapide</span>
+                </h3>
+                <div class="space-y-2">
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">🎯 Centrer sur sprite</div>
+                        <div class="text-sm text-gray-400">Téléporte la caméra sur le personnage</div>
+                    </div>
+                    <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
+                        <div class="font-semibold text-white mb-1">⊕ Aller au centre (0;0)</div>
+                        <div class="text-sm text-gray-400">Téléporte la caméra au centre de la grille</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Limites -->
+            <div>
+                <h3 class="text-lg font-semibold text-orange-400 mb-3 flex items-center gap-2">
+                    <span>📏</span>
+                    <span>Limites & Règles</span>
+                </h3>
+                <div class="bg-[#2b2b2f] rounded-lg p-4 border border-gray-700">
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>La grille fait <strong>50×50 tiles</strong> (de -675 à +675)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>Le centre <strong>(0;0)</strong> est marqué par une croix rouge/verte</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>Les tiles ne peuvent être placées que <strong>dans la grille bordée</strong></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>Sauvegarde <strong>automatique toutes les minutes</strong></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400">✓</span>
+                            <span>Jusqu'à <strong>3 layers</strong> peuvent coexister sur une même position</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
+            <p class="text-xs text-gray-500">Hackengine v1.2.1 - Mode Construction</p>
+            <button id="close-help-btn-2" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
+                Fermer
+            </button>
         </div>
     </div>
 </div>
@@ -565,6 +730,42 @@
     // Démarrer la sauvegarde automatique au chargement
     window.addEventListener('load', () => {
         startAutoSave();
+    });
+
+    // Gestion de la modale d'aide
+    const helpModal = document.getElementById('help-modal');
+    const helpBtn = document.getElementById('help-btn');
+    const closeHelpBtn = document.getElementById('close-help-btn');
+    const closeHelpBtn2 = document.getElementById('close-help-btn-2');
+
+    // Ouvrir la modale d'aide
+    helpBtn.addEventListener('click', () => {
+        helpModal.classList.remove('hidden');
+        console.log('📖 Modale d\'aide ouverte');
+    });
+
+    // Fermer la modale d'aide (bouton X)
+    closeHelpBtn.addEventListener('click', () => {
+        helpModal.classList.add('hidden');
+    });
+
+    // Fermer la modale d'aide (bouton Fermer)
+    closeHelpBtn2.addEventListener('click', () => {
+        helpModal.classList.add('hidden');
+    });
+
+    // Fermer la modale d'aide avec Échap
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !helpModal.classList.contains('hidden')) {
+            helpModal.classList.add('hidden');
+        }
+    });
+
+    // Fermer la modale d'aide en cliquant sur le fond noir
+    helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            helpModal.classList.add('hidden');
+        }
     });
 
     // Export pour le moteur
