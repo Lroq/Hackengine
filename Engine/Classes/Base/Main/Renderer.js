@@ -90,12 +90,72 @@ class Renderer {
                     this.#Context.scale(SpriteModel.rotation, 1);
                     this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
                     this.#Context.restore();
+
+                    // En mode construction, afficher des indicateurs sur les tiles
+                    if (mode === 'construction' && Instance instanceof Tile) {
+                        this.#drawTileIndicators(Instance, SceneToRender.activeCamera, FinalX, FinalY, SpriteModel);
+                    }
                 } catch (error) {
                     // Ignorer silencieusement les erreurs de rendu d'images
                     this.#Context.restore();
                 }
             }
         }
+    }
+
+    /**
+     * Dessine des indicateurs visuels sur les tiles en mode construction
+     * @param {Tile} tile - La tile à annoter
+     * @param {Camera} camera - La caméra active
+     * @param {number} finalX - Position X finale après calcul du parent
+     * @param {number} finalY - Position Y finale après calcul du parent
+     * @param {SpriteModel} spriteModel - Le modèle de sprite
+     */
+    #drawTileIndicators(tile, camera, finalX, finalY, spriteModel) {
+        this.#Context.save();
+
+        const screenX = camera.coordinates.X + finalX;
+        const screenY = camera.coordinates.Y + finalY;
+        const tileWidth = spriteModel.size.Width;
+        const tileHeight = spriteModel.size.Height;
+
+        // Fond semi-transparent pour les icônes
+        const iconSize = 8;
+        const padding = 2;
+        let iconX = screenX + tileWidth - iconSize - padding;
+        const iconY = screenY + padding;
+
+        // Indicateur de téléporteur (🌀 en haut à droite)
+        if (tile.isTeleporter) {
+            // Fond bleu pour téléporteur
+            this.#Context.fillStyle = 'rgba(59, 130, 246, 0.8)';
+            this.#Context.fillRect(iconX, iconY, iconSize, iconSize);
+
+            // Icône téléporteur
+            this.#Context.fillStyle = '#ffffff';
+            this.#Context.font = '7px Arial';
+            this.#Context.textAlign = 'center';
+            this.#Context.textBaseline = 'middle';
+            this.#Context.fillText('🌀', iconX + iconSize / 2, iconY + iconSize / 2);
+
+            iconX -= iconSize + padding; // Décaler pour le prochain indicateur
+        }
+
+        // Indicateur de solidité (🧱 à côté du téléporteur si présent)
+        if (tile.isSolid) {
+            // Fond rouge pour solide
+            this.#Context.fillStyle = 'rgba(239, 68, 68, 0.8)';
+            this.#Context.fillRect(iconX, iconY, iconSize, iconSize);
+
+            // Icône mur
+            this.#Context.fillStyle = '#ffffff';
+            this.#Context.font = '7px Arial';
+            this.#Context.textAlign = 'center';
+            this.#Context.textBaseline = 'middle';
+            this.#Context.fillText('🧱', iconX + iconSize / 2, iconY + iconSize / 2);
+        }
+
+        this.#Context.restore();
     }
 
     render() {
