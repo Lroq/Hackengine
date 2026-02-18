@@ -29,7 +29,13 @@ class GridSnapHelper {
         // Récupère les dimensions du canvas et calcule l'échelle
         const rect = canvas.getBoundingClientRect();
         const canvasHeight = canvas.height;
-        const scale = canvasHeight * 0.004; // Même calcul que dans Renderer.js
+        let scale = canvasHeight * 0.004; // Même calcul que dans Renderer.js
+
+        // Appliquer le zoom en mode construction
+        const mode = window.getMode ? window.getMode() : 'play';
+        if (mode === 'construction' && window.constructionZoom) {
+            scale *= window.constructionZoom;
+        }
 
         // Convertit les coordonnées de l'écran en coordonnées du canvas
         const canvasX = ((screenX - rect.left) / rect.width) * canvas.width;

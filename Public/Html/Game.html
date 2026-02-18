@@ -18,7 +18,7 @@
         <div class="w-10 h-10 rounded-lg bg-[#2b2b2f] flex items-center justify-center font-bold text-lg">H</div>
         <div>
             <h1 class="text-lg font-semibold">Hackemon</h1>
-            <p class="text-xs text-gray-400">Hackengine v2</p>
+            <p class="text-xs text-gray-400">Hackengine v2.1</p>
         </div>
     </div>
 
@@ -100,6 +100,26 @@
                             <div class="text-sm font-medium">Aller au centre (0;0)</div>
                         </div>
                     </button>
+
+                    <!-- Contrôles de zoom -->
+                    <div class="border-t border-gray-700 pt-3 mt-3">
+                        <div class="text-xs text-gray-400 mb-2 font-semibold">🔍 Zoom</div>
+                        <div class="flex items-center gap-2">
+                            <button id="zoom-out-btn" class="flex-1 px-3 py-2 bg-[#2b2b2f] hover:bg-red-600 text-white rounded-lg transition font-semibold text-lg">
+                                −
+                            </button>
+                            <div id="zoom-level-display" class="px-3 py-2 bg-[#1a1a1d] text-white rounded-lg text-center text-sm font-mono min-w-[70px] border border-gray-700">
+                                100%
+                            </div>
+                            <button id="zoom-in-btn" class="flex-1 px-3 py-2 bg-[#2b2b2f] hover:bg-green-600 text-white rounded-lg transition font-semibold text-lg">
+                                +
+                            </button>
+                        </div>
+                        <button id="zoom-reset-btn" class="w-full mt-2 px-3 py-1.5 bg-[#2b2b2f] hover:bg-blue-600 text-white rounded-lg transition text-xs font-medium">
+                            Réinitialiser (100%)
+                        </button>
+                        <div class="text-xs text-gray-500 mt-1 text-center">Molette : Zoom in/out</div>
+                    </div>
                 </div>
             </div>
 
@@ -544,7 +564,7 @@
 
         <!-- Footer -->
         <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
-            <p class="text-xs text-gray-500">Hackengine v2 - Mode Construction</p>
+            <p class="text-xs text-gray-500">Hackengine v2.1 - Mode Construction</p>
             <button id="close-help-btn-2" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
                 Fermer
             </button>
@@ -720,6 +740,13 @@
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
 
+    // Variables pour le zoom (mode construction uniquement)
+    let currentZoom = 1.0;  // 100%
+    const minZoom = 0.5;    // 50%
+    const maxZoom = 3.0;    // 300%
+    const zoomStep = 0.1;   // 10%
+    window.constructionZoom = currentZoom; // Exposer globalement
+
     canvas.addEventListener("contextmenu", (e) => {
         e.preventDefault();
     });
@@ -809,6 +836,33 @@
         }
     }
 
+    // --- Fonctions de gestion du zoom ---
+    function updateZoom(newZoom) {
+        if (mode !== 'construction') return;
+
+        currentZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+        window.constructionZoom = currentZoom;
+
+        const display = document.getElementById('zoom-level-display');
+        if (display) {
+            display.textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        console.log(`🔍 Zoom: ${Math.round(currentZoom * 100)}%`);
+    }
+
+    function zoomIn() {
+        updateZoom(currentZoom + zoomStep);
+    }
+
+    function zoomOut() {
+        updateZoom(currentZoom - zoomStep);
+    }
+
+    function resetZoom() {
+        updateZoom(1.0);
+    }
+
     // --- Événements pour le pan de caméra ---
     canvas.addEventListener('mousedown', (e) => {
         if (mode === 'construction' && e.button === 2) {
@@ -884,6 +938,23 @@
             text.textContent = 'Mode Construction';
         }
     }
+
+    // Event listeners pour le zoom
+    const zoomInBtn = document.getElementById('zoom-in-btn');
+    const zoomOutBtn = document.getElementById('zoom-out-btn');
+    const zoomResetBtn = document.getElementById('zoom-reset-btn');
+
+    if (zoomInBtn) zoomInBtn.addEventListener('click', zoomIn);
+    if (zoomOutBtn) zoomOutBtn.addEventListener('click', zoomOut);
+    if (zoomResetBtn) zoomResetBtn.addEventListener('click', resetZoom);
+
+    // Molette pour le zoom
+    canvas.addEventListener('wheel', (e) => {
+        if (mode !== 'construction') return;
+        e.preventDefault();
+        const delta = -Math.sign(e.deltaY) * zoomStep;
+        updateZoom(currentZoom + delta);
+    }, { passive: false });
 
     // Gestion du redimensionnement
     window.addEventListener('resize', resizeCanvas);

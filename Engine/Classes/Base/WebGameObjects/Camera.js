@@ -79,8 +79,16 @@ class Camera extends WGObject {
             case CameraType.Scriptable: {
                 // ✅ En mode "construction" : déplacement libre (pan)
                 const pan = window.getCameraPan ? window.getCameraPan() : { x: 0, y: 0 };
-                super.coordinates.X += pan.x * 0.01;
-                super.coordinates.Y += pan.y * 0.01;
+
+                if (pan.x !== 0 || pan.y !== 0) {
+                    // Adapter la vitesse de déplacement au zoom
+                    // Plus le zoom est grand, plus on doit bouger lentement pour garder une sensation cohérente
+                    const zoom = window.constructionZoom || 1.0;
+                    const speed = 0.01 / zoom;
+
+                    super.coordinates.X += pan.x * speed;
+                    super.coordinates.Y += pan.y * speed;
+                }
                 break;
             }
         }

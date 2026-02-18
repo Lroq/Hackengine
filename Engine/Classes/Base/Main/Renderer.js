@@ -166,6 +166,18 @@ class Renderer {
             return;
         }
 
+        // Sauvegarder l'état du contexte
+        this.#Context.save();
+
+        // Réappliquer le scale avec le zoom actuel
+        let scale = this.#CanvasSize.Height * 0.004;
+        const mode = window.getMode ? window.getMode() : 'play';
+        if (mode === 'construction' && window.constructionZoom) {
+            scale *= window.constructionZoom;
+        }
+        this.#Context.scale(scale, scale);
+        this.#Context.imageSmoothingEnabled = false;
+
         this.clearScreen();
 
         SceneToRender.activeCamera.run(SceneToRender, this.#CanvasSize);
@@ -192,6 +204,9 @@ class Renderer {
 
         // Rendu de la grille de construction (uniquement en mode construction)
         this.#ConstructionGrid.render(this.#Context, SceneToRender.activeCamera);
+
+        // Restaurer l'état du contexte
+        this.#Context.restore();
     }
 
 
@@ -200,7 +215,7 @@ class Renderer {
     }
 
     setCanvasSize(Size_2D) {
-        this.#Context.scale(Size_2D.Height * 0.004, Size_2D.Height * 0.004)
+        // Ne plus appliquer le scale ici, c'est fait dans render()
         this.#Context.imageSmoothingEnabled = false;
         this.#CanvasSize = Size_2D;
     }
