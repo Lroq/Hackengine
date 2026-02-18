@@ -131,3 +131,36 @@
         box-shadow: 0 0 25px rgba(59, 130, 246, 0.8), inset 0 0 20px rgba(59, 130, 246, 0.5);
     }
 }
+
+/* Correction pour les menus déroulants (select) */
+select {
+    position: relative;
+    z-index: 100 !important;
+    cursor: pointer !important;
+    -webkit-appearance: menulist;
+    -moz-appearance: menulist;
+    appearance: menulist;
+    pointer-events: auto !important;
+}
+
+select:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    z-index: 150 !important;
+}
+
+/* S'assurer que les options du select sont visibles */
+select option {
+    background-color: #2b2b2f;
+    color: white;
+    padding: 0.5rem;
+    pointer-events: auto !important;
+}
+
+/* Container des select pour éviter les conflits */
+select:not(:disabled) {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+

@@ -61,6 +61,12 @@ class TileDragService {
         document.addEventListener('mousemove', (e) => {
             const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
+            // Ne pas dessiner si on est sur le panneau des assets
+            const assetsPanel = document.getElementById('assets-panel');
+            if (assetsPanel && assetsPanel.contains(e.target)) {
+                return;
+            }
+
             if (isDrawing && this.#currentTileData) {
                 // Mode pinceau : dessiner
                 if (editMode === 'brush') {
@@ -87,6 +93,14 @@ class TileDragService {
             const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
             if (e.button === 0) {
+                // Ne pas bloquer les interactions avec les éléments de formulaire
+                const target = e.target;
+                if (target.tagName === 'SELECT' || target.tagName === 'OPTION' ||
+                    target.tagName === 'INPUT' || target.tagName === 'BUTTON' ||
+                    target.closest('select') || target.closest('button') || target.closest('input')) {
+                    return; // Laisser le comportement par défaut pour les formulaires
+                }
+
                 e.preventDefault();
                 currentActionTiles = []; // Réinitialiser pour la nouvelle action
 
@@ -332,6 +346,10 @@ class TileDragService {
         const activeLayerSelect = document.getElementById('active-layer-select');
         const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
 
+        // Récupérer la solidité sélectionnée
+        const tileSolidSelect = document.getElementById('tile-solid-select');
+        const tileShouldBeSolid = tileSolidSelect ? (tileSolidSelect.value === 'true') : false;
+
         // Créer la clé pour cette position + layer
         const posKey = `${snappedPos.x},${snappedPos.y},${activeLayer}`;
 
@@ -359,13 +377,13 @@ class TileDragService {
         spriteModel.enabled = true;
 
         // Propriétés par défaut
-        newTile.isSolid = false;
+        newTile.isSolid = tileShouldBeSolid;
         newTile.layer = activeLayer;
         newTile.isGhost = false;
 
-        // Désactiver le collider
+        // Activer/désactiver le collider selon la solidité sélectionnée
         if (newTile.components.BoxCollider) {
-            newTile.components.BoxCollider.enabled = false;
+            newTile.components.BoxCollider.enabled = tileShouldBeSolid;
         }
 
         // Ajouter à la scène et enregistrer
@@ -378,7 +396,7 @@ class TileDragService {
             y: snappedPos.y,
             layer: activeLayer,
             sprite: this.#currentTileData.path,
-            isSolid: false
+            isSolid: tileShouldBeSolid
         };
     }
 
@@ -467,6 +485,10 @@ class TileDragService {
         const activeLayerSelect = document.getElementById('active-layer-select');
         const activeLayer = activeLayerSelect ? parseInt(activeLayerSelect.value) : 0;
 
+        // Récupérer la solidité sélectionnée
+        const tileSolidSelect = document.getElementById('tile-solid-select');
+        const tileShouldBeSolid = tileSolidSelect ? (tileSolidSelect.value === 'true') : false;
+
         // Vérifier la tile existante à cette position
         const startKey = `${startPos.x},${startPos.y},${activeLayer}`;
         const existingTile = this.#placedTiles.get(startKey);
@@ -521,12 +543,12 @@ class TileDragService {
                 spriteModel.size.Height = 27;
                 spriteModel.enabled = true;
 
-                newTile.isSolid = false;
+                newTile.isSolid = tileShouldBeSolid;
                 newTile.layer = activeLayer;
                 newTile.isGhost = false;
 
                 if (newTile.components.BoxCollider) {
-                    newTile.components.BoxCollider.enabled = false;
+                    newTile.components.BoxCollider.enabled = tileShouldBeSolid;
                 }
 
                 scene.wgObjects.push(newTile);
