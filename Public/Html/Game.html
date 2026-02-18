@@ -91,6 +91,14 @@
                             <div class="text-sm font-medium">Centrer sur sprite</div>
                         </div>
                     </button>
+
+                    <!-- Bouton téléportation à 0;0 -->
+                    <button id="teleport-to-zero-btn" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all bg-[#2b2b2f] hover:bg-purple-600 text-white">
+                        <span class="text-xl">⊕</span>
+                        <div class="text-left">
+                            <div class="text-sm font-medium">Aller au centre (0;0)</div>
+                        </div>
+                    </button>
                 </div>
             </div>
 
@@ -463,13 +471,37 @@
 
             // Feedback visuel sur le bouton
             const teleportBtn = document.getElementById('teleport-to-sprite-btn');
-            const originalBg = teleportBtn.classList.contains('bg-blue-600');
             teleportBtn.classList.add('bg-green-600');
             setTimeout(() => {
                 teleportBtn.classList.remove('bg-green-600');
             }, 300);
         } else {
             console.warn('⚠️ Caméra ou sprite non disponible');
+        }
+    });
+
+    // Bouton de téléportation à 0;0 (centre de la grille)
+    document.getElementById('teleport-to-zero-btn').addEventListener('click', () => {
+        if (window.activeCamera) {
+            // Calculer la position de la caméra pour centrer sur 0;0
+            const canvasWidth = 800;
+            const canvasHeight = 600;
+            const scale = canvasHeight * 0.004;
+
+            // Centrer la caméra sur 0;0
+            window.activeCamera.coordinates.X = (canvasWidth / 2) / scale;
+            window.activeCamera.coordinates.Y = (canvasHeight / 2) / scale;
+
+            console.log(`⊕ Téléportation au centre de la grille: (0, 0)`);
+
+            // Feedback visuel sur le bouton
+            const teleportBtn = document.getElementById('teleport-to-zero-btn');
+            teleportBtn.classList.add('bg-green-600');
+            setTimeout(() => {
+                teleportBtn.classList.remove('bg-green-600');
+            }, 300);
+        } else {
+            console.warn('⚠️ Caméra non disponible');
         }
     });
 
