@@ -44,8 +44,7 @@ async function main() {
             InputService:          new InputService(),
         },
         {
-            TickRate:    10,
-            RefreshRate: 100,
+            TickRate: 10,
         },
         canvas
     );

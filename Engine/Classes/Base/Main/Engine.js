@@ -17,15 +17,13 @@ class Engine {
 
     #TickRate;
     #TickLoop;
-    #RefreshRate;
-    #RefreshLoop;
+
+    #renderLoopId;
 
     constructor(Services, Configuration, Canvas) {
         this.#Services = Services;
         this.#Canvas = Canvas;
-
         this.#TickRate = Configuration.TickRate;
-        this.#RefreshRate = Configuration.RefreshRate;
 
         this.#Renderer.setContext(this.#Canvas.getContext("2d"));
         this.#startLoop();
@@ -36,8 +34,18 @@ class Engine {
     }
 
     #startLoop() {
-        this.#TickLoop = setInterval(() => this.tick(), this.#TickRate)
-        this.#RefreshLoop = setInterval(() => this.#Renderer.render(), this.#RefreshRate)
+        this.#TickLoop = setInterval(() => this.tick(), this.#TickRate);
+
+        const renderLoop = () => {
+            this.#Renderer.render();
+            this.#renderLoopId = requestAnimationFrame(renderLoop);
+        };
+        this.#renderLoopId = requestAnimationFrame(renderLoop);
+    }
+
+    stop() {
+        clearInterval(this.#TickLoop);
+        cancelAnimationFrame(this.#renderLoopId);
     }
 
     resize(Size, Options = {FullScreen: false}) {
@@ -69,9 +77,7 @@ class Engine {
         if (isServiceListed && isServiceValid) {
             const activeScene = this.services.SceneService.activeScene;
 
-            if (!activeScene) {
-                return;
-            }
+            if (!activeScene) return;
 
             if (this.#LastTick == null) {
                 this.#LastTick = performance.now();
