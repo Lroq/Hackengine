@@ -1,7 +1,5 @@
 // -- :: Dependencies :: -- \\
 import {Engine}          from "/Engine/Classes/Base/Main/Engine.js";
-import {CollisionGroup}  from "/Engine/Classes/Base/Services/Collision/CollisionGroup.js";
-import {SceneLoader}     from "/Engine/Classes/Base/Services/Scenes/SceneLoader.js";
 import {SceneService}    from "/Engine/Classes/Base/Services/Scenes/SceneService.js";
 import {Size_2D}         from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}   from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
@@ -37,11 +35,9 @@ async function main() {
 
     const engine = new Engine(
         {
-            SceneService:          new SceneService(),
-            SceneLoaderService:    new SceneLoader(),
-            CollisionGroupService: new CollisionGroup(),
-            PhysicService:         new PhysicService(),
-            InputService:          new InputService(),
+            SceneService:  new SceneService(),
+            PhysicService: new PhysicService(),
+            InputService:  new InputService(),
         },
         {
             TickRate: 10,
@@ -61,6 +57,7 @@ async function main() {
 
     const tileDragService = new TileDragService();
     tileDragService.initialize(engine, canvas);
+
     window.tileDragService = tileDragService;
 
     await tileDragService.loadMapFromServer(currentMapName);
