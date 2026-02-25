@@ -25,7 +25,7 @@ class Engine {
         this.#Canvas = Canvas;
 
         this.#TickRate = Configuration.TickRate;
-        this.refreshRate = Configuration.RefreshRate;
+        this.#RefreshRate = Configuration.RefreshRate;
 
         this.#Renderer.setContext(this.#Canvas.getContext("2d"));
         this.#startLoop();
@@ -67,10 +67,9 @@ class Engine {
         const isServiceValid = this.#Services.SceneService instanceof SceneService;
 
         if (isServiceListed && isServiceValid) {
-            const ActiveScene = this.services.SceneService.activeScene;
+            const activeScene = this.services.SceneService.activeScene;
 
-            // Vérifier que la scène active existe
-            if (!ActiveScene) {
+            if (!activeScene) {
                 return;
             }
 
@@ -78,24 +77,23 @@ class Engine {
                 this.#LastTick = performance.now();
             }
 
-            const CurrentTick = performance.now();
-            const DeltaTime = (CurrentTick - this.#LastTick) / this.#TickRate;
+            const currentTick = performance.now();
+            const deltaTime = (currentTick - this.#LastTick) / this.#TickRate;
 
-            for (let i = 0; i < ActiveScene.wgObjects.length; i++) {
-                await this.#runWGObject(ActiveScene.wgObjects[i], DeltaTime);
+            for (let i = 0; i < activeScene.wgObjects.length; i++) {
+                await this.#runWGObject(activeScene.wgObjects[i], deltaTime);
             }
 
-            if (ActiveScene.update) {
-                ActiveScene.update(this.#Services);
+            if (activeScene.update) {
+                activeScene.update(this.#Services);
             }
 
-            this.#LastTick = CurrentTick;
-            MegaTicks.updateTicks(DeltaTime);
+            this.#LastTick = currentTick;
+            MegaTicks.updateTicks(deltaTime);
 
             this.#Services.InputService.updatePreviousInputs();
         } else {
             console.warn("No 'SceneService' Detected.");
-            debugger;
         }
     }
 }

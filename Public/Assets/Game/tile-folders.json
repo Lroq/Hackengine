@@ -42,9 +42,7 @@
         "folder_1767863296306_5jw6ozh7o",
         "folder_1767869268574_waya4vj9n"
       ],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/grandjuke27x27.png"
-      ]
+      "tiles": []
     },
     "folder_1767869268574_waya4vj9n": {
       "name": "teleporter",
@@ -82,28 +80,19 @@
       "name": "blank",
       "parent": "folder_1769590006730_1xw4dtu58",
       "folders": [],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/blank-road.png"
-      ]
+      "tiles": []
     },
     "folder_1769590047981_6bvzew6d8": {
       "name": "white-lane",
       "parent": "folder_1769590006730_1xw4dtu58",
       "folders": [],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/left-white-lane.png",
-        "/Public/Assets/Game/Tiles/middle-white-lane.png",
-        "/Public/Assets/Game/Tiles/right-white-lane.png"
-      ]
+      "tiles": []
     },
     "folder_1769590536161_dn0nys4ko": {
       "name": "arrow",
       "parent": "folder_1769590006730_1xw4dtu58",
       "folders": [],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/left-arrow-road.png",
-        "/Public/Assets/Game/Tiles/right-arrow-road.png"
-      ]
+      "tiles": []
     }
   },
   "expanded": [
