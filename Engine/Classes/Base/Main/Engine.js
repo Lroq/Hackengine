@@ -98,6 +98,13 @@ class Engine {
             debugger;
         }
     }
+
+    /**
+     * Définit le TileInteractionManager et le passe au Renderer
+     */
+    setTileInteractionManager(manager) {
+        this.#Renderer.setTileInteractionManager(manager);
+    }
 }
 
 export {Engine}

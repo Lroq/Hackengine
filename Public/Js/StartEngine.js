@@ -84,6 +84,23 @@ async function main(){
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     window.tileContextMenu = tileContextMenu;
 
+    // Attendre que le TileInteractionManager soit initialisé par la scène
+    // puis le connecter au Renderer
+    setTimeout(() => {
+        if (window.tileInteractionManager) {
+            EngineInstance.services.SceneService.activeScene.renderer = EngineInstance;
+            // Passer le TileInteractionManager au Renderer via l'Engine
+            if (EngineInstance.setTileInteractionManager) {
+                EngineInstance.setTileInteractionManager(window.tileInteractionManager);
+                console.log('✅ TileInteractionManager connecté au Renderer');
+            } else {
+                console.error('❌ setTileInteractionManager non disponible sur Engine');
+            }
+        } else {
+            console.warn('⚠️ window.tileInteractionManager non trouvé');
+        }
+    }, 100);
+
     // Bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
     backToMapsBtn.addEventListener('click', () => {

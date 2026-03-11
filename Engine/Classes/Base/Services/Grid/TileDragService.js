@@ -79,6 +79,11 @@ class TileDragService {
 
         // Événement de déplacement de la souris
         document.addEventListener('mousemove', (e) => {
+            // Bloquer si le menu contextuel est ouvert
+            if (window.tileContextMenu && window.tileContextMenu.isVisible()) {
+                return;
+            }
+
             const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
             // Ne pas dessiner si on est sur le panneau des assets
@@ -109,6 +114,11 @@ class TileDragService {
         document.addEventListener('mousedown', (e) => {
             const mode = window.getMode ? window.getMode() : 'play';
             if (mode !== 'construction') return;
+
+            // Bloquer si le menu contextuel est ouvert
+            if (window.tileContextMenu && window.tileContextMenu.isVisible()) {
+                return;
+            }
 
             const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
@@ -613,7 +623,9 @@ class TileDragService {
                     sprite: tile.components.SpriteModel.sprite.src,
                     isSolid: tile.isSolid || false,
                     isTeleporter: tile.isTeleporter || false,
-                    teleportData: tile.teleportData || null
+                    teleportData: tile.teleportData || null,
+                    hasInteraction: tile.hasInteraction || false,
+                    interactionText: tile.interactionText || ''
                 };
             }
         }
@@ -833,6 +845,12 @@ class TileDragService {
                 tileData.teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
             }
 
+            // Ajouter les données d'interaction si la tuile a une interaction
+            if (tile.hasInteraction) {
+                tileData.hasInteraction = true;
+                tileData.interactionText = tile.interactionText || '';
+            }
+
             mapData.push(tileData);
         });
         
@@ -879,6 +897,14 @@ class TileDragService {
                 tile.teleportData = data.teleportData || { map: '', x: 0, y: 0 };
                 // IMPORTANT: Les téléporteurs ne doivent JAMAIS être solides
                 tile.isSolid = false;
+            }
+
+            // Restaurer les propriétés d'interaction
+            if (data.hasInteraction) {
+                tile.hasInteraction = true;
+                tile.interactionText = data.interactionText || '';
+                // NOTE: Contrairement aux téléporteurs, les interactions peuvent être sur des tuiles solides
+                // On ne modifie donc PAS isSolid ici
             }
 
             // Activer le collider si la tuile est solide (layer 1)

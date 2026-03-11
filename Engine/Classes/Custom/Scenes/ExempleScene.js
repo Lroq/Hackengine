@@ -7,9 +7,13 @@ import {BattleScene} from "../Combat/Scenes/BattleScene.js";
 import {HackemonService} from "../../Base/Services/Hackemon/HackemonService.js";
 import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
 import {SpriteModel} from "../../Base/Components/SpriteModel.js";
+import {DialogueBox} from "../../Base/Services/Ui/DialogueBox.js";
+import {TileInteractionManager} from "../../Base/Services/Interactions/TileInteractionManager.js";
 
 class ExempleScene extends Scene {
     #initialized = false;
+    #dialogueBox = new DialogueBox();
+    #tileInteractionManager = null;
 
     async buildScene() {
         if (!this.#initialized) {
@@ -54,6 +58,15 @@ class ExempleScene extends Scene {
         window.activeCamera = super.activeCamera;
         window.playerInstance = PlayerInstance;
 
+        // === TILE INTERACTION MANAGER === //
+        // Initialiser le gestionnaire d'interactions avec les tuiles
+        const canvas = document.getElementById('game-canvas');
+        this.#tileInteractionManager = new TileInteractionManager(canvas, this.#dialogueBox);
+        this.#tileInteractionManager.setPlayer(PlayerInstance);
+
+        // Exposer globalement pour le Renderer
+        window.tileInteractionManager = this.#tileInteractionManager;
+
         // === TRIGGER DE COMBAT === //
         // Temporairement désactivé car grass_sprite.png est manquant
         /*
@@ -88,6 +101,16 @@ class ExempleScene extends Scene {
 
         console.log("✅ Battle scene loaded!");
     }
+
+    /**
+     * Appelée à chaque tick pour mettre à jour les interactions
+     */
+    update(Services) {
+        if (this.#tileInteractionManager) {
+            this.#tileInteractionManager.update(Services.InputService);
+        }
+    }
+
     constructor() {
         super();
         this.buildScene();

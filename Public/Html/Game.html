@@ -574,10 +574,13 @@
 
 <!-- Menu contextuel pour les tuiles -->
 <div id="tile-context-menu" class="hidden fixed bg-[#1a1a1d] border border-gray-700 rounded-lg shadow-xl p-2 z-[250]" style="min-width: 220px; display: none;">
-    <!-- Header avec bouton de fermeture -->
+    <!-- Header avec boutons de sauvegarde et fermeture -->
     <div class="flex items-center justify-between px-3 py-1 border-b border-gray-700 mb-1">
         <span class="text-xs text-gray-400">Propriétés de la tuile</span>
-        <button id="close-tile-menu-btn" class="text-gray-400 hover:text-white text-lg transition" title="Fermer">✕</button>
+        <div class="flex items-center gap-2">
+            <button id="save-tile-menu-btn" class="text-green-400 hover:text-green-300 text-lg transition" title="Sauvegarder et fermer">💾</button>
+            <button id="close-tile-menu-btn" class="text-gray-400 hover:text-white text-lg transition" title="Fermer">✕</button>
+        </div>
     </div>
 
     <button id="menu-toggle-teleport" class="w-full text-left px-3 py-2 hover:bg-[#2b2b2f] rounded flex items-center justify-between transition">
@@ -611,6 +614,24 @@
             <span>Copier position actuelle du sprite</span>
         </button>
         <p class="text-xs text-gray-500 mt-1 italic">Coordonnées en tiles (X;Y). Le sprite apparaîtra à cette position sur la grille.</p>
+    </div>
+
+    <button id="menu-toggle-interaction" class="w-full text-left px-3 py-2 hover:bg-[#2b2b2f] rounded flex items-center justify-between transition">
+        <span class="flex items-center gap-2">
+            <span id="menu-interaction-icon">☐</span>
+            <span>Interaction</span>
+        </span>
+    </button>
+
+    <!-- Paramètres d'interaction (affichés si interaction activée) -->
+    <div id="interaction-settings" class="hidden px-3 py-2 bg-[#0d0d0f] rounded mx-2 my-1">
+        <div class="mb-2">
+            <label class="text-xs text-gray-400 block mb-1">Texte à afficher</label>
+            <textarea id="menu-interaction-text" placeholder="Entrez le texte d'interaction..."
+                      class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm resize-none"
+                      rows="3"></textarea>
+        </div>
+        <p class="text-xs text-gray-500 mt-1 italic">💡 Une icône "E" apparaîtra quand le joueur s'approche. Appuyer sur E pour afficher le texte.</p>
     </div>
 
     <div class="border-t border-gray-700 my-1"></div>
@@ -741,11 +762,11 @@
     const ctx = canvas.getContext('2d');
 
     // Variables pour le zoom (mode construction uniquement)
-    let currentZoom = 1.0;  // 100%
-    const minZoom = 0.5;    // 50%
-    const maxZoom = 3.0;    // 300%
-    const zoomStep = 0.1;   // 10%
-    window.constructionZoom = currentZoom; // Exposer globalement
+    let currentZoom = 1.0;
+    const minZoom = 0.5;
+    const maxZoom = 3.0;
+    const zoomStep = 0.1;
+    window.constructionZoom = currentZoom;
 
     canvas.addEventListener("contextmenu", (e) => {
         e.preventDefault();

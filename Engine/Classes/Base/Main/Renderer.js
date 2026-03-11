@@ -2,12 +2,14 @@ import {Size_2D} from "../MicroClasses/Size_2D.js";
 import {TextLabel} from "../WebGameObjects/TextLabel.js";
 import {ConstructionGrid} from "../Services/Grid/ConstructionGrid.js";
 import {Tile} from "../WebGameObjects/Tile.js";
+import {TileInteractionManager} from "../Services/Interactions/TileInteractionManager.js";
 
 class Renderer {
     #Context;
     #CanvasSize = new Size_2D(0, 0);
     #Engine;
     #ConstructionGrid = new ConstructionGrid();
+    #TileInteractionManager = null;
 
     constructor(Engine) {
         this.#Engine = Engine;
@@ -153,6 +155,22 @@ class Renderer {
             this.#Context.textAlign = 'center';
             this.#Context.textBaseline = 'middle';
             this.#Context.fillText('🧱', iconX + iconSize / 2, iconY + iconSize / 2);
+
+            iconX -= iconSize + padding; // Décaler pour le prochain indicateur
+        }
+
+        // Indicateur d'interaction (💬 à côté des autres indicateurs)
+        if (tile.hasInteraction && tile.interactionText) {
+            // Fond vert pour interaction
+            this.#Context.fillStyle = 'rgba(34, 197, 94, 0.8)';
+            this.#Context.fillRect(iconX, iconY, iconSize, iconSize);
+
+            // Icône interaction
+            this.#Context.fillStyle = '#ffffff';
+            this.#Context.font = '7px Arial';
+            this.#Context.textAlign = 'center';
+            this.#Context.textBaseline = 'middle';
+            this.#Context.fillText('💬', iconX + iconSize / 2, iconY + iconSize / 2);
         }
 
         this.#Context.restore();
@@ -207,6 +225,26 @@ class Renderer {
 
         // Restaurer l'état du contexte
         this.#Context.restore();
+
+        // Rendu de l'icône E d'interaction (en mode play, SANS scale car on dessine en coordonnées écran)
+        if (mode === 'play' && this.#TileInteractionManager) {
+            // Sauvegarder le contexte
+            this.#Context.save();
+
+            // Appliquer le scale pour convertir les coordonnées monde en coordonnées écran
+            let scale = this.#CanvasSize.Height * 0.004;
+            if (mode === 'construction' && window.constructionZoom) {
+                scale *= window.constructionZoom;
+            }
+            this.#Context.scale(scale, scale);
+            this.#Context.imageSmoothingEnabled = false;
+
+            // Rendre l'icône E
+            this.#TileInteractionManager.render(SceneToRender.activeCamera);
+
+            // Restaurer le contexte
+            this.#Context.restore();
+        }
     }
 
 
@@ -218,6 +256,13 @@ class Renderer {
         // Ne plus appliquer le scale ici, c'est fait dans render()
         this.#Context.imageSmoothingEnabled = false;
         this.#CanvasSize = Size_2D;
+    }
+
+    /**
+     * Définit le TileInteractionManager
+     */
+    setTileInteractionManager(manager) {
+        this.#TileInteractionManager = manager;
     }
 }
 
