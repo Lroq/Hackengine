@@ -4,7 +4,7 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
-const PORT = 8080;
+const PORT = 9000;
 
 const tilesDir = path.join(__dirname, '../Public/Assets/Game/Tiles');
 
@@ -352,5 +352,6 @@ app.post('/api/tile-folders', (req, res) => {
         res.json({ message: 'Structure des dossiers sauvegardée' });
     });
 });
+
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
