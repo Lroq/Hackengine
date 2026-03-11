@@ -25,7 +25,7 @@ class Player extends Character {
 
 
     #run_Idling(Services) {
-c        const sprite = this.getComponent(SpriteModel);
+        const sprite = this.getComponent(SpriteModel);
         sprite.sprite = SPRITES.MOVING[this.#Face][0];
 
         // Ne pas permettre le mouvement si une DialogueBox est ouverte

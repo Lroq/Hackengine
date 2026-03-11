@@ -37,6 +37,7 @@ async function main(){
             resolve();
         });
     });
+
     const EngineInstance = new Engine({
             SceneService :          new SceneService(),
             SceneLoaderService :    new SceneLoader(),
