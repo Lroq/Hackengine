@@ -9,6 +9,8 @@ import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/Input
 import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
 import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
+import {NPCPlacementService} from "../../Engine/Classes/Base/Services/Grid/NPCPlacement.js";
+import {NPCContextMenu} from "../../Engine/Classes/Base/Services/Grid/NPCContextMenu.js";
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;
@@ -84,6 +86,18 @@ async function main(){
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     window.tileContextMenu = tileContextMenu;
+
+    // Initialiser le service de placement des PNJ
+    const npcPlacementService = new NPCPlacementService();
+    npcPlacementService.initialize(EngineInstance, Canvas);
+    window.npcPlacementService = npcPlacementService;
+
+    // Charger les PNJ de la map
+    await npcPlacementService.loadNPCsFromServer(currentMapName);
+
+    // Initialiser le menu contextuel des PNJ
+    const npcContextMenu = new NPCContextMenu(npcPlacementService, Canvas);
+    window.npcContextMenu = npcContextMenu;
 
     // Attendre que le TileInteractionManager soit initialisé par la scène
     // puis le connecter au Renderer

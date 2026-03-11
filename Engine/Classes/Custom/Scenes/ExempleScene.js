@@ -9,11 +9,13 @@ import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
 import {SpriteModel} from "../../Base/Components/SpriteModel.js";
 import {DialogueBox} from "../../Base/Services/Ui/DialogueBox.js";
 import {TileInteractionManager} from "../../Base/Services/Interactions/TileInteractionManager.js";
+import {NPCInteractionManager} from "../../Base/Services/Interactions/NPCInteractionManager.js";
 
 class ExempleScene extends Scene {
     #initialized = false;
     #dialogueBox = new DialogueBox();
     #tileInteractionManager = null;
+    #npcInteractionManager = null;
 
     async buildScene() {
         if (!this.#initialized) {
@@ -67,6 +69,14 @@ class ExempleScene extends Scene {
         // Exposer globalement pour le Renderer
         window.tileInteractionManager = this.#tileInteractionManager;
 
+        // === NPC INTERACTION MANAGER === //
+        // Initialiser le gestionnaire d'interactions avec les PNJ
+        this.#npcInteractionManager = new NPCInteractionManager(canvas, this.#dialogueBox);
+        this.#npcInteractionManager.setPlayer(PlayerInstance);
+
+        // Exposer globalement pour le Renderer
+        window.npcInteractionManager = this.#npcInteractionManager;
+
         // === TRIGGER DE COMBAT === //
         // Temporairement désactivé car grass_sprite.png est manquant
         /*
@@ -108,6 +118,9 @@ class ExempleScene extends Scene {
     update(Services) {
         if (this.#tileInteractionManager) {
             this.#tileInteractionManager.update(Services.InputService);
+        }
+        if (this.#npcInteractionManager) {
+            this.#npcInteractionManager.update(Services.InputService);
         }
     }
 

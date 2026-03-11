@@ -242,6 +242,11 @@ class Renderer {
             // Rendre l'icône E
             this.#TileInteractionManager.render(SceneToRender.activeCamera);
 
+            // Rendre l'icône E pour les PNJ
+            if (window.npcInteractionManager) {
+                window.npcInteractionManager.render(SceneToRender.activeCamera);
+            }
+
             // Restaurer le contexte
             this.#Context.restore();
         }

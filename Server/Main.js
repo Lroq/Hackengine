@@ -353,4 +353,47 @@ app.post('/api/tile-folders', (req, res) => {
     });
 });
 
+// ========== Routes pour les PNJ ==========
+
+// Sauvegarder les PNJ d'une map
+app.post('/api/save-npcs', (req, res) => {
+    const { mapName, npcData } = req.body;
+
+    if (!mapName || !npcData) {
+        return res.status(400).json({ error: 'Données manquantes' });
+    }
+
+    const npcFile = path.join(__dirname, `../Public/Assets/Game/maps/${mapName}.npcs.json`);
+
+    fs.writeFile(npcFile, JSON.stringify(npcData, null, 2), 'utf8', (err) => {
+        if (err) {
+            console.error('Erreur sauvegarde PNJ:', err);
+            return res.status(500).json({ error: 'Erreur lors de la sauvegarde' });
+        }
+
+        res.json({ message: 'PNJ sauvegardés', count: npcData.length });
+    });
+});
+
+// Charger les PNJ d'une map
+app.get('/api/load-npcs', (req, res) => {
+    const mapName = req.query.name || 'default_map';
+    const npcFile = path.join(__dirname, `../Public/Assets/Game/maps/${mapName}.npcs.json`);
+
+    fs.readFile(npcFile, 'utf8', (err, data) => {
+        if (err) {
+            // Pas de fichier = pas de PNJ
+            return res.json([]);
+        }
+
+        try {
+            const npcData = JSON.parse(data);
+            res.json(npcData);
+        } catch (parseErr) {
+            console.error('Erreur parsing PNJ:', parseErr);
+            res.json([]);
+        }
+    });
+});
+
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
