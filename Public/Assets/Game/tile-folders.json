@@ -12,7 +12,6 @@
       "parent": "folder_1767866557195_b37mmuinp",
       "folders": [],
       "tiles": [
-        "/Public/Assets/Game/Tiles/tile_floor_house_2.png",
         "/Public/Assets/Game/Tiles/tile_floor_house_1.png"
       ]
     },
@@ -42,9 +41,7 @@
         "folder_1767869268574_waya4vj9n",
         "folder_1773217995426_nr5ecfxqk"
       ],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/grandjuke27x27.png"
-      ]
+      "tiles": []
     },
     "folder_1767869268574_waya4vj9n": {
       "name": "teleporter",
