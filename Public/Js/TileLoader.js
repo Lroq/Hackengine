@@ -1,4 +1,4 @@
-    /**
+/**
  * Gestion de l'upload et de la suppression des tiles
  * Avec système d'organisation en dossiers
  */
@@ -127,12 +127,12 @@ async function loadTiles() {
 }
 
 /**
- * Restaure la sélection visuelle de la tile actuellement active dans le TileDragService
+ * Restaure la sélection visuelle de la tile actuellement active
  */
 function restoreSelection() {
-    if (!window.tileDragService) return;
+    if (!window.gameModeService) return;
 
-    const selectedTilePath = window.tileDragService.getSelectedTilePath();
+    const selectedTilePath = window.gameModeService.getSelectedTilePath();
     if (!selectedTilePath) return;
 
     // Trouver la tile correspondante dans le DOM
@@ -365,7 +365,7 @@ function createTileElement(tilePath, filename, folderId) {
     img.addEventListener('mousedown', (e) => {
         if (e.button === 0) { // Clic gauche - drag vers canvas
             e.preventDefault();
-            if (window.tileDragService) {
+            if (window.gameModeService) {
                 // Retirer la sélection de toutes les autres tiles
                 document.querySelectorAll('.tile-selected').forEach(tile => {
                     tile.classList.remove('tile-selected');
@@ -374,7 +374,7 @@ function createTileElement(tilePath, filename, folderId) {
                 // Ajouter la classe de sélection à cette tile
                 tileWrapper.classList.add('tile-selected');
 
-                window.tileDragService.startDrag(img.src);
+                window.gameModeService.startTileDrag(img.src);
                 img.classList.add('opacity-50');
             }
         } else if (e.button === 2) { // Clic droit - drag entre dossiers
@@ -545,7 +545,7 @@ async function loadTilesOld() {
             // Gestion du drag and drop
             img.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-                if (window.tileDragService) {
+                if (window.gameModeService) {
                     // Retirer la sélection de toutes les autres tiles
                     document.querySelectorAll('.tile-selected').forEach(tile => {
                         tile.classList.remove('tile-selected');
@@ -554,7 +554,7 @@ async function loadTilesOld() {
                     // Ajouter la classe de sélection à cette tile
                     tileWrapper.classList.add('tile-selected');
 
-                    window.tileDragService.startDrag(img.src);
+                    window.gameModeService.startTileDrag(img.src);
                     img.classList.add('opacity-50');
                 }
             });
