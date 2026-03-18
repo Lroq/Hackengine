@@ -5,6 +5,7 @@ import {CameraType} from '../../WebGameObjects/Camera.js';
  */
 class GameModeService {
     #engine = null;
+    #tileDragService = null;
 
     #mode = 'construction';
     #editMode = 'brush';
@@ -19,8 +20,16 @@ class GameModeService {
         this.#engine = engine;
     }
 
+    /**
+     * Appelé dans StartEngine.js après la création de TileDragService.
+     * @param {TileDragService} tileDragService
+     */
+    setTileDragService(tileDragService) {
+        this.#tileDragService = tileDragService;
+    }
+
     // -------------------------------------------------------------------------
-    // Getters (lus par Camera, Renderer, TileDragService)
+    // Getters — lus par Camera, Renderer, TileDragService
     // -------------------------------------------------------------------------
 
     getMode() {
@@ -46,8 +55,7 @@ class GameModeService {
     setMode(newMode) {
         this.#mode = newMode;
 
-        const scene = this.#engine?.services.SceneService.activeScene;
-        const camera = scene?.activeCamera;
+        const camera = this.#engine?.services.SceneService.activeScene?.activeCamera;
 
         if (newMode === 'construction') {
             this.#cameraPan = {x: 0, y: 0};
@@ -97,7 +105,25 @@ class GameModeService {
     }
 
     // -------------------------------------------------------------------------
-    // Helpers pour Game.html
+    // Délégation TileDragService — utilisé par TileLoader.js
+    // -------------------------------------------------------------------------
+
+    /**
+     * Sélectionne une tile pour le pinceau.
+     */
+    startDrag(tilePath) {
+        this.#tileDragService?.startDrag(tilePath);
+    }
+
+    /**
+     * Retourne le chemin de la tile sélectionnée.
+     */
+    getSelectedTilePath() {
+        return this.#tileDragService?.getSelectedTilePath() ?? null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers Game.html / autres
     // -------------------------------------------------------------------------
 
     getActiveCamera() {
@@ -108,9 +134,6 @@ class GameModeService {
         return this.getActiveCamera()?.cameraSubject ?? null;
     }
 
-    /**
-     * Sauvegarde la map courante.
-     */
     saveMap() {
         this.#engine?.services.MapService?.saveMap();
     }
