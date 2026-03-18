@@ -51,6 +51,23 @@ class GameModeService {
     setCameraPan(x, y) {
         this.#cameraPan = { x, y };
     }
+
+    // Méthodes de délégation vers TileDragService pour TileLoader.js
+
+    startTileDrag(tilePath) {
+        if (this.#engine && this.#engine.services.TileDragService) {
+            this.#engine.services.TileDragService.startDrag(tilePath);
+        } else {
+            console.warn('GameModeService: TileDragService non disponible');
+        }
+    }
+
+    getSelectedTilePath() {
+        if (this.#engine && this.#engine.services.TileDragService) {
+            return this.#engine.services.TileDragService.getSelectedTilePath();
+        }
+        return null;
+    }
 }
 
 export { GameModeService };
