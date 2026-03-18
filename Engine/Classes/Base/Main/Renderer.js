@@ -13,168 +13,147 @@ class Renderer {
 
     constructor(Engine) {
         this.#Engine = Engine;
+
+        // Exposer ConstructionGrid globalement pour permettre la mise à jour de la taille
+        window.constructionGrid = this.#ConstructionGrid;
     }
 
-    // -------------------------------------------------------------------------
-    // API publique
-    // -------------------------------------------------------------------------
-
-    setContext(context) {
-        this.#Context = context;
+    clearScreen() {
+        this.#Context.clearRect(0, 0, this.#CanvasSize.Width, this.#CanvasSize.Height)
     }
 
-    setCanvasSize(size) {
-        this.#Context.imageSmoothingEnabled = false;
-        this.#CanvasSize = size;
+    #renderInstance(Instance) {
+        const SceneToRender = this.#Engine.services.SceneService.activeScene;
+        const SpriteModel = Instance.components["SpriteModel"];
+
+        let FinalX = 0, FinalY = 0;
+
+        const recursive_get_parent = (CurrentInstance) => {
+            const Parent = CurrentInstance.parent;
+
+            if (Parent !== undefined) {
+                FinalX += CurrentInstance.coordinates.X;
+                FinalY += CurrentInstance.coordinates.Y;
+                recursive_get_parent(Parent);
+            } else {
+                FinalX += CurrentInstance.coordinates.X;
+                FinalY += CurrentInstance.coordinates.Y;
+            }
+        }
+
+        recursive_get_parent(Instance)
+
+        if (Instance instanceof TextLabel) {
+            this.#Context.save();
+
+            this.#Context.font = `${Instance.size}px ${Instance.font}`;
+            this.#Context.fillStyle = Instance.color;
+
+            this.#Context.textAlign = Instance.textAlign;
+            this.#Context.textBaseline = "middle";
+
+            const textX = SceneToRender.activeCamera.coordinates.X + FinalX;
+            const textY = SceneToRender.activeCamera.coordinates.Y + FinalY;
+
+            this.#Context.fillText(Instance.text, textX, textY);
+
+            this.#Context.restore();
+        } else {
+            if (SpriteModel != null) {
+
+                if (!SpriteModel.enabled) {
+                    return;
+                }
+
+                // Vérifier que l'image est bien chargée avant de dessiner
+                if (!SpriteModel.sprite || !SpriteModel.sprite.complete || SpriteModel.sprite.naturalWidth === 0) {
+                    return; // Ignorer les images cassées ou non chargées
+                }
+
+                // Vérifier si c'est un tile invisible.png en mode jeu
+                const mode = window.getMode ? window.getMode() : 'play';
+                const isInvisibleTile = Instance instanceof Tile &&
+                                       SpriteModel.sprite.src &&
+                                       SpriteModel.sprite.src.includes('invisible.png');
+
+                // Si c'est invisible.png en mode jeu, ne pas le rendre (mais garder ses propriétés de collision)
+                if (isInvisibleTile && mode === 'play') {
+                    return;
+                }
+
+                try {
+                    this.#Context.save();
+
+                    // Appliquer l'opacité pour les tuiles fantômes
+                    if (Instance.isGhost) {
+                        this.#Context.globalAlpha = 0.5;
+                    }
+
+                    this.#Context.scale(SpriteModel.rotation, 1);
+                    this.#Context.drawImage(SpriteModel.sprite, (SceneToRender.activeCamera.coordinates.X + FinalX + SpriteModel.spriteOffset.X) * SpriteModel.rotation, (SceneToRender.activeCamera.coordinates.Y + FinalY + SpriteModel.spriteOffset.Y), SpriteModel.size.Width * SpriteModel.rotation, SpriteModel.size.Height);
+                    this.#Context.restore();
+
+                    // En mode construction, afficher des indicateurs sur les tiles
+                    if (mode === 'construction' && Instance instanceof Tile) {
+                        this.#drawTileIndicators(Instance, SceneToRender.activeCamera, FinalX, FinalY, SpriteModel);
+                    }
+                } catch (error) {
+                    // Ignorer silencieusement les erreurs de rendu d'images
+                    this.#Context.restore();
+                }
+            }
+        }
     }
 
     /**
-     * Met à jour la taille de la grille visuelle.
-     * Appelé par MapService via engine.setGridSize()
+     * Dessine des indicateurs visuels sur les tiles en mode construction
+     * @param {Tile} tile - La tile à annoter
+     * @param {Camera} camera - La caméra active
+     * @param {number} finalX - Position X finale après calcul du parent
+     * @param {number} finalY - Position Y finale après calcul du parent
+     * @param {SpriteModel} spriteModel - Le modèle de sprite
      */
-    setGridSize(tileSize) {
-        this.#ConstructionGrid.setGridSize(tileSize);
-    }
-
-    // -------------------------------------------------------------------------
-    // Rendu
-    // -------------------------------------------------------------------------
-
-    clearScreen() {
-        this.#Context.clearRect(0, 0, this.#CanvasSize.Width, this.#CanvasSize.Height);
-    }
-
-    render() {
-        const sceneToRender = this.#Engine.services.SceneService?.activeScene;
-        if (!sceneToRender) return;
-
-        const gameModeService = this.#Engine.services.GameModeService;
-        const mode = gameModeService ? gameModeService.getMode() : (window.getMode?.() ?? 'play');
-        const zoom = gameModeService ? gameModeService.getZoom() : (window.constructionZoom ?? 1.0);
-
-        this.#Context.save();
-
-        let scale = this.#CanvasSize.Height * 0.004;
-        if (mode === 'construction') {
-            scale *= zoom;
-        }
-
-        this.#Context.scale(scale, scale);
-        this.#Context.imageSmoothingEnabled = false;
-
-        this.clearScreen();
-
-        sceneToRender.activeCamera.run(sceneToRender, this.#CanvasSize, this.#Engine.services);
-
-        const sortedObjects = [...sceneToRender.wgObjects].sort((a, b) => {
-            const layerA = a.layer ?? 2;
-            const layerB = b.layer ?? 2;
-            return layerA - layerB;
-        });
-
-        for (let i = 0; i < sortedObjects.length; i++) {
-            this.#renderInstance(sortedObjects[i], sceneToRender, mode);
-
-            const renderChildren = (obj) => {
-                for (const child of obj.children) {
-                    this.#renderInstance(child, sceneToRender, mode);
-                    renderChildren(child);
-                }
-            };
-            renderChildren(sortedObjects[i]);
-        }
-
-        this.#ConstructionGrid.render(this.#Context, sceneToRender.activeCamera);
-
-        this.#Context.restore();
-    }
-
-    // -------------------------------------------------------------------------
-    // Privé
-    // -------------------------------------------------------------------------
-
-    #renderInstance(instance, sceneToRender, mode) {
-        const spriteModel = instance.components["SpriteModel"];
-
-        let finalX = 0;
-        let finalY = 0;
-
-        const accumulateParent = (current) => {
-            finalX += current.coordinates.X;
-            finalY += current.coordinates.Y;
-            if (current.parent !== undefined) accumulateParent(current.parent);
-        };
-        accumulateParent(instance);
-
-        if (instance instanceof TextLabel) {
-            this.#Context.save();
-            this.#Context.font = `${instance.size}px ${instance.font}`;
-            this.#Context.fillStyle = instance.color;
-            this.#Context.textAlign = instance.textAlign;
-            this.#Context.textBaseline = "middle";
-
-            const textX = sceneToRender.activeCamera.coordinates.X + finalX;
-            const textY = sceneToRender.activeCamera.coordinates.Y + finalY;
-            this.#Context.fillText(instance.text, textX, textY);
-            this.#Context.restore();
-            return;
-        }
-
-        if (!spriteModel?.enabled) return;
-
-        if (!spriteModel.sprite?.complete || spriteModel.sprite.naturalWidth === 0) return;
-
-        const isInvisibleTile = instance instanceof Tile &&
-            spriteModel.sprite.src?.includes('invisible.png');
-        if (isInvisibleTile && mode === 'play') return;
-
-        try {
-            this.#Context.save();
-
-            if (instance.isGhost) {
-                this.#Context.globalAlpha = 0.5;
-            }
-
-            this.#Context.scale(spriteModel.rotation, 1);
-            this.#Context.drawImage(
-                spriteModel.sprite,
-                (sceneToRender.activeCamera.coordinates.X + finalX + spriteModel.spriteOffset.X) * spriteModel.rotation,
-                (sceneToRender.activeCamera.coordinates.Y + finalY + spriteModel.spriteOffset.Y),
-                spriteModel.size.Width * spriteModel.rotation,
-                spriteModel.size.Height
-            );
-
-            this.#Context.restore();
-
-            if (mode === 'construction' && instance instanceof Tile) {
-                this.#drawTileIndicators(instance, sceneToRender.activeCamera, finalX, finalY, spriteModel);
-            }
-        } catch {
-            this.#Context.restore();
-        }
-    }
-
     #drawTileIndicators(tile, camera, finalX, finalY, spriteModel) {
         this.#Context.save();
 
         const screenX = camera.coordinates.X + finalX;
         const screenY = camera.coordinates.Y + finalY;
         const tileWidth = spriteModel.size.Width;
+        const tileHeight = spriteModel.size.Height;
+
+        // Fond semi-transparent pour les icônes
         const iconSize = 8;
         const padding = 2;
         let iconX = screenX + tileWidth - iconSize - padding;
         const iconY = screenY + padding;
 
-        const drawIcon = (color, emoji) => {
-            this.#Context.fillStyle = color;
+        // Indicateur de téléporteur (🌀 en haut à droite)
+        if (tile.isTeleporter) {
+            // Fond bleu pour téléporteur
+            this.#Context.fillStyle = 'rgba(59, 130, 246, 0.8)';
             this.#Context.fillRect(iconX, iconY, iconSize, iconSize);
+
+            // Icône téléporteur
             this.#Context.fillStyle = '#ffffff';
             this.#Context.font = '7px Arial';
             this.#Context.textAlign = 'center';
             this.#Context.textBaseline = 'middle';
-            this.#Context.fillText(emoji, iconX + iconSize / 2, iconY + iconSize / 2);
-            iconX -= iconSize + padding;
-        };
+            this.#Context.fillText('🌀', iconX + iconSize / 2, iconY + iconSize / 2);
+
+            iconX -= iconSize + padding; // Décaler pour le prochain indicateur
+        }
+
+        // Indicateur de solidité (🧱 à côté du téléporteur si présent)
+        if (tile.isSolid) {
+            // Fond rouge pour solide
+            this.#Context.fillStyle = 'rgba(239, 68, 68, 0.8)';
+            this.#Context.fillRect(iconX, iconY, iconSize, iconSize);
+
+            // Icône mur
+            this.#Context.fillStyle = '#ffffff';
+            this.#Context.font = '7px Arial';
+            this.#Context.textAlign = 'center';
+            this.#Context.textBaseline = 'middle';
             this.#Context.fillText('🧱', iconX + iconSize / 2, iconY + iconSize / 2);
 
             iconX -= iconSize + padding; // Décaler pour le prochain indicateur
@@ -208,9 +187,43 @@ class Renderer {
         // Sauvegarder l'état du contexte
         this.#Context.save();
 
-        if (tile.isTeleporter) drawIcon('rgba(59, 130, 246, 0.8)', '🌀');
-        if (tile.isSolid) drawIcon('rgba(239, 68, 68, 0.8)', '🧱');
+        // Réappliquer le scale avec le zoom actuel
+        let scale = this.#CanvasSize.Height * 0.004;
+        const mode = window.getMode ? window.getMode() : 'play';
+        if (mode === 'construction' && window.constructionZoom) {
+            scale *= window.constructionZoom;
+        }
+        this.#Context.scale(scale, scale);
+        this.#Context.imageSmoothingEnabled = false;
 
+        this.clearScreen();
+
+        SceneToRender.activeCamera.run(SceneToRender, this.#CanvasSize);
+
+        // Trier les objets par layer (0 = sol derrière, 1 = murs/déco milieu, 2 = sprites devant)
+        const sortedObjects = [...SceneToRender.wgObjects].sort((a, b) => {
+            const layerA = a.layer !== undefined ? a.layer : 2;
+            const layerB = b.layer !== undefined ? b.layer : 2;
+            return layerA - layerB;
+        });
+
+        for (let i = 0; i < sortedObjects.length; i++) {
+            this.#renderInstance(sortedObjects[i]);
+
+            const recursive_render_children = (obj) => {
+                for (let b = 0; b < obj.children.length; b++) {
+                    this.#renderInstance(obj.children[b]);
+                    recursive_render_children(obj.children[b])
+                }
+            }
+
+            recursive_render_children(sortedObjects[i])
+        }
+
+        // Rendu de la grille de construction (uniquement en mode construction)
+        this.#ConstructionGrid.render(this.#Context, SceneToRender.activeCamera);
+
+        // Restaurer l'état du contexte
         this.#Context.restore();
 
         // Rendu de l'icône E d'interaction (en mode play, SANS scale car on dessine en coordonnées écran)
