@@ -15,6 +15,11 @@ class ExempleScene extends Scene {
     #dialogueBox = new DialogueBox();
     #tileInteractionManager = null;
 
+    constructor() {
+        super();
+        this.ready = this.buildScene();
+    }
+
     async buildScene() {
         if (!this.#initialized) {
             await HackemonService.initialize();
@@ -109,11 +114,6 @@ class ExempleScene extends Scene {
         if (this.#tileInteractionManager) {
             this.#tileInteractionManager.update(Services.InputService);
         }
-    }
-
-    constructor() {
-        super();
-        this.buildScene();
     }
 }
 
