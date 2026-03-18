@@ -38,6 +38,7 @@ class Engine {
     #startLoop() {
         // Start the game loop using requestAnimationFrame for smoother rendering
         const loop = () => {
+             // Pauser le jeu si l'onglet n'est pas visible (comportement par défaut de requestAnimationFrame)
              this.tick();
              this.#Renderer.render();
              this.#TickLoop = requestAnimationFrame(loop);
