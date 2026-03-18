@@ -32,9 +32,8 @@ class WGObject {
     }
 
     removeComponent(component) {
-        const index = this.#Components.indexOf(component);
-        if (index > -1) {
-            this.#Components.splice(index, 1);
+        if (component instanceof WGComponent) {
+            delete this.#Components[component.constructor.name];
         }
     }
 
@@ -46,24 +45,23 @@ class WGObject {
         return this.#Components;
     }
 
-    containsComponent(Component){
+    containsComponent(Component) {
         return this.#Components[Component] != null;
     }
 
-    get coordinates(){
+    get coordinates() {
         return this.#Coordinates;
     }
 
-    get parent(){
+    get parent() {
         return this.#Parent;
     }
 
-    set parent(wgObject){
-        if (wgObject instanceof WGObject){
+    set parent(wgObject) {
+        if (wgObject instanceof WGObject) {
             this.#Parent = wgObject;
         }
     }
-
 }
 
 export {WGObject}
