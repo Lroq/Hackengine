@@ -1,0 +1,5 @@
+class SpriteService {
+
+}
+
+export {SpriteService}

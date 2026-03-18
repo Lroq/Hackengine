@@ -1,52 +1,50 @@
 import {Scene} from "/Engine/Classes/Base/Services/Scenes/Scene.js";
 
 class SceneService {
-    #Scenes = {};
+    #Scenes = {}
     #ActiveScene;
 
-    get scenes() {
-        return this.#Scenes;
+    get scenes(){
+        return this.#Scenes
     }
 
-    get activeScene() {
-        return this.#ActiveScene;
+    get activeScene(){
+        return this.#ActiveScene
     }
 
-    addScene(name, scene) {
-        if (scene instanceof Scene) {
-            this.#Scenes[name] = scene;
+    addScene(Name,_Scene){
+        if (_Scene instanceof Scene){
+            this.#Scenes[Name] = _Scene;
         }
     }
 
-    set activeScene(scene) {
-        if (scene instanceof Scene) {
-            this.#ActiveScene = scene;
+    set activeScene(_Scene){
+        if (_Scene instanceof Scene){
+            this.#ActiveScene = _Scene
         }
     }
 
     /**
-     * Charge une nouvelle map depuis le serveur.
-     *
-     * @param {string} mapName
-     * @param {Object} services - L'objet Services de l'engine
+     * Charge une nouvelle scène depuis un fichier JSON de map
+     * @param {string} mapName - Nom de la map à charger
+     * @returns {Promise<void>}
      */
-    async LoadSceneFromJson(mapName, services) {
-        const mapService = services?.MapService;
+    async LoadSceneFromJson(mapName) {
+        console.log(`🗺️ Chargement de la map : ${mapName}`);
 
-        if (!mapService) {
-            if (window.tileDragService) {
-                console.warn('⚠️ SceneService: MapService non disponible, fallback sur window.tileDragService');
-                await window.tileDragService.loadMapFromServer(mapName);
-                if (window.updateMapNameDisplay) window.updateMapNameDisplay(mapName);
-                return;
+        // Utiliser le TileDragService global pour charger la map
+        if (window.tileDragService) {
+            await window.tileDragService.loadMapFromServer(mapName);
+            window.currentMapName = mapName;
+
+            // Mettre à jour l'affichage du nom de la map
+            if (window.updateMapNameDisplay) {
+                window.updateMapNameDisplay(mapName);
             }
-            throw new Error('MapService non disponible dans les Services');
-        }
 
-        await mapService.loadMapFromServer(mapName);
-
-        if (window.updateMapNameDisplay) {
-            window.updateMapNameDisplay(mapName);
+            console.log(`✅ Map "${mapName}" chargée avec succès`);
+        } else {
+            throw new Error('TileDragService non disponible');
         }
     }
 }

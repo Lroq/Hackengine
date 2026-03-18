@@ -1,7 +1,6 @@
-/**
- * Représente un objet dans l'inventaire d'un personnage.
- */
-export class Item {
+
+
+class Items {
     constructor(name) {
         this.name = name;
     }
