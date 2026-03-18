@@ -108,6 +108,13 @@ class Engine {
             console.warn("No 'SceneService' Detected.");
         }
     }
+
+    /**
+     * Définit le TileInteractionManager et le passe au Renderer
+     */
+    setTileInteractionManager(manager) {
+        this.#Renderer.setTileInteractionManager(manager);
+    }
 }
 
 export {Engine}

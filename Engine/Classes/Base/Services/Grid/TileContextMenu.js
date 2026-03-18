@@ -54,6 +54,14 @@ class TileContextMenu {
         document.getElementById('close-tile-menu-btn')
             ?.addEventListener('click', () => this.#hideMenu());
 
+        // Bouton de sauvegarde du menu contextuel
+        const saveTileMenuBtn = document.getElementById('save-tile-menu-btn');
+        if (saveTileMenuBtn) {
+            saveTileMenuBtn.addEventListener('click', () => {
+                this.#saveAndCloseMenu();
+            });
+        }
+
         // Bouton toggle téléporteur
         document.getElementById('menu-toggle-teleport')
             ?.addEventListener('click', () => this.#toggleTeleport());
@@ -83,6 +91,30 @@ class TileContextMenu {
                 const tileY = parseInt(e.target.value) || 0;
                 this.#currentTile.teleportData.y = tileY * 27;
                 this.#tileDragService.saveMap();
+        // Bouton toggle interaction
+        const toggleInteractionBtn = document.getElementById('menu-toggle-interaction');
+        if (toggleInteractionBtn) {
+            toggleInteractionBtn.addEventListener('click', () => {
+                this.#toggleInteraction();
+            });
+        }
+
+        // Input texte d'interaction
+        const interactionTextInput = document.getElementById('menu-interaction-text');
+        if (interactionTextInput) {
+            interactionTextInput.addEventListener('input', () => {
+                if (this.#currentTile && this.#currentTile.hasInteraction) {
+                    this.#currentTile.interactionText = interactionTextInput.value;
+                    this.#tileDragService.saveMap();
+                    console.log(`💬 Texte d'interaction mis à jour: "${interactionTextInput.value}"`);
+                }
+            });
+        }
+
+        // Fermer le menu avec Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.#hideMenu();
             }
         });
 
@@ -146,6 +178,26 @@ class TileContextMenu {
             }
         }
 
+        // Mettre à jour l'état de l'interaction
+        const hasInteraction = tile.hasInteraction || false;
+        const interactionIcon = document.getElementById('menu-interaction-icon');
+        if (interactionIcon) interactionIcon.textContent = hasInteraction ? '☑' : '☐';
+
+        // Afficher/masquer les paramètres d'interaction
+        const interactionSettings = document.getElementById('interaction-settings');
+        if (interactionSettings) {
+            if (hasInteraction) {
+                interactionSettings.classList.remove('hidden');
+
+                // Remplir le champ texte avec la valeur existante
+                const textInput = document.getElementById('menu-interaction-text');
+                if (textInput) textInput.value = tile.interactionText || '';
+            } else {
+                interactionSettings.classList.add('hidden');
+            }
+        }
+
+        // Mettre à jour la position affichée
         const posElement = document.getElementById('menu-tile-pos');
         if (posElement) {
             posElement.textContent = `Position: (${this.#currentPosition.x}, ${this.#currentPosition.y})`;
@@ -176,6 +228,29 @@ class TileContextMenu {
     // Actions sur la tuile
     // -------------------------------------------------------------------------
 
+    /**
+     * Sauvegarde les modifications et ferme le menu contextuel
+     */
+    #saveAndCloseMenu() {
+        // Sauvegarder la map
+        this.#tileDragService.saveMap();
+        console.log('💾 Tuile sauvegardée avec succès');
+
+        // Fermer le menu
+        this.#hideMenu();
+    }
+
+    /**
+     * Vérifie si le menu contextuel est actuellement visible
+     * @returns {boolean} - True si le menu est visible
+     */
+    isVisible() {
+        return this.#menuElement.style.display === 'block' && !this.#menuElement.classList.contains('hidden');
+    }
+
+    /**
+     * Bascule l'état solide/vide de la tuile
+     */
     #toggleSolid() {
         if (!this.#currentTile) return;
 
@@ -221,6 +296,70 @@ class TileContextMenu {
             } else {
                 teleportSettings.classList.add('hidden');
             }
+        if (newState) {
+            teleportSettings.classList.remove('hidden');
+            // Remplir les champs avec les valeurs actuelles
+            const data = this.#currentTile.teleportData;
+            document.getElementById('menu-teleport-map').value = data.map || '';
+            document.getElementById('menu-teleport-x').value = data.x || 0;
+            document.getElementById('menu-teleport-y').value = data.y || 0;
+        } else {
+            teleportSettings.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Bascule l'état interaction de la tuile
+     */
+    #toggleInteraction() {
+        if (!this.#currentTile) return;
+
+        // Inverser l'état
+        const newState = !(this.#currentTile.hasInteraction || false);
+        this.#currentTile.hasInteraction = newState;
+
+        // Initialiser le texte d'interaction si activé
+        if (newState && !this.#currentTile.interactionText) {
+            this.#currentTile.interactionText = '';
+        }
+
+        // NOTE: Contrairement aux téléporteurs, les interactions n'affectent PAS le mode solide
+        // Une tuile peut être solide ET interactive (ex: un mur avec du texte d'information)
+
+        console.log(`Tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y}) : ${newState ? '💬 INTERACTION' : '⬜ Normal'}`);
+
+        // Mettre à jour l'icône
+        const interactionIcon = document.getElementById('menu-interaction-icon');
+        interactionIcon.textContent = newState ? '☑' : '☐';
+
+        // Afficher/masquer les paramètres
+        const interactionSettings = document.getElementById('interaction-settings');
+        if (newState) {
+            interactionSettings.classList.remove('hidden');
+            // Remplir le champ avec la valeur actuelle
+            const textInput = document.getElementById('menu-interaction-text');
+            if (textInput) {
+                textInput.value = this.#currentTile.interactionText || '';
+                // Focus sur le champ pour faciliter la saisie
+                textInput.focus();
+            }
+        } else {
+            interactionSettings.classList.add('hidden');
+        }
+
+        // Sauvegarder
+        this.#tileDragService.saveMap();
+    }
+
+    /**
+     * Met à jour les données de téléportation
+     */
+    #updateTeleportData(field, value) {
+        if (!this.#currentTile || !this.#currentTile.isTeleporter) return;
+
+        // Initialiser teleportData si nécessaire
+        if (!this.#currentTile.teleportData) {
+            this.#currentTile.teleportData = { map: '', x: 0, y: 0 };
         }
     }
 

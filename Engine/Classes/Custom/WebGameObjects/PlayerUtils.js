@@ -7,13 +7,29 @@ export const PLAYER_STATE = {
 }
 
 export const SPRITES = {
-    IDLE: Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Down_0.png"), MOVING: {
-        Down: [Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Down_0.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Down_1.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Down_2.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Down_3.png")],
-        Right: [Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Right_0.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Right_1.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Right_2.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Right_3.png")],
-        Up : [Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Up_0.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Up_1.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Up_2.png"), Utils.createSprite("/Public/Assets/Game/Characters/Attacker_Up_3.png")],
+    IDLE: Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Down_0.png"),
+    MOVING: {
+        Down: [
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Down_0.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Down_1.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Down_0.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Down_2.png")
+        ],
+        Right: [
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Right_0.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Right_1.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Right_0.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Right_2.png")
+        ],
+        Up: [
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Up_0.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Up_1.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Up_0.png"),
+            Utils.createSprite("/Public/Assets/Game/Characters/Enfant/EF_Up_2.png")
+        ]
     }
 }
 
-export  const FACING = {
+    export  const FACING = {
     Down: "Down", Up: "Up", Right: "Right", Left: "Left"
 }

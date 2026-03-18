@@ -41,6 +41,75 @@ class TileDragService {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+    /**
+     * Configure les raccourcis Ctrl+Z (undo) et Ctrl+Y (redo)
+     */
+    #setupUndoShortcut() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Z (Windows/Linux) ou Cmd+Z (Mac) - Annuler
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                this.undo();
+            }
+            // Ctrl+Y (Windows/Linux) ou Cmd+Y (Mac) - Refaire
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                this.redo();
+            }
+        });
+    }
+
+    /**
+     * Configure les événements de souris pour le drag and drop
+     */
+    #setupEventListeners() {
+        let isDrawing = false; // Dessin avec clic gauche maintenu
+        let currentActionTiles = []; // Tiles de l'action en cours
+
+        // Événement de déplacement de la souris
+        document.addEventListener('mousemove', (e) => {
+            // Bloquer si le menu contextuel est ouvert
+            if (window.tileContextMenu && window.tileContextMenu.isVisible()) {
+                return;
+            }
+
+            const editMode = window.getEditMode ? window.getEditMode() : 'brush';
+
+            // Ne pas dessiner si on est sur le panneau des assets
+            const assetsPanel = document.getElementById('assets-panel');
+            if (assetsPanel && assetsPanel.contains(e.target)) {
+                return;
+            }
+
+            if (isDrawing && this.#currentTileData) {
+                // Mode pinceau : dessiner
+                if (editMode === 'brush') {
+                    const tileData = this.#drawTileAtPosition(e.clientX, e.clientY);
+                    if (tileData) {
+                        currentActionTiles.push(tileData);
+                    }
+                }
+                // Mode gomme : effacer en continu
+                else if (editMode === 'eraser') {
+                    const erasedTile = this.#eraseTile(e.clientX, e.clientY, true);
+                    if (erasedTile) {
+                        currentActionTiles.push(erasedTile);
+                    }
+                }
+            }
+        });
+
+        // Événement d'appui sur clic gauche : commencer à dessiner/effacer/remplir
+        document.addEventListener('mousedown', (e) => {
+            const mode = window.getMode ? window.getMode() : 'play';
+            if (mode !== 'construction') return;
+
+            // Bloquer si le menu contextuel est ouvert
+            if (window.tileContextMenu && window.tileContextMenu.isVisible()) {
+                return;
+            }
+
+            const editMode = window.getEditMode ? window.getEditMode() : 'brush';
 
     #getMode() {
         return this.#engine?.services.GameModeService?.getMode() ?? window.getMode?.() ?? 'play';
@@ -418,6 +487,23 @@ class TileDragService {
 
         const activeLayer = parseInt(document.getElementById('active-layer-select')?.value ?? '0');
         let tileData = null;
+        if (returnData) {
+            const posKey = `${snappedPos.x},${snappedPos.y},${activeLayer}`;
+            const tile = this.#placedTiles.get(posKey);
+            if (tile) {
+                tileData = {
+                    x: snappedPos.x,
+                    y: snappedPos.y,
+                    layer: activeLayer,
+                    sprite: tile.components.SpriteModel.sprite.src,
+                    isSolid: tile.isSolid || false,
+                    isTeleporter: tile.isTeleporter || false,
+                    teleportData: tile.teleportData || null,
+                    hasInteraction: tile.hasInteraction || false,
+                    interactionText: tile.interactionText || ''
+                };
+            }
+        }
 
         if (returnData) {
             const tile = this.#placedTiles.get(`${snappedPos.x},${snappedPos.y},${activeLayer}`);
@@ -483,6 +569,115 @@ class TileDragService {
                 const i = scene.wgObjects.indexOf(currentTile);
                 if (i > -1) scene.wgObjects.splice(i, 1);
             }
+            keysToDelete.forEach(key => {
+                this.#placedTiles.delete(key);
+                removed = true;
+            });
+
+            if (removed) {
+                console.log(`${keysToDelete.length} tuile(s) supprimée(s) à (${worldX}, ${worldY})`);
+            }
+        }
+
+        return removed;
+    }
+
+    /**
+     * Exporte les données de la map (toutes les tuiles placées)
+     * @returns {Array} - Liste des tuiles avec leurs positions et assets
+     */
+    exportMapData() {
+        const mapData = [];
+        
+        this.#placedTiles.forEach((tile, posKey) => {
+            const [x, y, layer] = posKey.split(',').map(Number);
+            const spriteModel = tile.components.SpriteModel;
+            
+            const tileData = {
+                x,
+                y,
+                sprite: spriteModel.sprite.src,
+                isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
+                layer: layer !== undefined ? layer : 0
+            };
+
+            // Ajouter les données de téléportation si la tuile est un téléporteur
+            if (tile.isTeleporter) {
+                tileData.isTeleporter = true;
+                tileData.teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
+            }
+
+            // Ajouter les données d'interaction si la tuile a une interaction
+            if (tile.hasInteraction) {
+                tileData.hasInteraction = true;
+                tileData.interactionText = tile.interactionText || '';
+            }
+
+            mapData.push(tileData);
+        });
+        
+        return mapData;
+    }
+
+    /**
+     * Charge des données de map
+     * @param {Array} mapData - Données à charger
+     */
+    loadMapData(mapData) {
+        const scene = this.#engine.services.SceneService.activeScene;
+        if (!scene) return;
+
+        // Nettoyer les tuiles existantes
+        this.#placedTiles.forEach((tile) => {
+            const index = scene.wgObjects.indexOf(tile);
+            if (index > -1) {
+                scene.wgObjects.splice(index, 1);
+            }
+        });
+        this.#placedTiles.clear();
+
+        // Charger les nouvelles tuiles
+        mapData.forEach(data => {
+            const tile = new Tile();
+            tile.coordinates.X = data.x;
+            tile.coordinates.Y = data.y;
+
+            const spriteModel = tile.components.SpriteModel;
+            spriteModel.sprite = new Image();
+            spriteModel.sprite.src = data.sprite;
+            spriteModel.size.Width = 27;
+            spriteModel.size.Height = 27;
+            spriteModel.enabled = true;
+
+            // Restaurer les propriétés
+            tile.isSolid = data.isSolid !== undefined ? data.isSolid : false;
+            tile.layer = data.layer !== undefined ? data.layer : 0;
+
+            // Restaurer les propriétés de téléportation
+            if (data.isTeleporter) {
+                tile.isTeleporter = true;
+                tile.teleportData = data.teleportData || { map: '', x: 0, y: 0 };
+                // IMPORTANT: Les téléporteurs ne doivent JAMAIS être solides
+                tile.isSolid = false;
+            }
+
+            // Restaurer les propriétés d'interaction
+            if (data.hasInteraction) {
+                tile.hasInteraction = true;
+                tile.interactionText = data.interactionText || '';
+                // NOTE: Contrairement aux téléporteurs, les interactions peuvent être sur des tuiles solides
+                // On ne modifie donc PAS isSolid ici
+            }
+
+            // Activer le collider si la tuile est solide (layer 1)
+            if (tile.components.BoxCollider) {
+                tile.components.BoxCollider.enabled = tile.isSolid;
+            }
+
+            scene.wgObjects.push(tile);
+            // Utiliser x,y,layer comme clé pour supporter plusieurs tiles sur la même position
+            this.#placedTiles.set(`${data.x},${data.y},${tile.layer}`, tile);
+        });
 
             const newTile = this.#createTileFromData({
                 x: pos.x,

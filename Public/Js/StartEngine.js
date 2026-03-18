@@ -29,6 +29,18 @@ async function main() {
         });
     });
 
+    const EngineInstance = new Engine({
+            SceneService :          new SceneService(),
+            SceneLoaderService :    new SceneLoader(),
+            CollisionGroupService : new CollisionGroup(),
+            PhysicService :         new PhysicService(),
+            InputService :          new InputService()
+        },
+        {
+            TickRate: 10,
+            RefreshRate : 100,
+        }, Canvas)
+
     const mapService = new MapService();
     const gameModeService = new GameModeService();
 
@@ -67,6 +79,24 @@ async function main() {
 
     window.gameModeService = gameModeService;
 
+    // Attendre que le TileInteractionManager soit initialisé par la scène
+    // puis le connecter au Renderer
+    setTimeout(() => {
+        if (window.tileInteractionManager) {
+            EngineInstance.services.SceneService.activeScene.renderer = EngineInstance;
+            // Passer le TileInteractionManager au Renderer via l'Engine
+            if (EngineInstance.setTileInteractionManager) {
+                EngineInstance.setTileInteractionManager(window.tileInteractionManager);
+                console.log('✅ TileInteractionManager connecté au Renderer');
+            } else {
+                console.error('❌ setTileInteractionManager non disponible sur Engine');
+            }
+        } else {
+            console.warn('⚠️ window.tileInteractionManager non trouvé');
+        }
+    }, 100);
+
+    // Bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
     backToMapsBtn.addEventListener('click', () => {
         mapSelector.show(async (selectedMapName) => {

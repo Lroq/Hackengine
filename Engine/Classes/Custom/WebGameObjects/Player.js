@@ -27,6 +27,13 @@ class Player extends Character {
     #run_Idling(Services) {
         const sprite = this.getComponent(SpriteModel);
         sprite.sprite = SPRITES.MOVING[this.#face][0];
+        sprite.sprite = SPRITES.MOVING[this.#Face][0];
+
+        // Ne pas permettre le mouvement si une DialogueBox est ouverte
+        const dialogueBox = document.getElementById('dialogue-box');
+        if (dialogueBox) {
+            return; // Bloquer le passage à l'état Moving
+        }
 
         if (Services.InputService.IsEitherKeyDown(["z", "q", "s", "d"])) {
             this.#globalState = PLAYER_STATE.Moving;
@@ -38,6 +45,16 @@ class Player extends Character {
         const sprite = this.getComponent(SpriteModel);
 
         const isStopped = physic.velocity.X === 0 && physic.velocity.Y === 0;
+        // Si une DialogueBox est ouverte, arrêter le mouvement et revenir à Idling
+        const dialogueBox = document.getElementById('dialogue-box');
+        if (dialogueBox) {
+            physic.velocity.Y = 0;
+            physic.velocity.X = 0;
+            this.#GlobalState = PLAYER_STATE.Idling;
+            return;
+        }
+
+        const IsStopped = super.components.PhysicController.velocity.X === 0 && super.components.PhysicController.velocity.Y == 0
 
         physic.velocity.Y = 0;
         physic.velocity.X = 0;
