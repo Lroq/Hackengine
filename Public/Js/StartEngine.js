@@ -1,7 +1,5 @@
 // -- :: Dependencies :: -- \\
 import {Engine}         from "/Engine/Classes/Base/Main/Engine.js";
-import {CollisionGroup} from "/Engine/Classes/Base/Services/Collision/CollisionGroup.js";
-import {SceneLoader}    from  "/Engine/Classes/Base/Services/Scenes/SceneLoader.js";
 import {SceneService}   from  "/Engine/Classes/Base/Services/Scenes/SceneService.js";
 import {Size_2D}        from  "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
@@ -27,6 +25,8 @@ function updateMapNameDisplay(mapName) {
 }
 
 async function main(){
+    Canvas = document.getElementById("game-canvas");
+
     // Afficher le sélecteur de map au démarrage
     mapSelector = new window.MapSelector();
 
@@ -40,8 +40,6 @@ async function main(){
 
     const EngineInstance = new Engine({
             SceneService :          new SceneService(),
-            SceneLoaderService :    new SceneLoader(),
-            CollisionGroupService : new CollisionGroup(),
             PhysicService :         new PhysicService(),
             InputService :          new InputService()
         },
@@ -55,6 +53,11 @@ async function main(){
     })
 
     const TestScene = new ExempleScene();
+
+    // Attendre que la scène soit prête (init asynchrone)
+    if (TestScene.ready) {
+        await TestScene.ready;
+    }
 
     EngineInstance.services.SceneService.addScene("TestScene",TestScene);
     EngineInstance.services.SceneService.activeScene = TestScene;
