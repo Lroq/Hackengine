@@ -14,10 +14,8 @@ class Engine {
     #Renderer = new Renderer(this);
 
     #LastTick;
-
     #TickRate;
     #TickLoop;
-
     #renderLoopId;
 
     constructor(Services, Configuration, Canvas) {
@@ -26,11 +24,25 @@ class Engine {
         this.#TickRate = Configuration.TickRate;
 
         this.#Renderer.setContext(this.#Canvas.getContext("2d"));
+
+        if (this.#Services.GameModeService) {
+            this.#Services.GameModeService.initialize(this);
+        }
+
         this.#startLoop();
     }
 
     get services() {
-        return this.#Services
+        return this.#Services;
+    }
+
+    setGridSize(tileSize) {
+        this.#Renderer.setGridSize(tileSize);
+    }
+
+    stop() {
+        clearInterval(this.#TickLoop);
+        cancelAnimationFrame(this.#renderLoopId);
     }
 
     #startLoop() {
@@ -43,11 +55,6 @@ class Engine {
         this.#renderLoopId = requestAnimationFrame(renderLoop);
     }
 
-    stop() {
-        clearInterval(this.#TickLoop);
-        cancelAnimationFrame(this.#renderLoopId);
-    }
-
     resize(Size, Options = {FullScreen: false}) {
         this.#Canvas.width = Size.Width;
         this.#Canvas.height = Size.Height;
@@ -57,16 +64,20 @@ class Engine {
             this.#Canvas.height = document.documentElement.clientHeight;
         }
 
-        this.#Renderer.setCanvasSize(new Size_2D(this.#Canvas.height, this.#Canvas.width))
+        this.#Renderer.setCanvasSize(new Size_2D(this.#Canvas.height, this.#Canvas.width));
     }
 
     async #runWGObject(WGObject, DeltaTime) {
         if (WGObject instanceof Instance) {
-            WGObject.run(this.#Services, DeltaTime)
+            WGObject.run(this.#Services, DeltaTime);
         }
 
         if (WGObject.containsComponent("PhysicController")) {
-            this.#Services.PhysicService.calculate(WGObject, this.#Services.SceneService.activeScene, DeltaTime);
+            this.#Services.PhysicService.calculate(
+                WGObject,
+                this.#Services.SceneService.activeScene,
+                DeltaTime
+            );
         }
     }
 
@@ -76,12 +87,9 @@ class Engine {
 
         if (isServiceListed && isServiceValid) {
             const activeScene = this.services.SceneService.activeScene;
-
             if (!activeScene) return;
 
-            if (this.#LastTick == null) {
-                this.#LastTick = performance.now();
-            }
+            if (this.#LastTick == null) this.#LastTick = performance.now();
 
             const currentTick = performance.now();
             const deltaTime = (currentTick - this.#LastTick) / this.#TickRate;
@@ -90,14 +98,12 @@ class Engine {
                 await this.#runWGObject(activeScene.wgObjects[i], deltaTime);
             }
 
-            if (activeScene.update) {
-                activeScene.update(this.#Services);
-            }
+            if (activeScene.update) activeScene.update(this.#Services);
 
             this.#LastTick = currentTick;
             MegaTicks.updateTicks(deltaTime);
-
             this.#Services.InputService.updatePreviousInputs();
+
         } else {
             console.warn("No 'SceneService' Detected.");
         }

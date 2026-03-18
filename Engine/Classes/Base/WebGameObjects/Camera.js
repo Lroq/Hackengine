@@ -6,7 +6,7 @@ import {WGObject} from "/Engine/Classes/Base/WebGameObjects/WGObject.js";
 const CameraType = {
     Scriptable: "CAM_SCRIPTABLE",
     Follow: "CAM_FOLLOW",
-    FIXED: "CAM_FIXED"
+    FIXED: "CAM_FIXED",
 }
 
 /**
@@ -21,9 +21,6 @@ class Camera extends WGObject {
         return this.#cameraType;
     }
 
-    /**
-     * @param {string} value - Camera type from CameraType enum
-     */
     set cameraType(value) {
         if (!Object.values(CameraType).includes(value)) {
             throw new TypeError("Invalid camera type. Use CameraType enum.");
@@ -31,17 +28,10 @@ class Camera extends WGObject {
         this.#cameraType = value;
     }
 
-    /**
-     * @returns {WGObject|undefined} The object this camera follows
-     */
     get cameraSubject() {
         return this.#cameraSubject;
     }
 
-
-    /**
-     * @param {WGObject|null|undefined} value - Object for the camera to follow
-     */
     set cameraSubject(value) {
         if (value !== null && value !== undefined && !(value instanceof WGObject)) {
             throw new TypeError("Camera subject must be a WGObject");
@@ -49,20 +39,25 @@ class Camera extends WGObject {
         this.#cameraSubject = value;
     }
 
-
     /**
-     * Updates camera position based on its type and subject.
-     * Called by Renderer each frame.
+     * Met à jour la position de la caméra selon son type.
+     * Appelé par Renderer chaque frame.
+     *
+     * @param {Scene}          scene
+     * @param {Size_2D}        canvasSize
+     * @param {Object}         services - Services de l'engine
      */
-    run(Scene, CanvasSize) {
-        const mode = window.getMode ? window.getMode() : "play";
+    run(scene, canvasSize, services = null) {
+        // REFACTOR: lecture depuis GameModeService, fallback window pour compat temporaire
+        const gameModeService = services?.GameModeService;
+        const mode = gameModeService ? gameModeService.getMode() : (window.getMode?.() ?? 'play');
 
         switch (this.#cameraType) {
             case CameraType.Follow: {
-                // ✅ En mode "play" : comportement normal
-                if (mode !== "play") return;
+                if (mode !== 'play') return;
+                if (!this.#cameraSubject) return;
 
-                const scale = CanvasSize.Height * 0.004;
+                const scale = canvasSize.Height * 0.004;
                 let modelX = 0;
                 let modelY = 0;
 
@@ -71,24 +66,12 @@ class Camera extends WGObject {
                     modelY = this.#cameraSubject.components.BoxCollider.hitbox.Height / 2;
                 }
 
-                super.coordinates.X = -this.#cameraSubject.coordinates.X + (CanvasSize.Width / 2) / scale - modelX;
-                super.coordinates.Y = -this.#cameraSubject.coordinates.Y + (CanvasSize.Height / 2) / scale - modelY;
+                super.coordinates.X = -this.#cameraSubject.coordinates.X + (canvasSize.Width / 2) / scale - modelX;
+                super.coordinates.Y = -this.#cameraSubject.coordinates.Y + (canvasSize.Height / 2) / scale - modelY;
                 break;
             }
 
             case CameraType.Scriptable: {
-                // ✅ En mode "construction" : déplacement libre (pan)
-                const pan = window.getCameraPan ? window.getCameraPan() : { x: 0, y: 0 };
-
-                if (pan.x !== 0 || pan.y !== 0) {
-                    // Adapter la vitesse de déplacement au zoom
-                    // Plus le zoom est grand, plus on doit bouger lentement pour garder une sensation cohérente
-                    const zoom = window.constructionZoom || 1.0;
-                    const speed = 0.01 / zoom;
-
-                    super.coordinates.X += pan.x * speed;
-                    super.coordinates.Y += pan.y * speed;
-                }
                 break;
             }
         }

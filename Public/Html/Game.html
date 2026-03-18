@@ -23,21 +23,34 @@
     </div>
 
     <div class="flex space-x-2">
-        <button id="help-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-sm transition" title="Aide et raccourcis">❓</button>
-        <button id="save-map-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-sm transition flex items-center gap-2" title="Sauvegarder la map (Ctrl+S)">
+        <button id="help-btn"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-sm transition"
+                title="Aide et raccourcis">❓
+        </button>
+        <button id="save-map-btn"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold text-sm transition flex items-center gap-2"
+                title="Sauvegarder la map (Ctrl+S)">
             <span>💾</span>
             <span>Sauvegarder</span>
         </button>
-        <button id="back-to-maps-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🗺️ Maps</button>
+        <button id="back-to-maps-btn"
+                class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🗺️ Maps
+        </button>
 
         <!-- Indicateur de mode -->
-        <div id="mode-indicator" class="px-4 py-2 rounded-lg font-semibold text-sm transition flex items-center gap-2 border-2" style="border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1);">
+        <div id="mode-indicator"
+             class="px-4 py-2 rounded-lg font-semibold text-sm transition flex items-center gap-2 border-2"
+             style="border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1);">
             <span id="mode-icon">🧱</span>
             <span id="mode-text">Mode Construction</span>
         </div>
 
-        <button id="play-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️</button>
-        <button id="stop-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱</button>
+        <button id="play-btn"
+                class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">▶️
+        </button>
+        <button id="stop-btn"
+                class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition">🧱
+        </button>
     </div>
 </header>
 
@@ -61,7 +74,9 @@
                 </div>
                 <div class="p-2 flex flex-col gap-1">
                     <!-- Mode Pinceau -->
-                    <button id="mode-brush" class="mode-button active flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="brush">
+                    <button id="mode-brush"
+                            class="mode-button active flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]"
+                            data-mode="brush">
                         <span class="text-xl">🖌️</span>
                         <div class="text-left">
                             <div class="text-sm font-medium text-white">Pinceau</div>
@@ -69,7 +84,9 @@
                     </button>
 
                     <!-- Mode Pot de peinture -->
-                    <button id="mode-fill" class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="fill">
+                    <button id="mode-fill"
+                            class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]"
+                            data-mode="fill">
                         <span class="text-xl">🪣</span>
                         <div class="text-left">
                             <div class="text-sm font-medium text-white">Pot de peinture</div>
@@ -77,7 +94,9 @@
                     </button>
 
                     <!-- Mode Gomme -->
-                    <button id="mode-eraser" class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="eraser">
+                    <button id="mode-eraser"
+                            class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]"
+                            data-mode="eraser">
                         <span class="text-xl">🧹</span>
                         <div class="text-left">
                             <div class="text-sm font-medium text-white">Gomme</div>
@@ -86,7 +105,8 @@
 
                     <!-- Bouton téléportation au sprite -->
                     <div class="border-t border-gray-700 my-1"></div>
-                    <button id="teleport-to-sprite-btn" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all bg-[#2b2b2f] hover:bg-blue-600 text-white">
+                    <button id="teleport-to-sprite-btn"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all bg-[#2b2b2f] hover:bg-blue-600 text-white">
                         <span class="text-xl">🎯</span>
                         <div class="text-left">
                             <div class="text-sm font-medium">Centrer sur sprite</div>
@@ -94,7 +114,8 @@
                     </button>
 
                     <!-- Bouton téléportation à 0;0 -->
-                    <button id="teleport-to-zero-btn" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all bg-[#2b2b2f] hover:bg-purple-600 text-white">
+                    <button id="teleport-to-zero-btn"
+                            class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all bg-[#2b2b2f] hover:bg-purple-600 text-white">
                         <span class="text-xl">⊕</span>
                         <div class="text-left">
                             <div class="text-sm font-medium">Aller au centre (0;0)</div>
@@ -105,17 +126,21 @@
                     <div class="border-t border-gray-700 pt-3 mt-3">
                         <div class="text-xs text-gray-400 mb-2 font-semibold">🔍 Zoom</div>
                         <div class="flex items-center gap-2">
-                            <button id="zoom-out-btn" class="flex-1 px-3 py-2 bg-[#2b2b2f] hover:bg-red-600 text-white rounded-lg transition font-semibold text-lg">
+                            <button id="zoom-out-btn"
+                                    class="flex-1 px-3 py-2 bg-[#2b2b2f] hover:bg-red-600 text-white rounded-lg transition font-semibold text-lg">
                                 −
                             </button>
-                            <div id="zoom-level-display" class="px-3 py-2 bg-[#1a1a1d] text-white rounded-lg text-center text-sm font-mono min-w-[70px] border border-gray-700">
+                            <div id="zoom-level-display"
+                                 class="px-3 py-2 bg-[#1a1a1d] text-white rounded-lg text-center text-sm font-mono min-w-[70px] border border-gray-700">
                                 100%
                             </div>
-                            <button id="zoom-in-btn" class="flex-1 px-3 py-2 bg-[#2b2b2f] hover:bg-green-600 text-white rounded-lg transition font-semibold text-lg">
+                            <button id="zoom-in-btn"
+                                    class="flex-1 px-3 py-2 bg-[#2b2b2f] hover:bg-green-600 text-white rounded-lg transition font-semibold text-lg">
                                 +
                             </button>
                         </div>
-                        <button id="zoom-reset-btn" class="w-full mt-2 px-3 py-1.5 bg-[#2b2b2f] hover:bg-blue-600 text-white rounded-lg transition text-xs font-medium">
+                        <button id="zoom-reset-btn"
+                                class="w-full mt-2 px-3 py-1.5 bg-[#2b2b2f] hover:bg-blue-600 text-white rounded-lg transition text-xs font-medium">
                             Réinitialiser (100%)
                         </button>
                         <div class="text-xs text-gray-500 mt-1 text-center">Molette : Zoom in/out</div>
@@ -123,18 +148,21 @@
                 </div>
             </div>
 
-            <canvas id="game-canvas" class="rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"></canvas>
+            <canvas id="game-canvas"
+                    class="rounded-xl shadow-2xl bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f]"></canvas>
         </div>
     </section>
 
     <!-- Panneau latéral -->
-    <aside id="assets-panel" class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
+    <aside id="assets-panel"
+           class="w-80 bg-[#141417] border-l border-gray-800 p-4 flex flex-col justify-start overflow-y-auto">
         <h3 class="text-lg font-semibold mb-2 text-center">Assets</h3>
 
         <!-- Sélecteur de Layer actif -->
         <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-2 mb-2">
             <label class="text-[10px] text-gray-400 block mb-1">🎨 Layer de placement :</label>
-            <select id="active-layer-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs font-medium">
+            <select id="active-layer-select"
+                    class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs font-medium">
                 <option value="0">🟫 Layer 0 - Sol</option>
                 <option value="1">🧱 Layer 1 - Murs/Déco</option>
                 <option value="2">🎨 Layer 2 - Sprites</option>
@@ -144,7 +172,8 @@
         <!-- Sélecteur de solidité des tiles -->
         <div class="bg-[#1a1a1d] border border-gray-700 rounded-lg p-2 mb-2">
             <label class="text-[10px] text-gray-400 block mb-1">🛡️ Collision :</label>
-            <select id="tile-solid-select" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs font-medium">
+            <select id="tile-solid-select"
+                    class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs font-medium">
                 <option value="false">🚶 Non solide</option>
                 <option value="true">🧱 Solide</option>
             </select>
@@ -154,8 +183,14 @@
 
         <!-- Boutons pour ajouter un tile et créer un dossier -->
         <div class="flex gap-2 justify-center mt-auto">
-            <button id="create-folder-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition" title="Créer un nouveau dossier">📁 Dossier</button>
-            <button id="add-tile-btn" class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition" title="Ajouter une tuile">➕ Tuile</button>
+            <button id="create-folder-btn"
+                    class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition"
+                    title="Créer un nouveau dossier">📁 Dossier
+            </button>
+            <button id="add-tile-btn"
+                    class="px-4 py-2 bg-[#2b2b2f] hover:bg-[#3a3a3f] rounded-lg font-semibold text-sm transition"
+                    title="Ajouter une tuile">➕ Tuile
+            </button>
             <input type="file" id="tile-input" accept="image/png" style="display:none;">
         </div>
     </aside>
@@ -177,7 +212,8 @@
 
         <!-- Footer avec bouton Nouvelle Map -->
         <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
-            <button id="create-new-map-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center gap-2">
+            <button id="create-new-map-btn"
+                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center gap-2">
                 <span>➕</span>
                 <span>Nouvelle Map</span>
             </button>
@@ -243,7 +279,8 @@
                             <span>Pot de Peinture</span>
                         </div>
                         <div class="text-sm text-gray-400">Remplit une zone adjacente avec la tile sélectionnée</div>
-                        <div class="text-xs text-gray-500 mt-1">• Clic gauche sur une zone : remplit automatiquement</div>
+                        <div class="text-xs text-gray-500 mt-1">• Clic gauche sur une zone : remplit automatiquement
+                        </div>
                         <div class="text-xs text-gray-500">• Parfait pour remplir de grandes surfaces rapidement</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
@@ -253,7 +290,8 @@
                         </div>
                         <div class="text-sm text-gray-400">Efface des tiles existantes</div>
                         <div class="text-xs text-gray-500 mt-1">• Clic gauche maintenu : efface en continu</div>
-                        <div class="text-xs text-gray-500">• Supprime toutes les tiles sur la position (tous layers)</div>
+                        <div class="text-xs text-gray-500">• Supprime toutes les tiles sur la position (tous layers)
+                        </div>
                     </div>
                 </div>
             </div>
@@ -297,7 +335,9 @@
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🖱️ Clic Gauche</div>
                         <div class="text-sm text-gray-400 mb-1">En mode Construction :</div>
-                        <div class="text-xs text-gray-500">• Simple : Placer une tile (Pinceau) / Remplir (Pot) / Effacer (Gomme)</div>
+                        <div class="text-xs text-gray-500">• Simple : Placer une tile (Pinceau) / Remplir (Pot) /
+                            Effacer (Gomme)
+                        </div>
                         <div class="text-xs text-gray-500">• Maintenu : Dessiner/Effacer en continu</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
@@ -352,17 +392,29 @@
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🎨 Layers (Plans)</div>
                         <div class="text-sm text-gray-400 mb-1">Configuré AVANT placement dans le panneau Assets :</div>
-                        <div class="text-xs text-gray-500">• <strong>Layer 0 (Sol)</strong> : Arrière-plan, herbe, routes...</div>
-                        <div class="text-xs text-gray-500">• <strong>Layer 1 (Murs/Déco)</strong> : Murs, objets, décorations...</div>
-                        <div class="text-xs text-gray-500">• <strong>Layer 2 (Sprites)</strong> : Personnages, éléments au premier plan</div>
+                        <div class="text-xs text-gray-500">• <strong>Layer 0 (Sol)</strong> : Arrière-plan, herbe,
+                            routes...
+                        </div>
+                        <div class="text-xs text-gray-500">• <strong>Layer 1 (Murs/Déco)</strong> : Murs, objets,
+                            décorations...
+                        </div>
+                        <div class="text-xs text-gray-500">• <strong>Layer 2 (Sprites)</strong> : Personnages, éléments
+                            au premier plan
+                        </div>
                         <div class="text-xs text-blue-400 mt-1">💡 Les layers s'empilent : 0 derrière, 2 devant</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🛡️ Collision (Solide/Non Solide)</div>
                         <div class="text-sm text-gray-400 mb-1">Configuré AVANT placement dans le panneau Assets :</div>
-                        <div class="text-xs text-gray-500">• <strong>Non Solide</strong> : Le joueur peut traverser (herbe, sol...)</div>
-                        <div class="text-xs text-gray-500">• <strong>Solide</strong> : Bloque le joueur (murs, obstacles...)</div>
-                        <div class="text-xs text-red-400 mt-1">🧱 Indicateur rouge sur les tiles solides en mode construction</div>
+                        <div class="text-xs text-gray-500">• <strong>Non Solide</strong> : Le joueur peut traverser
+                            (herbe, sol...)
+                        </div>
+                        <div class="text-xs text-gray-500">• <strong>Solide</strong> : Bloque le joueur (murs,
+                            obstacles...)
+                        </div>
+                        <div class="text-xs text-red-400 mt-1">🧱 Indicateur rouge sur les tiles solides en mode
+                            construction
+                        </div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🌀 Téléporteurs</div>
@@ -370,10 +422,15 @@
                         <div class="text-xs text-gray-500">1. Placez une tile</div>
                         <div class="text-xs text-gray-500">2. Alt+Clic sur la tile</div>
                         <div class="text-xs text-gray-500">3. Activez "🌀 Téléporteur"</div>
-                        <div class="text-xs text-gray-500">4. Configurez : Map de destination + Coordonnées (en tiles)</div>
-                        <div class="text-xs text-blue-400 mt-1">💡 Utilisez "📍 Copier position actuelle du sprite" pour les coordonnées</div>
+                        <div class="text-xs text-gray-500">4. Configurez : Map de destination + Coordonnées (en tiles)
+                        </div>
+                        <div class="text-xs text-blue-400 mt-1">💡 Utilisez "📍 Copier position actuelle du sprite" pour
+                            les coordonnées
+                        </div>
                         <div class="text-xs text-blue-400">💡 1 tile = 27 pixels (ex: X=5 → position 135)</div>
-                        <div class="text-xs text-cyan-400 mt-1">🌀 Indicateur bleu sur les téléporteurs en mode construction</div>
+                        <div class="text-xs text-cyan-400 mt-1">🌀 Indicateur bleu sur les téléporteurs en mode
+                            construction
+                        </div>
                     </div>
                 </div>
             </div>
@@ -388,7 +445,9 @@
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🎯 Centrer sur Sprite</div>
                         <div class="text-sm text-gray-400">Bouton dans le panneau de gauche</div>
-                        <div class="text-xs text-gray-500 mt-1">• Téléporte instantanément la caméra sur votre personnage</div>
+                        <div class="text-xs text-gray-500 mt-1">• Téléporte instantanément la caméra sur votre
+                            personnage
+                        </div>
                         <div class="text-xs text-gray-500">• Utile après avoir exploré loin sur la carte</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
@@ -400,7 +459,8 @@
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🖱️ Déplacement Manuel</div>
                         <div class="text-sm text-gray-400">Clic droit maintenu + mouvement de la souris</div>
-                        <div class="text-xs text-gray-500 mt-1">• Navigation libre dans toute la zone de construction</div>
+                        <div class="text-xs text-gray-500 mt-1">• Navigation libre dans toute la zone de construction
+                        </div>
                     </div>
                 </div>
             </div>
@@ -416,18 +476,23 @@
                         <div class="font-semibold text-white mb-1">➕ Créer une Nouvelle Map</div>
                         <div class="text-sm text-gray-400">Bouton "🗺️ Maps" → "➕ Nouvelle Map"</div>
                         <div class="text-xs text-gray-500 mt-1">• Choisissez un nom unique</div>
-                        <div class="text-xs text-gray-500">• Sélectionnez la taille : Petite (25×25), Moyenne (50×50), Grande (75×75), Très Grande (100×100) ou Personnalisée</div>
+                        <div class="text-xs text-gray-500">• Sélectionnez la taille : Petite (25×25), Moyenne (50×50),
+                            Grande (75×75), Très Grande (100×100) ou Personnalisée
+                        </div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🔄 Changer de Map</div>
                         <div class="text-sm text-gray-400">Bouton "🗺️ Maps" → Sélectionnez une map</div>
-                        <div class="text-xs text-gray-500 mt-1">• Les anciennes tiles sont automatiquement nettoyées</div>
+                        <div class="text-xs text-gray-500 mt-1">• Les anciennes tiles sont automatiquement nettoyées
+                        </div>
                         <div class="text-xs text-gray-500">• La grille s'adapte à la taille de la nouvelle map</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🗑️ Supprimer une Map</div>
                         <div class="text-sm text-gray-400">Bouton "🗑️" sur la carte dans le sélecteur</div>
-                        <div class="text-xs text-red-400 mt-1">⚠️ Action IRRÉVERSIBLE - Toutes les tiles seront perdues</div>
+                        <div class="text-xs text-red-400 mt-1">⚠️ Action IRRÉVERSIBLE - Toutes les tiles seront
+                            perdues
+                        </div>
                     </div>
                 </div>
             </div>
@@ -443,13 +508,17 @@
                         <div class="font-semibold text-white mb-1">⏰ Sauvegarde Automatique</div>
                         <div class="text-sm text-gray-400">Toutes les <strong>60 secondes</strong> automatiquement</div>
                         <div class="text-xs text-gray-500 mt-1">• Aucune action nécessaire</div>
-                        <div class="text-xs text-green-400">✓ Notification "🕒 Sauvegarde automatique..." dans la console</div>
+                        <div class="text-xs text-green-400">✓ Notification "🕒 Sauvegarde automatique..." dans la
+                            console
+                        </div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">💾 Sauvegarde Manuelle</div>
-                        <div class="text-sm text-gray-400">Bouton "💾 Sauvegarder" ou <kbd class="px-2 py-0.5 bg-gray-700 rounded text-xs">Ctrl+S</kbd></div>
+                        <div class="text-sm text-gray-400">Bouton "💾 Sauvegarder" ou <kbd
+                                class="px-2 py-0.5 bg-gray-700 rounded text-xs">Ctrl+S</kbd></div>
                         <div class="text-xs text-gray-500 mt-1">• Sauvegarde immédiate de la map actuelle</div>
-                        <div class="text-xs text-green-400">✓ Feedback visuel : bouton devient vert "✅ Sauvegardé !"</div>
+                        <div class="text-xs text-green-400">✓ Feedback visuel : bouton devient vert "✅ Sauvegardé !"
+                        </div>
                     </div>
                 </div>
             </div>
@@ -503,25 +572,39 @@
                 <div class="space-y-2">
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🎨 Modes</div>
-                        <div class="text-xs text-gray-500">• <span class="text-blue-400">🧱 Mode Construction</span> - Bordure bleue dans le header</div>
-                        <div class="text-xs text-gray-500">• <span class="text-green-400">▶️ Mode Play</span> - Bordure verte dans le header</div>
+                        <div class="text-xs text-gray-500">• <span class="text-blue-400">🧱 Mode Construction</span> -
+                            Bordure bleue dans le header
+                        </div>
+                        <div class="text-xs text-gray-500">• <span class="text-green-400">▶️ Mode Play</span> - Bordure
+                            verte dans le header
+                        </div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
-                        <div class="font-semibold text-white mb-1">🏷️ Propriétés des Tiles (mode construction uniquement)</div>
-                        <div class="text-xs text-gray-500">• <span class="text-red-400">🧱 Icône rouge</span> = Tile solide (collision activée)</div>
-                        <div class="text-xs text-gray-500">• <span class="text-blue-400">🌀 Icône bleue</span> = Téléporteur configuré</div>
+                        <div class="font-semibold text-white mb-1">🏷️ Propriétés des Tiles (mode construction
+                            uniquement)
+                        </div>
+                        <div class="text-xs text-gray-500">• <span class="text-red-400">🧱 Icône rouge</span> = Tile
+                            solide (collision activée)
+                        </div>
+                        <div class="text-xs text-gray-500">• <span class="text-blue-400">🌀 Icône bleue</span> =
+                            Téléporteur configuré
+                        </div>
                         <div class="text-xs text-gray-500">• Les deux peuvent coexister sur une même tile</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">📍 Grille & Repères</div>
                         <div class="text-xs text-gray-500">• Grille blanche : zone de placement des tiles</div>
-                        <div class="text-xs text-gray-500">• Croix rouge (horizontale) + verte (verticale) = centre (0;0)</div>
+                        <div class="text-xs text-gray-500">• Croix rouge (horizontale) + verte (verticale) = centre
+                            (0;0)
+                        </div>
                         <div class="text-xs text-gray-500">• Bordure blanche : limite de la grille</div>
                     </div>
                     <div class="bg-[#2b2b2f] rounded-lg p-3 border border-gray-700">
                         <div class="font-semibold text-white mb-1">🔵 Sélections</div>
                         <div class="text-xs text-gray-500">• Contour bleu = Asset sélectionné dans le panneau</div>
-                        <div class="text-xs text-gray-500">• Fond bleu actif = Outil d'édition actif (Pinceau/Pot/Gomme)</div>
+                        <div class="text-xs text-gray-500">• Fond bleu actif = Outil d'édition actif
+                            (Pinceau/Pot/Gomme)
+                        </div>
                     </div>
                 </div>
             </div>
@@ -535,27 +618,39 @@
                 <div class="space-y-2">
                     <div class="bg-amber-900/20 border border-amber-700 rounded-lg p-3">
                         <div class="text-sm text-amber-200 font-semibold mb-1">🎨 Organisation</div>
-                        <div class="text-xs text-amber-100">Créez des dossiers thématiques : "Sol", "Murs", "Décorations", "Personnages" pour retrouver vos assets facilement</div>
+                        <div class="text-xs text-amber-100">Créez des dossiers thématiques : "Sol", "Murs",
+                            "Décorations", "Personnages" pour retrouver vos assets facilement
+                        </div>
                     </div>
                     <div class="bg-blue-900/20 border border-blue-700 rounded-lg p-3">
                         <div class="text-sm text-blue-200 font-semibold mb-1">⚡ Workflow Rapide</div>
-                        <div class="text-xs text-blue-100">1. Sélectionnez le Layer + Collision AVANT de placer → 2. Utilisez le Pot de peinture pour les grandes zones → 3. Peaufinez avec le Pinceau</div>
+                        <div class="text-xs text-blue-100">1. Sélectionnez le Layer + Collision AVANT de placer → 2.
+                            Utilisez le Pot de peinture pour les grandes zones → 3. Peaufinez avec le Pinceau
+                        </div>
                     </div>
                     <div class="bg-purple-900/20 border border-purple-700 rounded-lg p-3">
                         <div class="text-sm text-purple-200 font-semibold mb-1">🌀 Téléporteurs</div>
-                        <div class="text-xs text-purple-100">Positionnez votre sprite là où vous voulez arriver, puis copiez les coordonnées avec le bouton 📍 - Plus besoin de calculer !</div>
+                        <div class="text-xs text-purple-100">Positionnez votre sprite là où vous voulez arriver, puis
+                            copiez les coordonnées avec le bouton 📍 - Plus besoin de calculer !
+                        </div>
                     </div>
                     <div class="bg-green-900/20 border border-green-700 rounded-lg p-3">
                         <div class="text-sm text-green-200 font-semibold mb-1">💾 Sauvegarde</div>
-                        <div class="text-xs text-green-100">Pas de stress : La sauvegarde automatique fonctionne toutes les minutes. Utilisez Ctrl+S pour être sûr après un gros changement</div>
+                        <div class="text-xs text-green-100">Pas de stress : La sauvegarde automatique fonctionne toutes
+                            les minutes. Utilisez Ctrl+S pour être sûr après un gros changement
+                        </div>
                     </div>
                     <div class="bg-red-900/20 border border-red-700 rounded-lg p-3">
                         <div class="text-sm text-red-200 font-semibold mb-1">🔄 Erreurs</div>
-                        <div class="text-xs text-red-100">Vous avez fait une erreur ? Ctrl+Z annule jusqu'à 50 actions. Vous pouvez même Ctrl+Y pour refaire si vous annulez trop !</div>
+                        <div class="text-xs text-red-100">Vous avez fait une erreur ? Ctrl+Z annule jusqu'à 50 actions.
+                            Vous pouvez même Ctrl+Y pour refaire si vous annulez trop !
+                        </div>
                     </div>
                     <div class="bg-cyan-900/20 border border-cyan-700 rounded-lg p-3">
                         <div class="text-sm text-cyan-200 font-semibold mb-1">📏 Layers Multiples</div>
-                        <div class="text-xs text-cyan-100">Utilisez Layer 0 pour le sol, Layer 1 pour les murs/objets, et Layer 2 pour les éléments décoratifs au premier plan. Ça crée de la profondeur !</div>
+                        <div class="text-xs text-cyan-100">Utilisez Layer 0 pour le sol, Layer 1 pour les murs/objets,
+                            et Layer 2 pour les éléments décoratifs au premier plan. Ça crée de la profondeur !
+                        </div>
                     </div>
                 </div>
             </div>
@@ -565,7 +660,8 @@
         <!-- Footer -->
         <div class="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
             <p class="text-xs text-gray-500">Hackengine v2.1 - Mode Construction</p>
-            <button id="close-help-btn-2" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
+            <button id="close-help-btn-2"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
                 Fermer
             </button>
         </div>
@@ -573,14 +669,17 @@
 </div>
 
 <!-- Menu contextuel pour les tuiles -->
-<div id="tile-context-menu" class="hidden fixed bg-[#1a1a1d] border border-gray-700 rounded-lg shadow-xl p-2 z-[250]" style="min-width: 220px; display: none;">
+<div id="tile-context-menu" class="hidden fixed bg-[#1a1a1d] border border-gray-700 rounded-lg shadow-xl p-2 z-[250]"
+     style="min-width: 220px; display: none;">
     <!-- Header avec bouton de fermeture -->
     <div class="flex items-center justify-between px-3 py-1 border-b border-gray-700 mb-1">
         <span class="text-xs text-gray-400">Propriétés de la tuile</span>
-        <button id="close-tile-menu-btn" class="text-gray-400 hover:text-white text-lg transition" title="Fermer">✕</button>
+        <button id="close-tile-menu-btn" class="text-gray-400 hover:text-white text-lg transition" title="Fermer">✕
+        </button>
     </div>
 
-    <button id="menu-toggle-teleport" class="w-full text-left px-3 py-2 hover:bg-[#2b2b2f] rounded flex items-center justify-between transition">
+    <button id="menu-toggle-teleport"
+            class="w-full text-left px-3 py-2 hover:bg-[#2b2b2f] rounded flex items-center justify-between transition">
         <span class="flex items-center gap-2">
             <span id="menu-teleport-icon">☐</span>
             <span>Téléporteur</span>
@@ -591,30 +690,36 @@
     <div id="teleport-settings" class="hidden px-3 py-2 bg-[#0d0d0f] rounded mx-2 my-1">
         <div class="mb-2">
             <label class="text-xs text-gray-400 block mb-1">Map de destination</label>
-            <input type="text" id="menu-teleport-map" placeholder="Nom de la map" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+            <input type="text" id="menu-teleport-map" placeholder="Nom de la map"
+                   class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm"/>
         </div>
         <div class="mb-2">
             <label class="text-xs text-gray-400 block mb-1">Coordonnées de destination</label>
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">X</label>
-                    <input type="number" id="menu-teleport-x" placeholder="0" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+                    <input type="number" id="menu-teleport-x" placeholder="0"
+                           class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm"/>
                 </div>
                 <div>
                     <label class="text-xs text-gray-500 block mb-1">Y</label>
-                    <input type="number" id="menu-teleport-y" placeholder="0" class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+                    <input type="number" id="menu-teleport-y" placeholder="0"
+                           class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm"/>
                 </div>
             </div>
         </div>
-        <button id="copy-sprite-coords-btn" class="w-full text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition flex items-center justify-center gap-1">
+        <button id="copy-sprite-coords-btn"
+                class="w-full text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition flex items-center justify-center gap-1">
             <span>📍</span>
             <span>Copier position actuelle du sprite</span>
         </button>
-        <p class="text-xs text-gray-500 mt-1 italic">Coordonnées en tiles (X;Y). Le sprite apparaîtra à cette position sur la grille.</p>
+        <p class="text-xs text-gray-500 mt-1 italic">Coordonnées en tiles (X;Y). Le sprite apparaîtra à cette position
+            sur la grille.</p>
     </div>
 
     <div class="border-t border-gray-700 my-1"></div>
-    <button id="menu-delete-tile" class="w-full text-left px-3 py-2 hover:bg-red-900/30 text-red-400 rounded flex items-center gap-2 transition">
+    <button id="menu-delete-tile"
+            class="w-full text-left px-3 py-2 hover:bg-red-900/30 text-red-400 rounded flex items-center gap-2 transition">
         <span>🗑️</span>
         <span>Supprimer</span>
     </button>
@@ -732,140 +837,117 @@
 </style>
 
 <script>
-    /**
-     * Gestion du canvas, des modes et du déplacement de la caméra
-     */
-    let mode = 'construction';
-    let editMode = 'brush'; // Mode d'édition : 'brush', 'fill', 'eraser'
+    function gms() {
+        return window.gameModeService;
+    }
+
+    window.getMode = () => gms()?.getMode() ?? 'construction';
+    window.getEditMode = () => gms()?.getEditMode() ?? 'brush';
+    window.getCameraPan = () => gms()?.getCameraPan() ?? {x: 0, y: 0};
+    Object.defineProperty(window, 'constructionZoom', {
+        get: () => gms()?.getZoom() ?? 1.0,
+        configurable: true
+    });
+
     const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Variables pour le zoom (mode construction uniquement)
-    let currentZoom = 1.0;  // 100%
-    const minZoom = 0.5;    // 50%
-    const maxZoom = 3.0;    // 300%
-    const zoomStep = 0.1;   // 10%
-    window.constructionZoom = currentZoom; // Exposer globalement
+    const minZoom = 0.5;
+    const maxZoom = 3.0;
+    const zoomStep = 0.1;
 
-    canvas.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-    });
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // Variables de caméra
     let isPanning = false;
     let panStartX = 0;
     let panStartY = 0;
-    let cameraPanVelocityX = 0;
-    let cameraPanVelocityY = 0;
 
-    // --- Fonctions principales ---
+    // --- Layout ---
+
     function resizeCanvas() {
         const section = document.querySelector('section.flex-1');
         const rect = section.getBoundingClientRect();
-        const availableWidth = rect.width * 0.95;
-        const availableHeight = rect.height * 0.95;
-
-        // Taille d'affichage CSS
-        canvas.style.width = availableWidth + 'px';
-        canvas.style.height = availableHeight + 'px';
+        canvas.style.width = (rect.width * 0.95) + 'px';
+        canvas.style.height = (rect.height * 0.95) + 'px';
     }
 
-    /**
-     * Met à jour le layout selon le mode actif
-     */
     function updateLayout() {
         const aside = document.querySelector('aside');
         const mainSection = document.querySelector('section.flex-1');
         const editModePanel = document.querySelector('.absolute.top-4.left-4');
+        const mode = gms()?.getMode() ?? 'construction';
 
         aside.style.display = mode === 'play' ? 'none' : 'flex';
-
-        // Afficher/masquer le panneau de modes d'édition
-        if (editModePanel) {
-            editModePanel.style.display = mode === 'play' ? 'none' : 'block';
-        }
-
+        if (editModePanel) editModePanel.style.display = mode === 'play' ? 'none' : 'block';
         mainSection.style.flex = '1';
 
         setTimeout(() => {
             resizeCanvas();
-            if (window.forceRender) window.forceRender();
+            window.forceRender?.();
         }, 100);
     }
 
-    /**
-     * Change le mode (play/construction)
-     */
+    // --- Mode play/construction ---
+
     function setMode(newMode) {
-        mode = newMode;
+        gms()?.setMode(newMode);
+        isPanning = false;
 
-        if (mode === "construction") {
-            // 🧭 Réinitialise le pan caméra
-            cameraPanVelocityX = 0;
-            cameraPanVelocityY = 0;
-            isPanning = false;
-
-            // ❗ Détache la caméra du joueur pour la rendre libre
-            if (window.activeCamera) {
-                window.activeCamera.cameraSubject = undefined;
-                window.activeCamera.cameraType = "CAM_SCRIPTABLE";
-            }
-
-            // 🔄 Reset curseur
-            canvas.style.cursor = "grab";
-        }
-
-        if (mode === "play") {
-            // 🔁 Rattache la caméra au joueur
-            if (window.activeCamera && window.playerInstance) {
-                window.activeCamera.cameraSubject = window.playerInstance;
-                window.activeCamera.cameraType = "CAM_FOLLOW";
-            }
-
-            canvas.style.cursor = "default";
-        }
-
-        updateCursor?.(); // si tu utilises la fonction du précédent bloc
-    }
-
-    function updateCursor() {
-        if (mode === 'construction') {
-            canvas.style.cursor = isPanning ? 'grabbing' : 'grab';
+        if (newMode === 'construction') {
+            canvas.style.cursor = 'grab';
         } else {
             canvas.style.cursor = 'default';
         }
     }
 
-    // --- Fonctions de gestion du zoom ---
-    function updateZoom(newZoom) {
-        if (mode !== 'construction') return;
+    function updateCursor() {
+        const mode = gms()?.getMode() ?? 'construction';
+        canvas.style.cursor = mode === 'construction' ? (isPanning ? 'grabbing' : 'grab') : 'default';
+    }
 
-        currentZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
-        window.constructionZoom = currentZoom;
+    function updateModeIndicator(mode) {
+        const indicator = document.getElementById('mode-indicator');
+        const icon = document.getElementById('mode-icon');
+        const text = document.getElementById('mode-text');
 
-        const display = document.getElementById('zoom-level-display');
-        if (display) {
-            display.textContent = Math.round(currentZoom * 100) + '%';
+        if (mode === 'play') {
+            indicator.style.borderColor = '#10b981';
+            indicator.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+            icon.textContent = '▶️';
+            text.textContent = 'Mode Play';
+        } else {
+            indicator.style.borderColor = '#3b82f6';
+            indicator.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+            icon.textContent = '🧱';
+            text.textContent = 'Mode Construction';
         }
+    }
 
-        console.log(`🔍 Zoom: ${Math.round(currentZoom * 100)}%`);
+    // --- Zoom ---
+
+    function updateZoom(newZoom) {
+        if ((gms()?.getMode() ?? 'construction') !== 'construction') return;
+        gms()?.setZoom(newZoom);
+        const display = document.getElementById('zoom-level-display');
+        if (display) display.textContent = Math.round((gms()?.getZoom() ?? 1) * 100) + '%';
     }
 
     function zoomIn() {
-        updateZoom(currentZoom + zoomStep);
+        updateZoom((gms()?.getZoom() ?? 1) + zoomStep);
     }
 
     function zoomOut() {
-        updateZoom(currentZoom - zoomStep);
+        updateZoom((gms()?.getZoom() ?? 1) - zoomStep);
     }
 
     function resetZoom() {
         updateZoom(1.0);
     }
 
-    // --- Événements pour le pan de caméra ---
+    // --- Pan caméra (clic droit) ---
+
     canvas.addEventListener('mousedown', (e) => {
-        if (mode === 'construction' && e.button === 2) {
+        if ((gms()?.getMode() ?? 'construction') === 'construction' && e.button === 2) {
             isPanning = true;
             panStartX = e.clientX;
             panStartY = e.clientY;
@@ -875,22 +957,15 @@
     });
 
     canvas.addEventListener('mousemove', (e) => {
-        if (isPanning && mode === 'construction') {
+        if (isPanning && (gms()?.getMode() ?? 'construction') === 'construction') {
             const deltaX = e.clientX - panStartX;
             const deltaY = e.clientY - panStartY;
 
-            // Mettre à jour les vélocités
-            cameraPanVelocityX = deltaX;
-            cameraPanVelocityY = deltaY;
+            gms()?.panCamera(deltaX, deltaY);
+            gms()?.setCameraPan(deltaX, deltaY);
 
             panStartX = e.clientX;
             panStartY = e.clientY;
-
-            if (window.activeCamera) {
-                // Inversion des directions pour un comportement "éditeur"
-                window.activeCamera.coordinates.X += deltaX;
-                window.activeCamera.coordinates.Y += deltaY;
-            }
             e.preventDefault();
         }
     });
@@ -898,8 +973,7 @@
     canvas.addEventListener('mouseup', (e) => {
         if (e.button === 2) {
             isPanning = false;
-            cameraPanVelocityX = 0;
-            cameraPanVelocityY = 0;
+            gms()?.setCameraPan(0, 0);
             updateCursor();
         }
     });
@@ -907,175 +981,124 @@
     canvas.addEventListener('mouseleave', () => {
         if (isPanning) {
             isPanning = false;
-            cameraPanVelocityX = 0;
-            cameraPanVelocityY = 0;
+            gms()?.setCameraPan(0, 0);
             updateCursor();
         }
     });
 
-    // Initialisation
+    // --- Init ---
+
     resizeCanvas();
     updateLayout();
     updateCursor();
 
-    // Fonction pour mettre à jour l'indicateur de mode
-    function updateModeIndicator(mode) {
-        const indicator = document.getElementById('mode-indicator');
-        const icon = document.getElementById('mode-icon');
-        const text = document.getElementById('mode-text');
+    // --- Boutons zoom ---
 
-        if (mode === 'play') {
-            // Mode Play - Vert
-            indicator.style.borderColor = '#10b981';
-            indicator.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
-            icon.textContent = '▶️';
-            text.textContent = 'Mode Play';
-        } else {
-            // Mode Construction - Bleu
-            indicator.style.borderColor = '#3b82f6';
-            indicator.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-            icon.textContent = '🧱';
-            text.textContent = 'Mode Construction';
-        }
-    }
+    document.getElementById('zoom-in-btn')?.addEventListener('click', zoomIn);
+    document.getElementById('zoom-out-btn')?.addEventListener('click', zoomOut);
+    document.getElementById('zoom-reset-btn')?.addEventListener('click', resetZoom);
 
-    // Event listeners pour le zoom
-    const zoomInBtn = document.getElementById('zoom-in-btn');
-    const zoomOutBtn = document.getElementById('zoom-out-btn');
-    const zoomResetBtn = document.getElementById('zoom-reset-btn');
-
-    if (zoomInBtn) zoomInBtn.addEventListener('click', zoomIn);
-    if (zoomOutBtn) zoomOutBtn.addEventListener('click', zoomOut);
-    if (zoomResetBtn) zoomResetBtn.addEventListener('click', resetZoom);
-
-    // Molette pour le zoom
     canvas.addEventListener('wheel', (e) => {
-        if (mode !== 'construction') return;
+        if ((gms()?.getMode() ?? 'construction') !== 'construction') return;
         e.preventDefault();
-        const delta = -Math.sign(e.deltaY) * zoomStep;
-        updateZoom(currentZoom + delta);
-    }, { passive: false });
+        updateZoom((gms()?.getZoom() ?? 1) + (-Math.sign(e.deltaY) * zoomStep));
+    }, {passive: false});
 
-    // Gestion du redimensionnement
     window.addEventListener('resize', resizeCanvas);
 
-    // Gestion des boutons
+    // --- Boutons play/stop ---
+
     document.getElementById('play-btn').addEventListener('click', () => {
         setMode('play');
         updateModeIndicator('play');
+        updateLayout();
         if (typeof start === 'function') start();
     });
 
     document.getElementById('stop-btn').addEventListener('click', () => {
         setMode('construction');
         updateModeIndicator('construction');
+        updateLayout();
         if (typeof stop === 'function') stop();
     });
 
-    // Gestion des boutons de mode d'édition
+    // --- Boutons de mode d'édition (pinceau / pot / gomme) ---
+
     const modeButtons = document.querySelectorAll('.mode-button');
     modeButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Retirer la classe active de tous les boutons
             modeButtons.forEach(btn => btn.classList.remove('active'));
-
-            // Ajouter la classe active au bouton cliqué
             button.classList.add('active');
-
-            // Mettre à jour le mode d'édition
-            editMode = button.getAttribute('data-mode');
-            console.log(`🛠️ Mode d'édition changé : ${editMode}`);
-
-            // Mettre à jour le mode global pour le moteur
-            window.editMode = editMode;
+            gms()?.setEditMode(button.getAttribute('data-mode'));
         });
     });
 
-    // Bouton de téléportation au sprite (0;0)
+    // --- Téléportation vers le joueur ---
+
     document.getElementById('teleport-to-sprite-btn').addEventListener('click', () => {
-        if (window.activeCamera && window.playerInstance) {
-            // Récupérer la position du sprite
-            const spriteX = window.playerInstance.coordinates.X;
-            const spriteY = window.playerInstance.coordinates.Y;
+        const camera = gms()?.getActiveCamera();
+        const player = gms()?.getPlayer();
 
-            // Calculer la position de la caméra pour centrer sur le sprite
-            const canvasWidth = 800;
-            const canvasHeight = 600;
-            const scale = canvasHeight * 0.004;
-
-            let modelX = 0;
-            let modelY = 0;
-            if (window.playerInstance.components.BoxCollider) {
-                modelX = window.playerInstance.components.BoxCollider.hitbox.Width / 2;
-                modelY = window.playerInstance.components.BoxCollider.hitbox.Height / 2;
-            }
-
-            // Centrer la caméra sur le sprite
-            window.activeCamera.coordinates.X = -spriteX + (canvasWidth / 2) / scale - modelX;
-            window.activeCamera.coordinates.Y = -spriteY + (canvasHeight / 2) / scale - modelY;
-
-            console.log(`🎯 Téléportation à la position du sprite: (${spriteX}, ${spriteY})`);
-
-            // Feedback visuel sur le bouton
-            const teleportBtn = document.getElementById('teleport-to-sprite-btn');
-            teleportBtn.classList.add('bg-green-600');
-            setTimeout(() => {
-                teleportBtn.classList.remove('bg-green-600');
-            }, 300);
-        } else {
-            console.warn('⚠️ Caméra ou sprite non disponible');
+        if (!camera || !player) {
+            console.warn('⚠️ Caméra ou joueur non disponible');
+            return;
         }
+
+        const spriteX = player.coordinates.X;
+        const spriteY = player.coordinates.Y;
+
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const scale = canvasHeight * 0.004;
+        const modelX = player.components.BoxCollider?.hitbox.Width / 2 ?? 0;
+        const modelY = player.components.BoxCollider?.hitbox.Height / 2 ?? 0;
+
+        camera.coordinates.X = -spriteX + (canvasWidth / 2) / scale - modelX;
+        camera.coordinates.Y = -spriteY + (canvasHeight / 2) / scale - modelY;
+
+        const btn = document.getElementById('teleport-to-sprite-btn');
+        btn.classList.add('bg-green-600');
+        setTimeout(() => btn.classList.remove('bg-green-600'), 300);
     });
 
-    // Bouton de téléportation à 0;0 (centre de la grille)
+    // --- Téléportation vers 0;0 ---
+
     document.getElementById('teleport-to-zero-btn').addEventListener('click', () => {
-        if (window.activeCamera) {
-            // Calculer la position de la caméra pour centrer sur 0;0
-            const canvasWidth = 800;
-            const canvasHeight = 600;
-            const scale = canvasHeight * 0.004;
-
-            // Centrer la caméra sur 0;0
-            window.activeCamera.coordinates.X = (canvasWidth / 2) / scale;
-            window.activeCamera.coordinates.Y = (canvasHeight / 2) / scale;
-
-            console.log(`⊕ Téléportation au centre de la grille: (0, 0)`);
-
-            // Feedback visuel sur le bouton
-            const teleportBtn = document.getElementById('teleport-to-zero-btn');
-            teleportBtn.classList.add('bg-green-600');
-            setTimeout(() => {
-                teleportBtn.classList.remove('bg-green-600');
-            }, 300);
-        } else {
+        const camera = gms()?.getActiveCamera();
+        if (!camera) {
             console.warn('⚠️ Caméra non disponible');
+            return;
         }
+
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const scale = canvasHeight * 0.004;
+
+        camera.coordinates.X = (canvasWidth / 2) / scale;
+        camera.coordinates.Y = (canvasHeight / 2) / scale;
+
+        const btn = document.getElementById('teleport-to-zero-btn');
+        btn.classList.add('bg-green-600');
+        setTimeout(() => btn.classList.remove('bg-green-600'), 300);
     });
 
-    // Fonction de sauvegarde manuelle
+    // --- Sauvegarde ---
+
     function saveMapManually() {
-        if (window.tileDragService) {
-            window.tileDragService.saveMap();
-            // Feedback visuel
-            const saveBtn = document.getElementById('save-map-btn');
-            const originalText = saveBtn.innerHTML;
-            saveBtn.innerHTML = '<span>✅</span><span>Sauvegardé !</span>';
-            saveBtn.classList.add('bg-green-700');
-            setTimeout(() => {
-                saveBtn.innerHTML = originalText;
-                saveBtn.classList.remove('bg-green-700');
-            }, 2000);
-        } else {
-            console.warn('⚠️ TileDragService non disponible');
-        }
+        gms()?.saveMap();
+
+        const saveBtn = document.getElementById('save-map-btn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<span>✅</span><span>Sauvegardé !</span>';
+        saveBtn.classList.add('bg-green-700');
+        setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.classList.remove('bg-green-700');
+        }, 2000);
     }
 
-    // Gestion du bouton de sauvegarde manuel
-    document.getElementById('save-map-btn').addEventListener('click', () => {
-        saveMapManually();
-    });
+    document.getElementById('save-map-btn').addEventListener('click', saveMapManually);
 
-    // Raccourci clavier Ctrl+S pour sauvegarder
     document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault();
@@ -1083,108 +1106,27 @@
         }
     });
 
-    // Sauvegarde automatique toutes les minutes (60000 ms)
-    let autoSaveInterval = null;
-
-    function startAutoSave() {
-        // Arrêter l'intervalle existant si présent
-        if (autoSaveInterval) {
-            clearInterval(autoSaveInterval);
+    // Sauvegarde automatique toutes les minutes (mode construction uniquement)
+    setInterval(() => {
+        if ((gms()?.getMode() ?? 'construction') === 'construction') {
+            console.log('🕒 Sauvegarde automatique...');
+            gms()?.saveMap();
         }
+    }, 60_000);
 
-        // Démarrer la sauvegarde automatique
-        autoSaveInterval = setInterval(() => {
-            if (mode === 'construction' && window.tileDragService) {
-                console.log('🕒 Sauvegarde automatique...');
-                window.tileDragService.saveMap();
-            }
-        }, 60000); // 60000 ms = 1 minute
+    // --- Modale d'aide ---
 
-        console.log('✅ Sauvegarde automatique activée (toutes les minutes)');
-    }
-
-    function stopAutoSave() {
-        if (autoSaveInterval) {
-            clearInterval(autoSaveInterval);
-            autoSaveInterval = null;
-            console.log('⏸️ Sauvegarde automatique désactivée');
-        }
-    }
-
-    // Démarrer la sauvegarde automatique au chargement
-    window.addEventListener('load', () => {
-        startAutoSave();
-    });
-
-    // Gestion de la modale d'aide
     const helpModal = document.getElementById('help-modal');
-    const helpBtn = document.getElementById('help-btn');
-    const closeHelpBtn = document.getElementById('close-help-btn');
-    const closeHelpBtn2 = document.getElementById('close-help-btn-2');
-
-    // Ouvrir la modale d'aide
-    helpBtn.addEventListener('click', () => {
-        helpModal.classList.remove('hidden');
-        console.log('📖 Modale d\'aide ouverte');
-    });
-
-    // Fermer la modale d'aide (bouton X)
-    closeHelpBtn.addEventListener('click', () => {
-        helpModal.classList.add('hidden');
-    });
-
-    // Fermer la modale d'aide (bouton Fermer)
-    closeHelpBtn2.addEventListener('click', () => {
-        helpModal.classList.add('hidden');
-    });
-
-    // Fermer la modale d'aide avec Échap
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !helpModal.classList.contains('hidden')) {
-            helpModal.classList.add('hidden');
-        }
-    });
-
-    // Fermer la modale d'aide en cliquant sur le fond noir
+    document.getElementById('help-btn').addEventListener('click', () => helpModal.classList.remove('hidden'));
+    document.getElementById('close-help-btn').addEventListener('click', () => helpModal.classList.add('hidden'));
+    document.getElementById('close-help-btn-2').addEventListener('click', () => helpModal.classList.add('hidden'));
     helpModal.addEventListener('click', (e) => {
-        if (e.target === helpModal) {
-            helpModal.classList.add('hidden');
-        }
+        if (e.target === helpModal) helpModal.classList.add('hidden');
     });
 
-    // Export pour le moteur
-    window.gameCanvas = canvas;
-    window.gameContext = ctx;
-    window.getMode = () => mode;
-    window.getEditMode = () => editMode;
-    window.editMode = editMode; // Export initial
-    window.getCameraPan = () => ({ x: cameraPanVelocityX, y: cameraPanVelocityY });
-</script>
-
-<script>
-    /**
-     * Charger les tiles depuis le serveur
-     */
-    async function loadTiles() {
-        try {
-            const res = await fetch('/api/tiles');
-            const tiles = await res.json();
-            const container = document.getElementById('tiles-container');
-            container.innerHTML = '';
-
-            tiles.forEach(tile => {
-                const img = document.createElement('img');
-                img.src = `/Public/Assets/Game/Tiles/${tile}`;
-                img.alt = tile;
-                img.className = 'w-full h-auto rounded-lg border border-gray-700';
-                container.appendChild(img);
-            });
-        } catch (err) {
-            console.error('Erreur en chargeant les tiles :', err);
-        }
-    }
-
-    loadTiles();
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !helpModal.classList.contains('hidden')) helpModal.classList.add('hidden');
+    });
 </script>
 
 </body>

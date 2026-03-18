@@ -1,8 +1,7 @@
 import {Tile} from '../../WebGameObjects/Tile.js';
 
 /**
- * MapService — responsable du chargement, de la sauvegarde et de la gestion
- * de l'état des tuiles placées sur la map.
+ * MapService — chargement, sauvegarde et état des tuiles placées.
  */
 class MapService {
     #engine = null;
@@ -11,7 +10,7 @@ class MapService {
 
     /**
      * @param {Engine} engine
-     * @param {Map} placedTilesRef - La Map<string, Tile> de TileDragService (référence partagée)
+     * @param {Map<string, Tile>} placedTilesRef - Référence partagée avec TileDragService
      */
     initialize(engine, placedTilesRef) {
         this.#engine = engine;
@@ -22,14 +21,12 @@ class MapService {
         return this.#currentMapName;
     }
 
+    gridBounds = null;
+
     // -------------------------------------------------------------------------
     // Chargement
     // -------------------------------------------------------------------------
 
-    /**
-     * Charge une map depuis le serveur et l'applique à la scène active.
-     * @param {string} mapName
-     */
     async loadMapFromServer(mapName = 'default_map') {
         try {
             this.#currentMapName = mapName;
@@ -56,23 +53,19 @@ class MapService {
     // -------------------------------------------------------------------------
 
     saveMap() {
-        const mapData = this.#exportMapData();
+        const mapData = this.exportMapData();
 
         fetch('/api/save-map', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({mapData, mapName: this.#currentMapName})
+            body: JSON.stringify({mapData, mapName: this.#currentMapName}),
         })
             .then(res => res.json())
             .then(data => console.log(`✅ ${data.message} (${data.tileCount} tuiles)`))
-            .catch(err => console.error('❌ Erreur lors de la sauvegarde de la map:', err));
+            .catch(err => console.error('❌ Erreur sauvegarde:', err));
     }
 
-    // -------------------------------------------------------------------------
-    // Privé
-    // -------------------------------------------------------------------------
-
-    #exportMapData() {
+    exportMapData() {
         const mapData = [];
 
         this.#placedTiles.forEach((tile, posKey) => {
@@ -97,6 +90,10 @@ class MapService {
 
         return mapData;
     }
+
+    // -------------------------------------------------------------------------
+    // Privé
+    // -------------------------------------------------------------------------
 
     #loadMapData(mapData) {
         const scene = this.#engine.services.SceneService.activeScene;
@@ -151,9 +148,7 @@ class MapService {
             maxY: cellSize * halfSize,
         };
 
-        if (window.constructionGrid) {
-            window.constructionGrid.setGridSize(tileSize);
-        }
+        this.#engine.setGridSize(tileSize);
 
         console.log(`📐 Taille de grille appliquée: ${tileSize}×${tileSize}`);
     }
