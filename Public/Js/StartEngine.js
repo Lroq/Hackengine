@@ -4,36 +4,38 @@ import {SceneService} from "/Engine/Classes/Base/Services/Scenes/SceneService.js
 import {Size_2D} from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService} from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
 import {InputService} from "/Engine/Classes/Base/Services/Inputs/InputService.js";
+import {MapService} from "/Engine/Classes/Base/Services/Grid/MapService.js";
 import {ExempleScene} from "/Engine/Classes/Custom/Scenes/ExempleScene.js";
 import {TileDragService} from "/Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "/Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 // -- :: -- :: --:: -- :: -- \\
 
 let canvas;
-let currentMapName = 'default_map';
 let mapSelector;
 
 function updateMapNameDisplay(mapName) {
-    const mapNameElement = document.getElementById('current-map-name');
-    if (mapNameElement) mapNameElement.textContent = mapName;
+    const el = document.getElementById('current-map-name');
+    if (el) el.textContent = mapName;
 }
 
 async function main() {
     mapSelector = new window.MapSelector();
 
-    await new Promise((resolve) => {
+    const initialMapName = await new Promise((resolve) => {
         mapSelector.show((selectedMapName) => {
-            currentMapName = selectedMapName;
-            console.log(`🗺️ Chargement de la map : ${currentMapName}`);
-            resolve();
+            console.log(`🗺️ Chargement de la map : ${selectedMapName}`);
+            resolve(selectedMapName);
         });
     });
+
+    const mapService = new MapService();
 
     const engine = new Engine(
         {
             SceneService: new SceneService(),
             PhysicService: new PhysicService(),
             InputService: new InputService(),
+            MapService: mapService,
         },
         {TickRate: 10},
         canvas
@@ -48,15 +50,14 @@ async function main() {
     engine.services.SceneService.activeScene = testScene;
 
     const tileDragService = new TileDragService();
-    tileDragService.initialize(engine, canvas);
+    tileDragService.initialize(engine, canvas, mapService);
 
     window.tileDragService = tileDragService;
 
-    await tileDragService.loadMapFromServer(currentMapName);
+    await tileDragService.loadMapFromServer(initialMapName);
+    updateMapNameDisplay(initialMapName);
 
-    window.currentMapName = currentMapName;
     window.updateMapNameDisplay = updateMapNameDisplay;
-    updateMapNameDisplay(currentMapName);
 
     const tileContextMenu = new TileContextMenu(tileDragService, canvas, engine);
     window.tileContextMenu = tileContextMenu;
@@ -64,16 +65,14 @@ async function main() {
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
     backToMapsBtn.addEventListener('click', () => {
         mapSelector.show(async (selectedMapName) => {
-            currentMapName = selectedMapName;
-            window.currentMapName = currentMapName;
-            console.log(`🗺️ Chargement de la nouvelle map : ${currentMapName}`);
-            await tileDragService.loadMapFromServer(currentMapName);
-            updateMapNameDisplay(currentMapName);
+            console.log(`🗺️ Chargement de la nouvelle map : ${selectedMapName}`);
+            await tileDragService.loadMapFromServer(selectedMapName);
+            updateMapNameDisplay(selectedMapName);
         }, true);
     });
 }
 
-window.addEventListener('load', function () {
+window.addEventListener('load', () => {
     canvas = document.getElementById("game-canvas");
     main();
 });

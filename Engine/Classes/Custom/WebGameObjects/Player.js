@@ -1,15 +1,15 @@
-import {Character}        from "./Character.js";
-import {NameTag}           from "./NameTag.js";
+import {Character} from "./Character.js";
+import {NameTag} from "./NameTag.js";
 import {FACING, PLAYER_STATE, SPRITES} from "./PlayerUtils.js";
-import {SpriteModel}       from "../../Base/Components/SpriteModel.js";
-import {PhysicController}  from "../../Base/Components/PhysicController.js";
+import {SpriteModel} from "../../Base/Components/SpriteModel.js";
+import {PhysicController} from "../../Base/Components/PhysicController.js";
 
 
 class Player extends Character {
-    #globalState    = PLAYER_STATE.Idling;
+    #globalState = PLAYER_STATE.Idling;
     #animationFrame = 0;
-    #face           = FACING.Right;
-    #isTeleporting  = false;
+    #face = FACING.Right;
+    #isTeleporting = false;
 
     constructor(username) {
         super();
@@ -17,9 +17,12 @@ class Player extends Character {
         tag.coordinates.Y = -65;
         tag.coordinates.X = -5;
         super.addChild(tag);
-
         this.hp = 3;
     }
+
+    // -------------------------------------------------------------------------
+    // États
+    // -------------------------------------------------------------------------
 
     #run_Idling(Services) {
         const sprite = this.getComponent(SpriteModel);
@@ -49,12 +52,12 @@ class Player extends Character {
 
         if (Services.InputService.IsKeyDown("q")) {
             physic.velocity.X = -0.8;
-            sprite.rotation   = -1;
-            this.#face        = FACING.Right;
+            sprite.rotation = -1;
+            this.#face = FACING.Right;
         } else if (Services.InputService.IsKeyDown("d")) {
             physic.velocity.X = 0.8;
-            sprite.rotation   = 1;
-            this.#face        = FACING.Right;
+            sprite.rotation = 1;
+            this.#face = FACING.Right;
         }
 
         if (!Services.InputService.IsEitherKeyDown(["z", "q", "s", "d"])) {
@@ -68,6 +71,10 @@ class Player extends Character {
         sprite.sprite = SPRITES.MOVING[this.#face][Math.round(this.#animationFrame)];
     }
 
+    // -------------------------------------------------------------------------
+    // Téléportation
+    // -------------------------------------------------------------------------
+
     #checkTeleportTile(Services) {
         const scene = Services.SceneService.activeScene;
         if (!scene) return;
@@ -75,19 +82,13 @@ class Player extends Character {
         const playerX = this.coordinates.X;
         const playerY = this.coordinates.Y;
 
-        const tiles = scene.wgObjects.filter(obj => obj.constructor.name === 'Tile');
-
-        const teleporterTile = tiles.find(tile => {
-            if (!tile.isTeleporter) return false;
-
-            const tileX = tile.coordinates.X;
-            const tileY = tile.coordinates.Y;
-
+        const teleporterTile = scene.wgObjects.find(obj => {
+            if (obj.constructor.name !== 'Tile' || !obj.isTeleporter) return false;
             return (
-                playerX >= tileX - 13 &&
-                playerX <= tileX + 40  &&
-                playerY >= tileY - 13 &&
-                playerY <= tileY + 40
+                playerX >= obj.coordinates.X - 13 &&
+                playerX <= obj.coordinates.X + 40 &&
+                playerY >= obj.coordinates.Y - 13 &&
+                playerY <= obj.coordinates.Y + 40
             );
         });
 
@@ -95,10 +96,8 @@ class Player extends Character {
             if (teleporterTile.teleportData?.map?.trim() && !this.#isTeleporting) {
                 this.#isTeleporting = true;
                 this.#handleTeleport(Services, teleporterTile.teleportData);
-            } else if (!this.#isTeleporting) {
-                if (!teleporterTile.teleportData?.map?.trim()) {
-                    console.warn('⚠️ Téléporteur sans destination configurée');
-                }
+            } else if (!this.#isTeleporting && !teleporterTile.teleportData?.map?.trim()) {
+                console.warn('⚠️ Téléporteur sans destination configurée');
             }
         } else {
             this.#isTeleporting = false;
@@ -108,22 +107,19 @@ class Player extends Character {
     #handleTeleport(Services, teleportData) {
         console.log(`🚀 Téléportation vers "${teleportData.map}"...`);
 
-        Services.SceneService.LoadSceneFromJson(teleportData.map).then(() => {
+        Services.SceneService.LoadSceneFromJson(teleportData.map, Services).then(() => {
             this.coordinates.X = teleportData.x;
             this.coordinates.Y = teleportData.y;
 
             const activeCamera = Services.SceneService.activeScene?.activeCamera;
             if (activeCamera && this.components.BoxCollider) {
-                const canvas      = document.getElementById('game-canvas');
-                const canvasWidth  = canvas.width;
+                const canvas = document.getElementById('game-canvas');
+                const canvasWidth = canvas.width;
                 const canvasHeight = canvas.height;
-                const scale        = canvasHeight * 0.004;
+                const scale = canvasHeight * 0.004;
 
-                const modelX = this.components.BoxCollider.hitbox.Width  / 2;
-                const modelY = this.components.BoxCollider.hitbox.Height / 2;
-
-                activeCamera.coordinates.X = -this.coordinates.X + (canvasWidth  / 2) / scale - modelX;
-                activeCamera.coordinates.Y = -this.coordinates.Y + (canvasHeight / 2) / scale - modelY;
+                activeCamera.coordinates.X = -this.coordinates.X + (canvasWidth / 2) / scale - this.components.BoxCollider.hitbox.Width / 2;
+                activeCamera.coordinates.Y = -this.coordinates.Y + (canvasHeight / 2) / scale - this.components.BoxCollider.hitbox.Height / 2;
             }
 
             console.log(`✅ Téléporté à (${teleportData.x}, ${teleportData.y}) dans "${teleportData.map}"`);
@@ -133,16 +129,25 @@ class Player extends Character {
             }, 500);
 
         }).catch(err => {
-            console.error(`❌ Erreur téléportation vers ${teleportData.map}:`, err);
+            console.error(`❌ Erreur téléportation:`, err);
             this.#isTeleporting = false;
         });
     }
 
+    // -------------------------------------------------------------------------
+    // Loop
+    // -------------------------------------------------------------------------
+
     run(Services, DeltaTime) {
         switch (this.#globalState) {
-            case PLAYER_STATE.Idling: this.#run_Idling(Services, DeltaTime);  break;
-            case PLAYER_STATE.Moving: this.#run_Moving(Services, DeltaTime);  break;
-            case PLAYER_STATE.Freeze: break;
+            case PLAYER_STATE.Idling:
+                this.#run_Idling(Services, DeltaTime);
+                break;
+            case PLAYER_STATE.Moving:
+                this.#run_Moving(Services, DeltaTime);
+                break;
+            case PLAYER_STATE.Freeze:
+                break;
         }
         this.#checkTeleportTile(Services);
     }
