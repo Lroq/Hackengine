@@ -110,36 +110,25 @@ async function main(){
     // Initialiser le contrôleur de jeu (UI, Modes)
     const gameController = initializeGameController(EngineInstance);
     window.setMode = gameController.setMode; // Exposer pour compatibilité si nécessaire
+
+    // Gestion du bouton de retour à la sélection des maps
+    const backToMapsBtn = document.getElementById('back-to-maps-btn');
+    if (backToMapsBtn) {
+        backToMapsBtn.addEventListener('click', () => {
+            // Réouvrir le sélecteur de maps avec le bouton de fermeture
+            mapSelector.show(async (selectedMapName) => {
+                currentMapName = selectedMapName;
+                window.currentMapName = currentMapName;
+                console.log(`🗺️ Chargement de la nouvelle map : ${currentMapName}`);
+
+                // Charger la nouvelle map via le service
+                await mapService.loadMapFromServer(currentMapName);
+
+                // Mettre à jour l'affichage du nom de la map
+                updateMapNameDisplay(currentMapName);
+            }, true); // true = afficher le bouton de fermeture
+        });
+    }
 }
 
 window.onload = main;
-
-            console.warn('⚠️ window.tileInteractionManager non trouvé');
-        }
-    }, 100);
-
-    // Bouton de retour à la sélection des maps
-    const backToMapsBtn = document.getElementById('back-to-maps-btn');
-    backToMapsBtn.addEventListener('click', () => {
-        // Réouvrir le sélecteur de maps avec le bouton de fermeture
-        mapSelector.show(async (selectedMapName) => {
-            currentMapName = selectedMapName;
-            window.currentMapName = currentMapName;
-            console.log(`🗺️ Chargement de la nouvelle map : ${currentMapName}`);
-
-            // Charger la nouvelle map
-            await tileDragService.loadMapFromServer(currentMapName);
-
-            // Mettre à jour l'affichage du nom de la map
-            updateMapNameDisplay(currentMapName);
-        }, true); // true = afficher le bouton de fermeture
-    });
-}
-// -- :: -- :: --:: -- :: -- \\
-
-// -- :: Events :: -- \\
-window.addEventListener('load', function() {
-    Canvas = document.getElementById("game-canvas")
-    main();
-})
-// -- :: -- :: --:: -- :: -- \\
