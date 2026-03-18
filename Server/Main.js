@@ -1,9 +1,10 @@
 const express = require('express');
 const path = require('path');
 
-const tilesRouter      = require('./routes/tiles.js');
-const mapsRouter       = require('./routes/maps.js');
-const tileFoldersRouter = require('./routes/tileFolders.js');
+const app = express();
+const PORT = 9000;
+
+const tilesDir = path.join(__dirname, '../Public/Assets/Game/Tiles');
 
 const app  = express();
 const PORT = 8080;
@@ -22,5 +23,6 @@ app.get('/', (req, res) => {
 app.use('/api/tiles',        tilesRouter);
 app.use('/api/maps',         mapsRouter);
 app.use('/api/tile-folders', tileFoldersRouter);
+
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
