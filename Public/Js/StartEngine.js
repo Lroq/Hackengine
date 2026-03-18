@@ -9,6 +9,7 @@ import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragS
 import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 import {GameModeService} from "../../Engine/Classes/Base/Services/GameModeService.js";
 import {MapService} from "../../Engine/Classes/Base/Services/Grid/MapService.js"; // Import MapService
+import {initializeGameController} from "./GameController.js";
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;
@@ -105,6 +106,10 @@ async function main(){
             }
         }
     }, 1000); // Wait for scene to fully load
+
+    // Initialiser le contrôleur de jeu (UI, Modes)
+    const gameController = initializeGameController(EngineInstance);
+    window.setMode = gameController.setMode; // Exposer pour compatibilité si nécessaire
 }
 
 window.onload = main;
