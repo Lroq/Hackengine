@@ -4,6 +4,7 @@
 let mode = 'construction';
 let editMode = 'brush'; // 'brush', 'fill', 'eraser'
 let gameModeService;
+let sceneService; // Reference to SceneService
 
 // Variables pour le zoom
 let currentZoom = 1.0;
@@ -21,15 +22,21 @@ let cameraPanVelocityY = 0;
 export function initializeGameController(engineInstance) {
     console.log("🎮 Initialisation du GameController...");
 
-    // Récupérer le service GameModeService
-    if (engineInstance && engineInstance.services.GameModeService) {
-        gameModeService = engineInstance.services.GameModeService;
-        // Synchroniser l'état initial
-        gameModeService.setMode(mode);
-        gameModeService.setEditMode(editMode);
-        gameModeService.setZoom(currentZoom);
-    } else {
-        console.warn("⚠️ GameModeService non trouvé lors de l'initialisation du contrôleur");
+    // Récupérer les services
+    if (engineInstance) {
+        if (engineInstance.services.GameModeService) {
+            gameModeService = engineInstance.services.GameModeService;
+            // Synchroniser l'état initial
+            gameModeService.setMode(mode);
+            gameModeService.setEditMode(editMode);
+            gameModeService.setZoom(currentZoom);
+        } else {
+            console.warn("⚠️ GameModeService non trouvé lors de l'initialisation du contrôleur");
+        }
+
+        if (engineInstance.services.SceneService) {
+            sceneService = engineInstance.services.SceneService;
+        }
     }
 
     setupEventListeners();
@@ -76,10 +83,11 @@ function setupEventListeners() {
                 gameModeService.setCameraPan(cameraPanVelocityX, cameraPanVelocityY);
             }
 
-            // Mise à jour directe de la caméra (legacy / feedback immédiat)
-            if (window.activeCamera) {
-                window.activeCamera.coordinates.X += deltaX;
-                window.activeCamera.coordinates.Y += deltaY;
+            // Mise à jour directe de la caméra pour feedback immédiat (deprecated but useful fallback)
+            const activeCamera = getActiveCamera();
+            if (activeCamera) {
+                activeCamera.coordinates.X += deltaX;
+                activeCamera.coordinates.Y += deltaY;
             }
             e.preventDefault();
         }
@@ -238,9 +246,10 @@ function setMode(newMode) {
         }
 
         // Détache la caméra du joueur
-        if (window.activeCamera) {
-            window.activeCamera.cameraSubject = undefined;
-            window.activeCamera.cameraType = "CAM_SCRIPTABLE";
+        const activeCamera = getActiveCamera();
+        if (activeCamera) {
+            activeCamera.cameraSubject = undefined;
+            activeCamera.cameraType = "CAM_SCRIPTABLE";
         }
 
         if (canvas) canvas.style.cursor = "grab";
@@ -248,13 +257,14 @@ function setMode(newMode) {
 
     if (mode === "play") {
         // Rattache la caméra au joueur
-        if (window.activeCamera) {
-            // Tenter de retrouver le joueur via le service si possible, sinon fallback window.playerInstance
-            // Pour l'instant on garde le fallback window.playerInstance qui est défini dans ExempleScene
-            if (window.playerInstance) {
-                window.activeCamera.cameraSubject = window.playerInstance;
+        const activeCamera = getActiveCamera();
+        if (activeCamera) {
+            // Tenter de retrouver le joueur via activeScene
+            const player = getPlayerInstance();
+            if (player) {
+                activeCamera.cameraSubject = player;
             }
-            window.activeCamera.cameraType = "CAM_FOLLOW";
+            activeCamera.cameraType = "CAM_FOLLOW";
         }
 
         if (canvas) canvas.style.cursor = "default";
@@ -313,25 +323,26 @@ function updateModeIndicator(mode) {
 }
 
 function teleportToSprite() {
-    if (window.activeCamera && window.playerInstance) {
-        const spriteX = window.playerInstance.coordinates.X;
-        const spriteY = window.playerInstance.coordinates.Y;
+    const activeCamera = getActiveCamera();
+    const playerInstance = getPlayerInstance();
+
+    if (activeCamera && playerInstance) {
+        const spriteX = playerInstance.coordinates.X;
+        const spriteY = playerInstance.coordinates.Y;
 
         const canvasHeight = 600; // Legacy hardcoded
         const canvasWidth = 800; // Legacy hardcoded
         let scale = canvasHeight * 0.004;
 
-        // Ajuster avec le zoom si nécessaire, mais CAM_FOLLOW gère généralement le scale de base
-
         let modelX = 0;
         let modelY = 0;
-        if (window.playerInstance.components.BoxCollider) {
-            modelX = window.playerInstance.components.BoxCollider.hitbox.Width / 2;
-            modelY = window.playerInstance.components.BoxCollider.hitbox.Height / 2;
+        if (playerInstance.components.BoxCollider) {
+            modelX = playerInstance.components.BoxCollider.hitbox.Width / 2;
+            modelY = playerInstance.components.BoxCollider.hitbox.Height / 2;
         }
 
-        window.activeCamera.coordinates.X = -spriteX + (canvasWidth / 2) / scale - modelX;
-        window.activeCamera.coordinates.Y = -spriteY + (canvasHeight / 2) / scale - modelY;
+        activeCamera.coordinates.X = -spriteX + (canvasWidth / 2) / scale - modelX;
+        activeCamera.coordinates.Y = -spriteY + (canvasHeight / 2) / scale - modelY;
 
         const btn = document.getElementById('teleport-to-sprite-btn');
         if (btn) {
@@ -342,13 +353,14 @@ function teleportToSprite() {
 }
 
 function teleportToZero() {
-    if (window.activeCamera) {
+    const activeCamera = getActiveCamera();
+    if (activeCamera) {
         const canvasHeight = 600;
         const canvasWidth = 800;
         const scale = canvasHeight * 0.004;
 
-        window.activeCamera.coordinates.X = (canvasWidth / 2) / scale;
-        window.activeCamera.coordinates.Y = (canvasHeight / 2) / scale;
+        activeCamera.coordinates.X = (canvasWidth / 2) / scale;
+        activeCamera.coordinates.Y = (canvasHeight / 2) / scale;
 
         const btn = document.getElementById('teleport-to-zero-btn');
         if (btn) {
@@ -415,10 +427,32 @@ function startAutoSave() {
     console.log('✅ Sauvegarde automatique activée');
 }
 
+// Helper to get active camera through services
+function getActiveCamera() {
+    if (sceneService && sceneService.activeScene) {
+        return sceneService.activeScene.activeCamera;
+    }
+    return window.activeCamera; // Fallback
+}
+
+// Helper to get player instance through active scene
+function getPlayerInstance() {
+    if (sceneService && sceneService.activeScene) {
+        // Assume player is the camera subject if set, or search for it
+        // Or specific player retrieval if implemented on Scene
+        const scene = sceneService.activeScene;
+        // Basic search for player if not camera subject
+        if (scene.activeCamera && scene.activeCamera.cameraSubject && scene.activeCamera.cameraSubject.constructor.name === 'Player') {
+            return scene.activeCamera.cameraSubject;
+        }
+        // Fallback: iterate objects (simplified) or use window global
+    }
+    return window.playerInstance; // Fallback
+}
+
 // Shims de compatibilité
 window.getMode = () => mode;
 window.getEditMode = () => editMode;
 window.getCameraPan = () => ({ x: cameraPanVelocityX, y: cameraPanVelocityY });
 window.constructionZoom = currentZoom;
-
 

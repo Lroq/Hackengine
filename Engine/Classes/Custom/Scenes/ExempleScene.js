@@ -60,8 +60,9 @@ class ExempleScene extends Scene {
         super.activeCamera.coordinates.X = -PlayerInstance.coordinates.X + (canvasWidth / 2) / scale - modelX;
         super.activeCamera.coordinates.Y = -PlayerInstance.coordinates.Y + (canvasHeight / 2) / scale - modelY;
 
-        window.activeCamera = super.activeCamera;
-        window.playerInstance = PlayerInstance;
+        // Legacy compatibility - to be removed when refactoring is complete
+        // window.activeCamera = super.activeCamera;
+        // window.playerInstance = PlayerInstance;
 
         // === TILE INTERACTION MANAGER === //
         // Initialiser le gestionnaire d'interactions avec les tuiles
