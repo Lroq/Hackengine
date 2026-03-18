@@ -16,6 +16,8 @@ class TileContextMenu {
     #currentTile = null;
     #currentPosition = null;
 
+    #engine = null;
+
     constructor(tileDragService, canvas) {
         this.#tileDragService = tileDragService;
         this.#canvas = canvas;
@@ -27,12 +29,51 @@ class TileContextMenu {
     }
 
     /**
+     * Inject the Engine instance
+     * @param {Engine} engine
+     */
+    injectEngine(engine) {
+        this.#engine = engine;
+    }
+
+    /**
+     * Helper to get edit mode safely
+     */
+    #getEditMode() {
+        if (this.#engine && this.#engine.services.GameModeService) {
+            return this.#engine.services.GameModeService.getEditMode();
+        }
+        return window.getEditMode ? window.getEditMode() : 'brush';
+    }
+
+    /**
+     * Helper to get game mode safely
+     */
+    #getMode() {
+        if (this.#engine && this.#engine.services.GameModeService) {
+            return this.#engine.services.GameModeService.getMode();
+        }
+        return window.getMode ? window.getMode() : 'play';
+    }
+
+    /**
+     * Helper to get active scene safely
+     */
+    #getActiveScene() {
+        if (this.#engine && this.#engine.services.SceneService) {
+            return this.#engine.services.SceneService.activeScene;
+        }
+        // Fallback for transition period if needed, though we aim to remove this
+        return window.engineInstance ? window.engineInstance.services.SceneService.activeScene : null;
+    }
+
+    /**
      * Configure les événements
      */
     #setupEventListeners() {
         // Alt+Clic gauche sur le canvas - afficher le menu contextuel sur les tiles placées
         this.#canvas.addEventListener('click', (e) => {
-            const mode = window.getMode ? window.getMode() : 'play';
+            const mode = this.#getMode();
             if (mode !== 'construction') return;
 
             // Vérifier si Alt est pressé
@@ -526,16 +567,26 @@ class TileContextMenu {
     #copySpriteCoordinates() {
         if (!this.#currentTile || !this.#currentTile.isTeleporter) return;
 
-        // Récupérer le sprite du joueur
-        const playerInstance = window.playerInstance;
-        if (!playerInstance) {
-            console.warn('⚠️ Sprite du joueur non disponible');
-            return;
+        // Récupérer le sprite du joueur via la scène active
+        let playerX = 0;
+        let playerY = 0;
+
+        const scene = this.#getActiveScene();
+        if (scene && scene.activeCamera && scene.activeCamera.cameraSubject) {
+            const subject = scene.activeCamera.cameraSubject;
+            playerX = Math.round(subject.coordinates.X);
+            playerY = Math.round(subject.coordinates.Y);
+        } else if (window.playerInstance) {
+            // Fallback legacy
+            playerX = Math.round(window.playerInstance.coordinates.X);
+            playerY = Math.round(window.playerInstance.coordinates.Y);
+        } else {
+             console.warn('⚠️ Sprite du joueur non disponible');
+             return;
         }
 
-        // Récupérer les coordonnées actuelles du sprite en pixels
-        const spriteXPixels = Math.round(playerInstance.coordinates.X);
-        const spriteYPixels = Math.round(playerInstance.coordinates.Y);
+        const spriteXPixels = playerX;
+        const spriteYPixels = playerY;
 
         // Convertir en coordonnées tiles pour l'affichage
         const spriteXTiles = Math.round(spriteXPixels / 27);
@@ -561,16 +612,18 @@ class TileContextMenu {
 
             // Feedback visuel
             const btn = document.getElementById('copy-sprite-coords-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span>✅</span><span>Coordonnées copiées !</span>';
-            btn.classList.add('bg-green-600');
-            btn.classList.remove('bg-blue-600');
+            if (btn) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span>✅</span><span>Coordonnées copiées !</span>';
+                btn.classList.add('bg-green-600');
+                btn.classList.remove('bg-blue-600');
 
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove('bg-green-600');
-                btn.classList.add('bg-blue-600');
-            }, 1500);
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-600');
+                    btn.classList.add('bg-blue-600');
+                }, 1500);
+            }
 
             console.log(`📍 Coordonnées du sprite copiées: (${spriteXTiles}, ${spriteYTiles}) tiles → (${spriteXPixels}, ${spriteYPixels}) pixels`);
         }

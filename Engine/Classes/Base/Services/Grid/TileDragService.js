@@ -825,36 +825,7 @@ class TileDragService {
      * @returns {Array} - Liste des tuiles avec leurs positions et assets
      */
     exportMapData() {
-        const mapData = [];
-        
-        this.#placedTiles.forEach((tile, posKey) => {
-            const [x, y, layer] = posKey.split(',').map(Number);
-            const spriteModel = tile.components.SpriteModel;
-            
-            const tileData = {
-                x,
-                y,
-                sprite: spriteModel.sprite.src,
-                isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
-                layer: layer !== undefined ? layer : 0
-            };
-
-            // Ajouter les données de téléportation si la tuile est un téléporteur
-            if (tile.isTeleporter) {
-                tileData.isTeleporter = true;
-                tileData.teleportData = tile.teleportData || { map: '', x: 0, y: 0 };
-            }
-
-            // Ajouter les données d'interaction si la tuile a une interaction
-            if (tile.hasInteraction) {
-                tileData.hasInteraction = true;
-                tileData.interactionText = tile.interactionText || '';
-            }
-
-            mapData.push(tileData);
-        });
-        
-        return mapData;
+        return this.#mapService.exportMapData();
     }
 
     /**
@@ -862,62 +833,7 @@ class TileDragService {
      * @param {Array} mapData - Données à charger
      */
     loadMapData(mapData) {
-        const scene = this.#engine.services.SceneService.activeScene;
-        if (!scene) return;
-
-        // Nettoyer les tuiles existantes
-        this.#placedTiles.forEach((tile) => {
-            const index = scene.wgObjects.indexOf(tile);
-            if (index > -1) {
-                scene.wgObjects.splice(index, 1);
-            }
-        });
-        this.#placedTiles.clear();
-
-        // Charger les nouvelles tuiles
-        mapData.forEach(data => {
-            const tile = new Tile();
-            tile.coordinates.X = data.x;
-            tile.coordinates.Y = data.y;
-
-            const spriteModel = tile.components.SpriteModel;
-            spriteModel.sprite = new Image();
-            spriteModel.sprite.src = data.sprite;
-            spriteModel.size.Width = 27;
-            spriteModel.size.Height = 27;
-            spriteModel.enabled = true;
-
-            // Restaurer les propriétés
-            tile.isSolid = data.isSolid !== undefined ? data.isSolid : false;
-            tile.layer = data.layer !== undefined ? data.layer : 0;
-
-            // Restaurer les propriétés de téléportation
-            if (data.isTeleporter) {
-                tile.isTeleporter = true;
-                tile.teleportData = data.teleportData || { map: '', x: 0, y: 0 };
-                // IMPORTANT: Les téléporteurs ne doivent JAMAIS être solides
-                tile.isSolid = false;
-            }
-
-            // Restaurer les propriétés d'interaction
-            if (data.hasInteraction) {
-                tile.hasInteraction = true;
-                tile.interactionText = data.interactionText || '';
-                // NOTE: Contrairement aux téléporteurs, les interactions peuvent être sur des tuiles solides
-                // On ne modifie donc PAS isSolid ici
-            }
-
-            // Activer le collider si la tuile est solide (layer 1)
-            if (tile.components.BoxCollider) {
-                tile.components.BoxCollider.enabled = tile.isSolid;
-            }
-
-            scene.wgObjects.push(tile);
-            // Utiliser x,y,layer comme clé pour supporter plusieurs tiles sur la même position
-            this.#placedTiles.set(`${data.x},${data.y},${tile.layer}`, tile);
-        });
-
-        console.log(`${mapData.length} tuiles chargées`);
+        this.#mapService.loadMapData(mapData);
     }
 
 
@@ -929,21 +845,7 @@ class TileDragService {
      * @returns {Tile|Tile[]|null} - La tuile trouvée, un tableau de tuiles, ou null
      */
     getTileAt(worldX, worldY, layer = null) {
-        if (layer !== null) {
-            // Retourner la tile d'un layer spécifique
-            const posKey = `${worldX},${worldY},${layer}`;
-            return this.#placedTiles.get(posKey) || null;
-        } else {
-            // Retourner toutes les tiles à cette position
-            const tiles = [];
-            this.#placedTiles.forEach((tile, key) => {
-                const [x, y, l] = key.split(',').map(Number);
-                if (x === worldX && y === worldY) {
-                    tiles.push(tile);
-                }
-            });
-            return tiles.length > 0 ? tiles : null;
-        }
+        return this.#mapService.getTileAt(worldX, worldY, layer);
     }
 
     /**
@@ -955,37 +857,16 @@ class TileDragService {
      * @returns {boolean} - True si la mise à jour a réussi
      */
     updateTileLayer(worldX, worldY, oldLayer, newLayer) {
-        const oldKey = `${worldX},${worldY},${oldLayer}`;
-        const newKey = `${worldX},${worldY},${newLayer}`;
+        // Logique déplacée vers MapService si besoin, ou implémentée ici via remove/add
+        // Pour simplifier, on suppose que MapService gère tout ou on utilise les primitives
+        const tile = this.getTileAt(worldX, worldY, oldLayer);
+        if (!tile) return false;
 
-        if (!this.#placedTiles.has(oldKey)) {
-            console.warn(`Aucune tuile trouvée à (${worldX}, ${worldY}) sur layer ${oldLayer}`);
-            return false;
-        }
-
-        // Vérifier si une tuile existe déjà sur le nouveau layer
-        if (this.#placedTiles.has(newKey)) {
-            console.warn(`Une tuile existe déjà à (${worldX}, ${worldY}) sur layer ${newLayer}`);
-            // On pourrait la supprimer ou refuser l'opération
-            // Pour l'instant, on va supprimer l'ancienne
-            const oldTileOnNewLayer = this.#placedTiles.get(newKey);
-            const scene = this.#engine.services.SceneService.activeScene;
-            if (scene) {
-                const index = scene.wgObjects.indexOf(oldTileOnNewLayer);
-                if (index > -1) {
-                    scene.wgObjects.splice(index, 1);
-                }
-            }
-        }
-
-        // Déplacer la tuile vers le nouveau layer
-        const tile = this.#placedTiles.get(oldKey);
+        // Simple réimplémentation utilisant MapService
+        // Note: Idéalement, cela devrait être dans MapService
+        this.#mapService.removeTile(worldX, worldY, oldLayer);
         tile.layer = newLayer;
-
-        this.#placedTiles.delete(oldKey);
-        this.#placedTiles.set(newKey, tile);
-
-        console.log(`✅ Tuile déplacée de layer ${oldLayer} à layer ${newLayer} à (${worldX}, ${worldY})`);
+        this.#mapService.addTile(tile, worldX, worldY, newLayer);
         return true;
     }
 
@@ -1000,23 +881,7 @@ class TileDragService {
      * Sauvegarde la map sur le serveur (méthode publique)
      */
     saveMap() {
-        const mapData = this.exportMapData();
-        const mapName = window.currentMapName || 'default_map';
-
-        fetch('/api/save-map', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ mapData, mapName })
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(`✅ ${data.message} (${data.tileCount} tuiles)`);
-        })
-        .catch(err => {
-            console.error('❌ Erreur lors de la sauvegarde de la map:', err);
-        });
+        this.#mapService.saveMap();
     }
 
     /**
@@ -1032,31 +897,7 @@ class TileDragService {
      * @param {string} mapName - Nom de la map à charger
      */
     async loadMapFromServer(mapName = 'default_map') {
-        try {
-            // ÉTAPE 1: Charger les métadonnées pour obtenir la taille
-            const metaRes = await fetch(`/api/map-metadata?name=${encodeURIComponent(mapName)}`);
-            const metadata = await metaRes.json();
-            const mapSize = metadata.size || 50;
-
-            // ÉTAPE 2: Appliquer la taille AVANT de charger les tiles
-            this.setGridSize(mapSize);
-            console.log(`📐 Taille de grille appliquée: ${mapSize}×${mapSize}`);
-
-            // ÉTAPE 3: Charger les tiles
-            const res = await fetch(`/api/load-map?name=${encodeURIComponent(mapName)}`);
-            const mapData = await res.json();
-
-            // ÉTAPE 4: Charger les données (nettoie automatiquement les anciennes tiles)
-            this.loadMapData(mapData);
-
-            if (mapData.length > 0) {
-                console.log(`✅ Map "${mapName}" chargée: ${mapData.length} tuiles (${mapSize}×${mapSize})`);
-            } else {
-                console.log(`✅ Map vierge "${mapName}" chargée (${mapSize}×${mapSize})`);
-            }
-        } catch (err) {
-            console.error('❌ Erreur lors du chargement de la map:', err);
-        }
+        await this.#mapService.loadMapFromServer(mapName);
     }
 
     /**
@@ -1074,11 +915,8 @@ class TileDragService {
             maxY: cellSize * halfSize
         };
 
-        console.log(`📏 Limites de placement mises à jour: ${tileSize}×${tileSize} tiles`, this.#gridBounds);
-
-        // Mettre à jour la grille visuelle aussi
-        if (window.constructionGrid) {
-            window.constructionGrid.setGridSize(tileSize);
+        if (this.#engine.services.Renderer) {
+            this.#engine.services.Renderer.setGridSize(tileSize);
         }
     }
 }

@@ -7,6 +7,8 @@ import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/Input
 import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
 import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
+import {GameModeService} from "../../Engine/Classes/Base/Services/GameModeService.js";
+import {MapService} from "../../Engine/Classes/Base/Services/Grid/MapService.js"; // Import MapService
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;
@@ -38,15 +40,27 @@ async function main(){
         });
     });
 
+    const gameModeService = new GameModeService();
+    const mapService = new MapService();
+    const tileDragService = new TileDragService(); // Instantiated here but injected via services
+
     const EngineInstance = new Engine({
             SceneService :          new SceneService(),
             PhysicService :         new PhysicService(),
-            InputService :          new InputService()
+            InputService :          new InputService(),
+            GameModeService:        gameModeService,
+            MapService:             mapService,
+            TileDragService:        tileDragService
         },
         {
             TickRate: 10,
             RefreshRate : 100,
         }, Canvas)
+
+    // Initialize Services
+    gameModeService.initialize(EngineInstance);
+    mapService.initialize(EngineInstance);
+    tileDragService.initialize(EngineInstance, Canvas);
 
     EngineInstance.resize(new Size_2D(0,0),{
         FullScreen : true,
@@ -62,45 +76,39 @@ async function main(){
     EngineInstance.services.SceneService.addScene("TestScene",TestScene);
     EngineInstance.services.SceneService.activeScene = TestScene;
 
-    // Exposer l'engine globalement pour TileContextMenu
+    // Exposer l'engine globalement pour TileContextMenu (legacy compatibility if needed)
     window.engineInstance = EngineInstance;
-
-    // Initialiser le TileDragService
-    const tileDragService = new TileDragService();
-    tileDragService.initialize(EngineInstance, Canvas);
-
-    // Exposer le service globalement pour debug/export et pour TileLoader.js
-    window.tileDragService = tileDragService;
-
-    // Charger la map sélectionnée
-    await tileDragService.loadMapFromServer(currentMapName);
-
-    // Exposer le nom de la map actuelle
     window.currentMapName = currentMapName;
-
-    // Exposer la fonction de mise à jour du nom de map
     window.updateMapNameDisplay = updateMapNameDisplay;
 
-    // Mettre à jour l'affichage du nom de la map
-    updateMapNameDisplay(currentMapName);
+    // Charger la map sélectionnée VIA MapService
+    await mapService.loadMapFromServer(currentMapName);
 
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
+    // Injecter l'engine dans TileContextMenu
+    tileContextMenu.injectEngine(EngineInstance);
     window.tileContextMenu = tileContextMenu;
+
+    // Update display
+    updateMapNameDisplay(currentMapName);
 
     // Attendre que le TileInteractionManager soit initialisé par la scène
     // puis le connecter au Renderer
     setTimeout(() => {
         if (window.tileInteractionManager) {
             EngineInstance.services.SceneService.activeScene.renderer = EngineInstance;
-            // Passer le TileInteractionManager au Renderer via l'Engine
+
             if (EngineInstance.setTileInteractionManager) {
                 EngineInstance.setTileInteractionManager(window.tileInteractionManager);
                 console.log('✅ TileInteractionManager connecté au Renderer');
-            } else {
-                console.error('❌ setTileInteractionManager non disponible sur Engine');
             }
-        } else {
+        }
+    }, 1000); // Wait for scene to fully load
+}
+
+window.onload = main;
+
             console.warn('⚠️ window.tileInteractionManager non trouvé');
         }
     }, 100);
