@@ -1,40 +1,31 @@
 // -- :: Dependencies :: -- \\
-import {Engine}         from "/Engine/Classes/Base/Main/Engine.js";
-import {CollisionGroup} from "/Engine/Classes/Base/Services/Collision/CollisionGroup.js";
-import {SceneLoader}    from  "/Engine/Classes/Base/Services/Scenes/SceneLoader.js";
-import {SceneService}   from  "/Engine/Classes/Base/Services/Scenes/SceneService.js";
-import {Size_2D}        from  "/Engine/Classes/Base/MicroClasses/Size_2D.js";
-import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
-import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/InputService.js";
-import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
-import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
-import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
+import {Engine} from "/Engine/Classes/Base/Main/Engine.js";
+import {SceneService} from "/Engine/Classes/Base/Services/Scenes/SceneService.js";
+import {Size_2D} from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
+import {PhysicService} from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
+import {InputService} from "/Engine/Classes/Base/Services/Inputs/InputService.js";
+import {MapService} from "/Engine/Classes/Base/Services/Grid/MapService.js";
+import {GameModeService} from "/Engine/Classes/Base/Services/GameMode/GameModeService.js";
+import {ExempleScene} from "/Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {TileDragService} from "/Engine/Classes/Base/Services/Grid/TileDragService.js";
+import {TileContextMenu} from "/Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 // -- :: -- :: --:: -- :: -- \\
 
-let Canvas;
-let currentMapName = 'default_map';
+let canvas;
 let mapSelector;
 
-// -- :: Functions :: -- \\
-/**
- * Met à jour l'affichage du nom de la map en haut du canvas
- */
 function updateMapNameDisplay(mapName) {
-    const mapNameElement = document.getElementById('current-map-name');
-    if (mapNameElement) {
-        mapNameElement.textContent = mapName;
-    }
+    const el = document.getElementById('current-map-name');
+    if (el) el.textContent = mapName;
 }
 
-async function main(){
-    // Afficher le sélecteur de map au démarrage
+async function main() {
     mapSelector = new window.MapSelector();
 
-    await new Promise((resolve) => {
+    const initialMapName = await new Promise((resolve) => {
         mapSelector.show((selectedMapName) => {
-            currentMapName = selectedMapName;
-            console.log(`🗺️ Chargement de la map : ${currentMapName}`);
-            resolve();
+            console.log(`🗺️ Chargement de la map : ${selectedMapName}`);
+            resolve(selectedMapName);
         });
     });
 
@@ -50,40 +41,43 @@ async function main(){
             RefreshRate : 100,
         }, Canvas)
 
-    EngineInstance.resize(new Size_2D(0,0),{
-        FullScreen : true,
-    })
+    const mapService = new MapService();
+    const gameModeService = new GameModeService();
 
-    const TestScene = new ExempleScene();
+    const engine = new Engine(
+        {
+            SceneService: new SceneService(),
+            PhysicService: new PhysicService(),
+            InputService: new InputService(),
+            MapService: mapService,
+            GameModeService: gameModeService,
+        },
+        {TickRate: 10},
+        canvas
+    );
 
-    EngineInstance.services.SceneService.addScene("TestScene",TestScene);
-    EngineInstance.services.SceneService.activeScene = TestScene;
+    engine.resize(new Size_2D(0, 0), {FullScreen: true});
 
-    // Exposer l'engine globalement pour TileContextMenu
-    window.engineInstance = EngineInstance;
+    const testScene = new ExempleScene();
+    await testScene.ready;
 
-    // Initialiser le TileDragService
+    engine.services.SceneService.addScene("TestScene", testScene);
+    engine.services.SceneService.activeScene = testScene;
+
     const tileDragService = new TileDragService();
-    tileDragService.initialize(EngineInstance, Canvas);
+    tileDragService.initialize(engine, canvas, mapService);
 
-    // Exposer le service globalement pour debug/export et pour TileLoader.js
-    window.tileDragService = tileDragService;
+    gameModeService.setTileDragService(tileDragService);
 
-    // Charger la map sélectionnée
-    await tileDragService.loadMapFromServer(currentMapName);
+    await tileDragService.loadMapFromServer(initialMapName);
+    updateMapNameDisplay(initialMapName);
 
-    // Exposer le nom de la map actuelle
-    window.currentMapName = currentMapName;
-
-    // Exposer la fonction de mise à jour du nom de map
     window.updateMapNameDisplay = updateMapNameDisplay;
 
-    // Mettre à jour l'affichage du nom de la map
-    updateMapNameDisplay(currentMapName);
-
-    // Initialiser le TileContextMenu (clic droit sur les tuiles)
-    const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
+    const tileContextMenu = new TileContextMenu(tileDragService, canvas, engine);
     window.tileContextMenu = tileContextMenu;
+
+    window.gameModeService = gameModeService;
 
     // Attendre que le TileInteractionManager soit initialisé par la scène
     // puis le connecter au Renderer
@@ -105,25 +99,15 @@ async function main(){
     // Bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
     backToMapsBtn.addEventListener('click', () => {
-        // Réouvrir le sélecteur de maps avec le bouton de fermeture
         mapSelector.show(async (selectedMapName) => {
-            currentMapName = selectedMapName;
-            window.currentMapName = currentMapName;
-            console.log(`🗺️ Chargement de la nouvelle map : ${currentMapName}`);
-
-            // Charger la nouvelle map
-            await tileDragService.loadMapFromServer(currentMapName);
-
-            // Mettre à jour l'affichage du nom de la map
-            updateMapNameDisplay(currentMapName);
-        }, true); // true = afficher le bouton de fermeture
+            console.log(`🗺️ Chargement de la nouvelle map : ${selectedMapName}`);
+            await tileDragService.loadMapFromServer(selectedMapName);
+            updateMapNameDisplay(selectedMapName);
+        }, true);
     });
 }
-// -- :: -- :: --:: -- :: -- \\
 
-// -- :: Events :: -- \\
-window.addEventListener('load', function() {
-    Canvas = document.getElementById("game-canvas")
+window.addEventListener('load', () => {
+    canvas = document.getElementById("game-canvas");
     main();
-})
-// -- :: -- :: --:: -- :: -- \\
+});

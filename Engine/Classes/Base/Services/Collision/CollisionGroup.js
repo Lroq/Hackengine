@@ -1,4 +1,0 @@
-class CollisionGroup{
-
-}
-export {CollisionGroup}
