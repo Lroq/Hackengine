@@ -55,12 +55,11 @@ class NPCContextMenu {
             this.#handleAltClick(e);
         }, { capture: true }); // S'exécute avant les autres events du canvas
 
-        // Fermer en cliquant ailleurs
         document.addEventListener('click', (e) => {
             if (!this.#menuElement) return;
             if (this.#isPlacingWaypoint) return; // Ne pas fermer pdt le placement
             
-            if (!this.#menuElement.contains(e.target) && !e.altKey && e.target !== this.#canvas) {
+            if (!this.#menuElement.contains(e.target) && !e.altKey) {
                 this.#hideMenu();
             }
         });
@@ -275,6 +274,10 @@ class NPCContextMenu {
         return this.#menuElement &&
             this.#menuElement.style.display === 'block' &&
             !this.#menuElement.classList.contains('hidden');
+    }
+
+    getCurrentNPC() {
+        return this.#currentNPC;
     }
 
     // ==========================================

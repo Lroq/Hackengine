@@ -48,6 +48,7 @@ class NPC extends Instance {
 
     // --- Interaction ---
     hasInteraction = true;  // Toujours interactable via touche E
+    isTalking = false;      // Immobilise le PNJ si vrai
 
     #isTalkingCooldown = false;
 
@@ -165,6 +166,12 @@ class NPC extends Instance {
         }
 
         this.#lastMode = mode;
+        
+        // Si le PNJ est en train de parler, il s'arrête
+        if (this.isTalking) {
+            this.#applyIdleSprite();
+            return;
+        }
 
         switch (this.movementType) {
             case 'patrol':

@@ -101,11 +101,13 @@ class TileInteractionManager {
         // Si le joueur a changé de cible pendant un dialogue
         if (this.#activeNPC && this.#activeNPC !== npc) {
             this.#activeNPC.resetDialogue();
+            this.#activeNPC.isTalking = false; // Libérer l'ancien PNJ
         }
-
+ 
         this.#activeNPC = npc;
+        this.#activeNPC.isTalking = true; // Immobiliser le PNJ
         const msg = npc.getNextDialogue();
-
+ 
         if (msg) {
             // Afficher le texte suivant
             this.#dialogueBox.show(`[${npc.npcName}] ${msg}`);
@@ -113,6 +115,9 @@ class TileInteractionManager {
         } else {
             // Dialogue terminé = cache la box et libère le PNJ
             this.#dialogueBox.hide();
+            if (this.#activeNPC) {
+                this.#activeNPC.isTalking = false; // Reprendre le chemin
+            }
             this.#activeNPC = null;
         }
     }
