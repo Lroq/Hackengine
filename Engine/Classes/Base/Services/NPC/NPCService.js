@@ -53,6 +53,8 @@ class NPCService {
         npc.npcId = this.#generateId();
         npc.coordinates.X = worldX;
         npc.coordinates.Y = worldY;
+        npc.spawnX = worldX;
+        npc.spawnY = worldY;
 
         // Sprite
         if (config.spritePath) {
@@ -151,8 +153,8 @@ class NPCService {
             data.push({
                 npcId,
                 npcName: npc.npcName,
-                x: npc.coordinates.X,
-                y: npc.coordinates.Y,
+                x: npc.spawnX !== undefined ? npc.spawnX : npc.coordinates.X,
+                y: npc.spawnY !== undefined ? npc.spawnY : npc.coordinates.Y,
                 spritePath: npc.spritePath || null,
                 dialogues: npc.dialogues || [],
                 movementType: npc.movementType || 'static',
@@ -188,6 +190,8 @@ class NPCService {
             npc.npcId = data.npcId || this.#generateId();
             npc.coordinates.X = data.x || 0;
             npc.coordinates.Y = data.y || 0;
+            npc.spawnX = npc.coordinates.X;
+            npc.spawnY = npc.coordinates.Y;
 
             if (data.spritePath) {
                 npc.loadSprite(data.spritePath);

@@ -21,6 +21,11 @@ class NPC extends Instance {
     npcId = null;           // ID unique (généré par NPCService)
     npcName = 'PNJ';       // Nom affiché
 
+    // --- Spawn ---
+    spawnX = 0;
+    spawnY = 0;
+    #lastMode = null;
+
     // --- Sprite ---
     spritePath = null;      // Chemin vers le PNG (null = default)
     layer = 2;             // Rendu devant les tiles
@@ -129,7 +134,34 @@ class NPC extends Instance {
      */
     run(Services, DeltaTime) {
         const mode = window.getMode ? window.getMode() : 'play';
-        if (mode !== 'play') return;
+
+        if (this.#lastMode === null) {
+            this.#lastMode = mode;
+        }
+
+        // Si on repasse en mode "construction" depuis le mode "play", on reset à la position d'origine
+        if (mode === 'construction' && this.#lastMode === 'play') {
+            this.coordinates.X = this.spawnX;
+            this.coordinates.Y = this.spawnY;
+            this.#currentWaypointIndex = 0;
+            const physic = this.components.PhysicController;
+            if (physic) {
+                physic.velocity.X = 0;
+                physic.velocity.Y = 0;
+            }
+        }
+
+        // En mode construction, le pnj est immobile et la nouvelle pos = le nouveau spawn
+        if (mode === 'construction') {
+            this.#lastMode = mode;
+            this.#applyIdleSprite();
+            // Met à jour en continu si jamais l'utilisateur fait du drag & drop du PNJ
+            this.spawnX = this.coordinates.X;
+            this.spawnY = this.coordinates.Y;
+            return;
+        }
+
+        this.#lastMode = mode;
 
         switch (this.movementType) {
             case 'patrol':
