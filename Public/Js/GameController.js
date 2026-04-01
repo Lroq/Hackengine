@@ -162,6 +162,15 @@ function setupEventListeners() {
                 gameModeService.setEditMode(editMode);
             }
 
+            // Gestion du placement des PNJ
+            if (window.npcPlacementService) {
+                if (editMode === 'npc') {
+                    window.npcPlacementService.activate();
+                } else {
+                    window.npcPlacementService.deactivate();
+                }
+            }
+
             // Legacy global
             window.editMode = editMode;
         });
@@ -374,6 +383,12 @@ function saveMapManually() {
     // Utiliser gameModeService ou tileDragService via engineInstance
     if (window.engineInstance && window.engineInstance.services.TileDragService) {
         window.engineInstance.services.TileDragService.saveMap();
+
+        // Sauvegarder aussi les PNJ
+        const npcService = window.engineInstance.services.NPCService || window.npcService;
+        if (npcService) {
+            npcService.saveNPCs();
+        }
 
         const saveBtn = document.getElementById('save-map-btn');
         if (saveBtn) {

@@ -30,7 +30,7 @@ class GameModeService {
     }
 
     setEditMode(mode) {
-        if (['brush', 'eraser', 'fill'].includes(mode)) {
+        if (['brush', 'eraser', 'fill', 'npc'].includes(mode)) {
             this.#editMode = mode;
             console.log(`🖌️ Mode d'édition: ${mode}`);
         }

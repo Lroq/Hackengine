@@ -84,6 +84,16 @@
                         </div>
                     </button>
 
+                    <!-- Mode PNJ -->
+                    <div class="border-t border-gray-700 my-1"></div>
+                    <button id="mode-npc" class="mode-button flex items-center gap-3 px-4 py-2 rounded-lg transition-all hover:bg-[#2b2b2f]" data-mode="npc">
+                        <span class="text-xl">🧑</span>
+                        <div class="text-left">
+                            <div class="text-sm font-medium text-white">Placer PNJ</div>
+                            <div class="text-xs text-gray-400">Clic pour poser</div>
+                        </div>
+                    </button>
+
                     <!-- Bouton téléportation au sprite -->
                     <div class="border-t border-gray-700 my-1"></div>
                     <button id="teleport-to-sprite-btn" class="flex items-center gap-3 px-4 py-2 rounded-lg transition-all bg-[#2b2b2f] hover:bg-blue-600 text-white">
@@ -148,6 +158,47 @@
                 <option value="false">🚶 Non solide</option>
                 <option value="true">🧱 Solide</option>
             </select>
+        </div>
+
+        <!-- Section PNJ -->
+        <div class="bg-[#1a1a1d] border border-purple-800/50 rounded-lg p-2 mb-2">
+            <div class="text-[10px] text-purple-400 font-semibold mb-2 flex items-center gap-1">
+                <span>🧑</span> <span>PNJ (Prochain à placer)</span>
+            </div>
+            <div class="space-y-1">
+                <div>
+                    <label class="text-[9px] text-gray-500 block mb-0.5">Nom</label>
+                    <input id="npc-place-name" type="text" value="PNJ" placeholder="Nom du PNJ"
+                        class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs"
+                        oninput="if(window.npcPlacementService) window.npcPlacementService.setConfig({name: this.value})" />
+                </div>
+                <div>
+                    <label class="text-[9px] text-gray-500 block mb-0.5">Apparence (Sprite)</label>
+                    <select id="npc-place-sprite"
+                        class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs"
+                        onchange="if(window.npcPlacementService) window.npcPlacementService.setConfig({spritePath: this.value || null})">
+                        <option value="">👤 Par défaut</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[9px] text-gray-500 block mb-0.5">Dialogue initial</label>
+                    <input id="npc-place-dialogue" type="text" value="Bonjour !" placeholder="Message..."
+                        class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs"
+                        oninput="if(window.npcPlacementService) window.npcPlacementService.setConfig({dialogues: [this.value]})" />
+                </div>
+                <div>
+                    <label class="text-[9px] text-gray-500 block mb-0.5">Mouvement</label>
+                    <select id="npc-place-movement"
+                        class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs font-medium"
+                        onchange="if(window.npcPlacementService) window.npcPlacementService.setConfig({movementType: this.value})">
+                        <option value="static">🧍 Statique</option>
+                        <option value="wander">🚶 Erre</option>
+                        <option value="patrol">🔄 Patrouille</option>
+                    </select>
+                </div>
+            </div>
+            <p class="text-[9px] text-gray-600 mt-1.5 italic">Activez "🧑 Placer PNJ" puis clic sur la map</p>
+            <p class="text-[9px] text-purple-400 mt-0.5">Alt+Clic sur un PNJ pour le configurer</p>
         </div>
 
         <div id="tiles-container" class="flex-1 overflow-y-auto mb-4"></div>
@@ -641,6 +692,91 @@
     </button>
     <div class="text-xs text-gray-500 px-3 py-1 mt-1 border-t border-gray-700 pt-2">
         <span id="menu-tile-pos" class="font-mono">Position: (0, 0)</span>
+    </div>
+</div>
+
+<!-- Menu contextuel pour les PNJ -->
+<div id="npc-context-menu" class="hidden fixed bg-[#1a1a1d] border border-purple-700 rounded-lg shadow-xl p-2 z-[300]" style="min-width: 260px; display: none;">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-3 py-1 border-b border-purple-800/50 mb-2">
+        <span class="text-xs text-purple-300 font-semibold flex items-center gap-1">🧑 Configurer le PNJ</span>
+        <div class="flex items-center gap-2">
+            <button id="npc-menu-save" class="text-green-400 hover:text-green-300 text-lg transition" title="Sauvegarder et fermer">💾</button>
+            <button id="npc-menu-close" class="text-gray-400 hover:text-white text-lg transition" title="Fermer">✕</button>
+        </div>
+    </div>
+
+    <!-- Position -->
+    <div class="px-3 py-1 mb-2">
+        <span class="text-[10px] text-gray-500 font-mono" id="npc-menu-pos">(0, 0)</span>
+    </div>
+
+    <!-- Nom -->
+    <div class="px-3 mb-2">
+        <label class="text-xs text-gray-400 block mb-1">👤 Nom du PNJ</label>
+        <input id="npc-menu-name" type="text" placeholder="Nom..."
+            class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-sm" />
+    </div>
+
+    <!-- Sprite -->
+    <div class="px-3 mb-2">
+        <label class="text-xs text-gray-400 block mb-1">🖼️ Apparence (Sprite)</label>
+        <select id="npc-menu-sprite"
+            class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs">
+            <option value="">👤 Par défaut</option>
+        </select>
+    </div>
+
+    <!-- Dialogues -->
+    <div class="px-3 mb-2">
+        <label class="text-xs text-gray-400 block mb-1">💬 Dialogues
+            <span class="text-[9px] text-gray-600 ml-1">(1 ligne = 1 message)</span>
+        </label>
+        <textarea id="npc-menu-dialogues" rows="3" placeholder="Bonjour !&#10;Comment vas-tu ?&#10;Au revoir !"
+            class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs resize-none"></textarea>
+        <p class="text-[9px] text-gray-500 mt-0.5 italic">Les messages défilent en cycle à chaque pression sur E</p>
+    </div>
+
+    <!-- Mouvement -->
+    <div class="px-3 mb-2">
+        <label class="text-xs text-gray-400 block mb-1">🚶 Type de mouvement</label>
+        <select id="npc-menu-movement"
+            class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs">
+            <option value="static">🧍 Statique</option>
+            <option value="wander">🚶 Erre (aléatoire)</option>
+            <option value="patrol">🔄 Patrouille (waypoints)</option>
+        </select>
+    </div>
+
+    <!-- Vitesse -->
+    <div class="px-3 mb-2">
+        <label class="text-xs text-gray-400 block mb-1">⚡ Vitesse : <span id="npc-speed-display">0.3</span></label>
+        <input id="npc-menu-speed" type="range" min="0.1" max="1.0" step="0.1" value="0.3"
+            class="w-full accent-purple-500" />
+    </div>
+
+    <!-- Waypoints (patrol uniquement) -->
+    <div id="npc-waypoints-section" style="display:none;" class="px-3 mb-2">
+        <div class="flex items-center justify-between mb-1">
+            <label class="text-xs text-gray-400">📍 Waypoints de patrouille</label>
+            <div class="flex gap-1">
+                <button id="npc-add-waypoint-btn"
+                    class="px-2 py-0.5 bg-purple-700 hover:bg-purple-600 text-white rounded text-[10px] transition">+ Ajouter</button>
+                <button id="npc-clear-waypoints-btn"
+                    class="px-2 py-0.5 bg-red-800 hover:bg-red-700 text-white rounded text-[10px] transition">✕ Vider</button>
+            </div>
+        </div>
+        <div id="npc-waypoints-list" class="bg-[#0d0d0f] rounded p-1 max-h-20 overflow-y-auto">
+            <div style="color:#666;font-size:11px;padding:4px;">Aucun waypoint</div>
+        </div>
+    </div>
+
+    <!-- Supprimer -->
+    <div class="border-t border-gray-700 mt-2 pt-2 px-3">
+        <button id="npc-menu-delete"
+            class="w-full text-left px-3 py-1.5 hover:bg-red-900/30 text-red-400 rounded flex items-center gap-2 transition text-sm">
+            <span>🗑️</span><span>Supprimer ce PNJ</span>
+        </button>
     </div>
 </div>
 

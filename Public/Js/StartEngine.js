@@ -9,6 +9,9 @@ import {TileDragService} from "/Engine/Classes/Base/Services/Grid/TileDragServic
 import {TileContextMenu} from "/Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 import {GameModeService} from "/Engine/Classes/Base/Services/GameModeService.js";
 import {MapService}     from "/Engine/Classes/Base/Services/Grid/MapService.js";
+import {NPCService}     from "/Engine/Classes/Base/Services/NPC/NPCService.js";
+import {NPCPlacementService} from "/Engine/Classes/Base/Services/NPC/NPCPlacementService.js";
+import {NPCContextMenu} from "/Engine/Classes/Base/Services/NPC/NPCContextMenu.js";
 import {initializeGameController} from "/Public/Js/GameController.js";
 // -- :: -- :: --:: -- :: -- \\
 
@@ -44,6 +47,8 @@ async function main(){
     const gameModeService = new GameModeService();
     const mapService = new MapService();
     const tileDragService = new TileDragService(); // Instantiated here but injected via services
+    const npcService = new NPCService();
+    const npcPlacementService = new NPCPlacementService(Canvas);
 
     const EngineInstance = new Engine({
             SceneService :          new SceneService(),
@@ -51,7 +56,9 @@ async function main(){
             InputService :          new InputService(),
             GameModeService:        gameModeService,
             MapService:             mapService,
-            TileDragService:        tileDragService
+            TileDragService:        tileDragService,
+            NPCService:             npcService,
+            NPCPlacementService:    npcPlacementService
         },
         {
             TickRate: 10,
@@ -62,6 +69,8 @@ async function main(){
     gameModeService.initialize(EngineInstance);
     mapService.initialize(EngineInstance);
     tileDragService.initialize(EngineInstance, Canvas);
+    npcService.initialize(EngineInstance);
+    npcPlacementService.initialize(EngineInstance);
 
     EngineInstance.resize(new Size_2D(0,0),{
         FullScreen : true,
@@ -85,11 +94,20 @@ async function main(){
     // Charger la map sélectionnée VIA MapService
     await mapService.loadMapFromServer(currentMapName);
 
+    // Charger les PNJ de cette map
+    await npcService.loadNPCsFromServer(currentMapName);
+
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     // Injecter l'engine dans TileContextMenu
     tileContextMenu.injectEngine(EngineInstance);
     window.tileContextMenu = tileContextMenu;
+
+    // Initialiser le menu contextuel des PNJ (Alt+Clic sur un PNJ)
+    const npcContextMenu = new NPCContextMenu(Canvas);
+    npcContextMenu.injectEngine(EngineInstance);
+    window.npcContextMenu = npcContextMenu;
+    window.npcPlacementService = npcPlacementService;
 
     // Update display
     updateMapNameDisplay(currentMapName);
@@ -123,6 +141,9 @@ async function main(){
 
                 // Charger la nouvelle map via le service
                 await mapService.loadMapFromServer(currentMapName);
+
+                // Charger les PNJ de la nouvelle map
+                await npcService.loadNPCsFromServer(currentMapName);
 
                 // Mettre à jour l'affichage du nom de la map
                 updateMapNameDisplay(currentMapName);

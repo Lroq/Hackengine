@@ -108,6 +108,15 @@ async function loadTiles() {
     try {
         const res = await fetch('/api/tiles');
         const tiles = await res.json();
+        
+        let characters = [];
+        try {
+            const charRes = await fetch('/api/characters');
+            if (charRes.ok) characters = await charRes.json();
+        } catch (err) {
+            console.warn("Impossible de charger le dossier Characters", err);
+        }
+
         const container = document.getElementById('tiles-container');
         container.innerHTML = '';
 
@@ -117,6 +126,9 @@ async function loadTiles() {
         // Afficher l'arborescence
         const structure = folderManager.getStructure();
         renderFolder('root', structure, container, 0);
+
+        // Peupler les dropdowns de sprites PNJ (tiles statiques + persos animés)
+        updateNPCSpriteSelectors(tiles, characters);
 
         // Restaurer la sélection si une tile est active
         restoreSelection();
@@ -143,6 +155,39 @@ function restoreSelection() {
             wrapper.classList.add('tile-selected');
         }
     });
+}
+
+/**
+ * Met à jour les listes déroulantes de sprites pour PNJ
+ */
+function updateNPCSpriteSelectors(tiles, characters) {
+    const defaultOption = '<option value="">👤 Par défaut</option>';
+    let options = defaultOption;
+    
+    if (characters && characters.length > 0) {
+        options += '<optgroup label="🏃 Personnages">';
+        characters.forEach(char => {
+            const path = `/Public/Assets/Game/Characters/${char}`;
+            const folderName = char.split('/')[0];
+            options += `<option value="${path}">▶️ ${folderName}</option>`;
+        });
+        options += '</optgroup>';
+    }
+
+    if (tiles && tiles.length > 0) {
+        options += '<optgroup label="🖼️ Tuiles Statiques">';
+        tiles.forEach(tile => {
+            const path = `/Public/Assets/Game/Tiles/${tile}`;
+            options += `<option value="${path}">🖼️ ${tile}</option>`;
+        });
+        options += '</optgroup>';
+    }
+
+    const placeSelect = document.getElementById('npc-place-sprite');
+    if (placeSelect) placeSelect.innerHTML = options;
+
+    const menuSelect = document.getElementById('npc-menu-sprite');
+    if (menuSelect) menuSelect.innerHTML = options;
 }
 
 /**

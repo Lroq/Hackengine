@@ -40,11 +40,21 @@ class TileInteractionManager {
     }
 
     /**
-     * Vérifie et affiche l'icône E si une tuile interactive est proche
+     * Vérifie et affiche l'icône E si une tuile interactive ou un PNJ est proche
      */
     update(inputService) {
         const mode = window.getMode ? window.getMode() : 'play';
         if (mode !== 'play' || !this.#player) return;
+
+        // Priorité : PNJ > Tiles
+        const nearestNPC = this.#findNearestInteractableNPC();
+        if (nearestNPC) {
+            this.#currentInteractableTile = nearestNPC; // Réutilise le slot pour simplifier le rendu
+            if (inputService.IsKeyPressed('e')) {
+                this.#triggerNPCInteraction(nearestNPC);
+            }
+            return;
+        }
 
         // Trouver les tuiles interactives proches
         this.#currentInteractableTile = this.#findNearestInteractableTile();
@@ -52,6 +62,51 @@ class TileInteractionManager {
         // Si le joueur appuie sur E et qu'il y a une tuile interactive
         if (this.#currentInteractableTile && inputService.IsKeyPressed('e')) {
             this.#triggerInteraction(this.#currentInteractableTile);
+        }
+    }
+
+    /**
+     * Trouve le PNJ interactable le plus proche du joueur
+     */
+    #findNearestInteractableNPC() {
+        if (!this.#player) return null;
+
+        const npcService = window.npcService;
+        if (!npcService) return null;
+
+        const playerX = this.#player.coordinates.X;
+        const playerY = this.#player.coordinates.Y;
+
+        let closestNPC = null;
+        let closestDistance = this.#interactionRange;
+
+        npcService.getAllNPCs().forEach(npc => {
+            const dx = playerX - npc.coordinates.X;
+            const dy = playerY - npc.coordinates.Y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < closestDistance) {
+                closestDistance = dist;
+                closestNPC = npc;
+            }
+        });
+
+        return closestNPC;
+    }
+
+    /**
+     * Déclenche l'interaction avec un PNJ (dialogue)
+     */
+    #triggerNPCInteraction(npc) {
+        // Fermer si déjà ouverte
+        if (this.#dialogueBox.isVisible()) {
+            this.#dialogueBox.hide();
+            return;
+        }
+
+        const msg = npc.getNextDialogue();
+        if (msg) {
+            this.#dialogueBox.show(`[${npc.npcName}] ${msg}`);
+            console.log(`💬 PNJ "${npc.npcName}": "${msg}"`);
         }
     }
 

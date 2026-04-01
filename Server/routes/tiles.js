@@ -29,6 +29,33 @@ router.get('/tiles', (req, res) => {
     });
 });
 
+// Lister persos (uniquement l'image principale de chaque dossier)
+router.get('/characters', (req, res) => {
+    const charsDir = path.join(__dirname, '../../Public/Assets/Game/Characters');
+    const result = [];
+    
+    if (fs.existsSync(charsDir)) {
+        try {
+            const folders = fs.readdirSync(charsDir, { withFileTypes: true });
+            for (const folder of folders) {
+                if (folder.isDirectory()) {
+                    const folderPath = path.join(charsDir, folder.name);
+                    const files = fs.readdirSync(folderPath);
+                    // Prendre seulement le premier PNG trouvé comme sprite "principal"
+                    const mainPng = files.find(f => f.endsWith('.png'));
+                    if (mainPng) {
+                        result.push(`${folder.name}/${mainPng}`);
+                    }
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    
+    res.json(result);
+});
+
 // Upload tile
 router.post('/upload-tile', upload.single('tile'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'Aucun fichier reçu' });
