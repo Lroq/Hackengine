@@ -3,7 +3,7 @@
  * Avec système d'organisation en dossiers
  */
 
-import { TileFolderManager } from '../../Engine/Classes/Base/Services/Ui/TileFolderManager.js';
+import { TileFolderManager } from '/Engine/Classes/Base/Services/Ui/TileFolderManager.js';
 
 const folderManager = new TileFolderManager();
 window.tileFolderManager = folderManager; // Exposer globalement

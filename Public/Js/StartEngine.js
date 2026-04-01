@@ -1,15 +1,15 @@
 // -- :: Dependencies :: -- \\
 import {Engine}         from "/Engine/Classes/Base/Main/Engine.js";
-import {SceneService}   from  "/Engine/Classes/Base/Services/Scenes/SceneService.js";
-import {Size_2D}        from  "/Engine/Classes/Base/MicroClasses/Size_2D.js";
+import {SceneService}   from "/Engine/Classes/Base/Services/Scenes/SceneService.js";
+import {Size_2D}        from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
-import {InputService} from      "../../Engine/Classes/Base/Services/Inputs/InputService.js";
-import {ExempleScene} from "../../Engine/Classes/Custom/Scenes/ExempleScene.js";
-import {TileDragService} from "../../Engine/Classes/Base/Services/Grid/TileDragService.js";
-import {TileContextMenu} from "../../Engine/Classes/Base/Services/Grid/TileContextMenu.js";
-import {GameModeService} from "../../Engine/Classes/Base/Services/GameModeService.js";
-import {MapService} from "../../Engine/Classes/Base/Services/Grid/MapService.js"; // Import MapService
-import {initializeGameController} from "./GameController.js";
+import {InputService}   from "/Engine/Classes/Base/Services/Inputs/InputService.js";
+import {ExempleScene}   from "/Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {TileDragService} from "/Engine/Classes/Base/Services/Grid/TileDragService.js";
+import {TileContextMenu} from "/Engine/Classes/Base/Services/Grid/TileContextMenu.js";
+import {GameModeService} from "/Engine/Classes/Base/Services/GameModeService.js";
+import {MapService}     from "/Engine/Classes/Base/Services/Grid/MapService.js";
+import {initializeGameController} from "/Public/Js/GameController.js";
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;

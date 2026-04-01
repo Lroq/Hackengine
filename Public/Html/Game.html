@@ -763,7 +763,15 @@
     async function loadTiles() {
         try {
             const res = await fetch('/api/tiles');
+            if (!res.ok) {
+                console.warn('API /api/tiles indisponible (status ' + res.status + ')');
+                return;
+            }
             const tiles = await res.json();
+            if (!Array.isArray(tiles)) {
+                console.warn('Réponse inattendue de /api/tiles :', tiles);
+                return;
+            }
             const container = document.getElementById('tiles-container');
             container.innerHTML = '';
 
