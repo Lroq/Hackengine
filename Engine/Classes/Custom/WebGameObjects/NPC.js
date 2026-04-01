@@ -12,7 +12,7 @@ import { Utils } from "../../Base/Services/Utilities/Utils.js";
  * - Sprite configurable
  * - Nom affiché (NameTag)
  * - Dialogues (tableau de messages)
- * - Mouvements : 'static' | 'patrol' | 'wander'
+ * - Mouvements : 'static' | 'patrol'
  * - Waypoints pour le mode patrol
  * - Interaction via touche E
  */
@@ -30,14 +30,11 @@ class NPC extends Instance {
     #currentDialogueIndex = 0;
 
     // --- Mouvement ---
-    movementType = 'static';  // 'static' | 'patrol' | 'wander'
+    movementType = 'static';  // 'static' | 'patrol'
     waypoints = [];            // [{x, y}, ...] pour patrol
     moveSpeed = 0.3;
     #currentWaypointIndex = 0;
     #moveTimer = 0;
-    #wanderDirection = { x: 0, y: 0 };
-    #wanderTimer = 0;
-    #wanderDuration = 120; // frames
 
     // --- Animation ---
     #animFrame = 0;
@@ -138,9 +135,6 @@ class NPC extends Instance {
             case 'patrol':
                 this.#runPatrol(Services, DeltaTime);
                 break;
-            case 'wander':
-                this.#runWander(Services, DeltaTime);
-                break;
             case 'static':
             default:
                 this.#applyIdleSprite();
@@ -180,42 +174,6 @@ class NPC extends Instance {
             this.#updateFacing(dx, dy);
             // Vitesse d'animation relative à la vitesse de déplacement
             this.#animFrame = (this.#animFrame + (speed * 0.4)) % 4;
-        }
-
-        this.#applyMovingSprite();
-    }
-
-    #runWander(Services, DeltaTime) {
-        const physic = this.components.PhysicController;
-        if (!physic) return;
-
-        this.#wanderTimer++;
-        if (this.#wanderTimer >= this.#wanderDuration) {
-            this.#wanderTimer = 0;
-            this.#wanderDuration = 60 + Math.random() * 120;
-
-            // Choisir une nouvelle direction ou s'arrêter
-            const r = Math.random();
-            if (r < 0.3) {
-                // S'arrêter
-                this.#wanderDirection = { x: 0, y: 0 };
-                this.#isMoving = false;
-            } else {
-                const angle = Math.random() * Math.PI * 2;
-                this.#wanderDirection = {
-                    x: Math.cos(angle) * this.moveSpeed,
-                    y: Math.sin(angle) * this.moveSpeed
-                };
-                this.#isMoving = true;
-                this.#updateFacing(this.#wanderDirection.x, this.#wanderDirection.y);
-            }
-        }
-
-        physic.velocity.X = this.#wanderDirection.x;
-        physic.velocity.Y = this.#wanderDirection.y;
-
-        if (this.#isMoving) {
-            this.#animFrame = (this.#animFrame + (this.moveSpeed * 0.4)) % 4;
         }
 
         this.#applyMovingSprite();

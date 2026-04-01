@@ -8,7 +8,7 @@ import { NPC } from '/Engine/Classes/Custom/WebGameObjects/NPC.js';
  * - Modifier le nom du PNJ
  * - Changer la sprite
  * - Editer les lignes de dialogue
- * - Configurer le mouvement (static / patrol / wander)
+ * - Configurer le mouvement (static / patrol)
  * - Ajouter/supprimer des waypoints de patrouille
  * - Supprimer le PNJ
  */

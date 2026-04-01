@@ -191,8 +191,7 @@
                     <select id="npc-place-movement"
                         class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs font-medium"
                         onchange="if(window.npcPlacementService) window.npcPlacementService.setConfig({movementType: this.value})">
-                        <option value="static">🧍 Statique</option>
-                        <option value="wander">🚶 Erre</option>
+                        <option value="static">🗿 Statique</option>
                         <option value="patrol">🔄 Patrouille</option>
                     </select>
                 </div>
@@ -738,12 +737,11 @@
     </div>
 
     <!-- Mouvement -->
-    <div class="px-3 mb-2">
-        <label class="text-xs text-gray-400 block mb-1">🚶 Type de mouvement</label>
+    <div class="px-3 mb-2 flex items-center gap-2">
+        <label class="text-xs text-gray-400 w-16">🏃 Type</label>
         <select id="npc-menu-movement"
             class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-1 text-xs">
             <option value="static">🧍 Statique</option>
-            <option value="wander">🚶 Erre (aléatoire)</option>
             <option value="patrol">🔄 Patrouille (waypoints)</option>
         </select>
     </div>
