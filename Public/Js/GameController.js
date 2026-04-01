@@ -47,9 +47,61 @@ export function initializeGameController(engineInstance) {
 
     return {
         setMode,
-        getMode: () => mode
+        getMode: () => mode,
+        setEditMode,
+        getEditMode: () => editMode
     };
 }
+
+/**
+ * Change le mode d'édition actuel (brush, fill, eraser, npc, none)
+ * @param {string} newEditMode 
+ */
+export function setEditMode(newEditMode) {
+    editMode = newEditMode;
+    console.log(`🛠️ Mode d'édition changé : ${editMode}`);
+
+    if (gameModeService) {
+        gameModeService.setEditMode(editMode);
+    }
+
+    // Mettre à jour l'interface (boutons)
+    const modeButtons = document.querySelectorAll('.mode-button');
+    modeButtons.forEach(btn => {
+        if (btn.getAttribute('data-mode') === editMode) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Gestion du placement des PNJ
+    if (window.npcPlacementService) {
+        if (editMode === 'npc') {
+            window.npcPlacementService.activate();
+        } else {
+            window.npcPlacementService.deactivate();
+        }
+    }
+
+    // Mise à jour du curseur si on est en construction
+    if (mode === 'construction' && !isPanning) {
+        const canvas = document.getElementById('game-canvas');
+        if (canvas) {
+            if (editMode === 'none') {
+                canvas.style.cursor = 'grab';
+            } else if (editMode === 'npc') {
+                canvas.style.cursor = 'crosshair';
+            }
+            // Les autres modes (brush, etc.) peuvent avoir leurs propres curseurs 
+            // mais par défaut on garde grab ou celui défini par le service
+        }
+    }
+
+    // Legacy global
+    window.editMode = editMode;
+}
+
 
 function setupEventListeners() {
     const canvas = document.getElementById('game-canvas');
@@ -148,33 +200,21 @@ function setupEventListeners() {
     document.getElementById('play-btn')?.addEventListener('click', () => setMode('play'));
     document.getElementById('stop-btn')?.addEventListener('click', () => setMode('construction'));
 
-    // Edit Mode buttons
+    // Mode buttons
     const modeButtons = document.querySelectorAll('.mode-button');
     modeButtons.forEach(button => {
         button.addEventListener('click', () => {
-            modeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            editMode = button.getAttribute('data-mode');
-            console.log(`🛠️ Mode d'édition changé : ${editMode}`);
-
-            if (gameModeService) {
-                gameModeService.setEditMode(editMode);
+            const targetMode = button.getAttribute('data-mode');
+            
+            // Si on clique sur le mode déjà actif, on peut passer en mode 'none' (vue libre)
+            if (editMode === targetMode) {
+                setEditMode('none');
+            } else {
+                setEditMode(targetMode);
             }
-
-            // Gestion du placement des PNJ
-            if (window.npcPlacementService) {
-                if (editMode === 'npc') {
-                    window.npcPlacementService.activate();
-                } else {
-                    window.npcPlacementService.deactivate();
-                }
-            }
-
-            // Legacy global
-            window.editMode = editMode;
         });
     });
+
 
     // --- Téléportation ---
     document.getElementById('teleport-to-sprite-btn')?.addEventListener('click', teleportToSprite);

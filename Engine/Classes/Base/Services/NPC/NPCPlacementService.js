@@ -111,6 +111,13 @@ class NPCPlacementService {
 
         // Sauvegarder les PNJ
         npcService.saveNPCs();
+
+        // Désactiver le mode placement après un clic (demande utilisateur : vue libre après placement)
+        if (window.setEditMode) {
+            window.setEditMode('none');
+        } else {
+            this.deactivate();
+        }
     }
 }
 

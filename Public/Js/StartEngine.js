@@ -128,6 +128,7 @@ async function main(){
     // Initialiser le contrôleur de jeu (UI, Modes)
     const gameController = initializeGameController(EngineInstance);
     window.setMode = gameController.setMode; // Exposer pour compatibilité si nécessaire
+    window.setEditMode = gameController.setEditMode;
 
     // Gestion du bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
