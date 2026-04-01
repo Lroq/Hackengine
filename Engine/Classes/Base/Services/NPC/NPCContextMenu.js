@@ -18,6 +18,7 @@ class NPCContextMenu {
     #gridSnapHelper = null;
     #menuElement = null;
     #currentNPC = null;
+    #isPlacingWaypoint = false;
 
     constructor(canvas) {
         this.#canvas = canvas;
@@ -36,27 +37,43 @@ class NPCContextMenu {
     // ==========================================
 
     #setupEventListeners() {
-        // Alt+Clic pour ouvrir le menu sur un PNJ
+        // Alt+Clic pour ouvrir le menu sur un PNJ, ou Clic simple pour placer un waypoint
         this.#canvas.addEventListener('click', (e) => {
+            // Si on est en train de placer un waypoint depuis le menu
+            if (this.#isPlacingWaypoint && this.#currentNPC) {
+                e.preventDefault();
+                e.stopImmediatePropagation(); // Bloque le placement de PNJ ou de tuiles
+                this.#placeWaypointAtClick(e.clientX, e.clientY);
+                return;
+            }
+
             const mode = window.getMode ? window.getMode() : 'play';
             if (mode !== 'construction') return;
             if (!e.altKey) return;
 
             e.preventDefault();
             this.#handleAltClick(e);
-        });
+        }, { capture: true }); // S'exécute avant les autres events du canvas
 
         // Fermer en cliquant ailleurs
         document.addEventListener('click', (e) => {
             if (!this.#menuElement) return;
-            if (!this.#menuElement.contains(e.target) && !e.altKey) {
+            if (this.#isPlacingWaypoint) return; // Ne pas fermer pdt le placement
+            
+            if (!this.#menuElement.contains(e.target) && !e.altKey && e.target !== this.#canvas) {
                 this.#hideMenu();
             }
         });
 
         // Fermer avec Escape
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') this.#hideMenu();
+            if (e.key === 'Escape') {
+                if (this.#isPlacingWaypoint) {
+                    this.#cancelWaypointPlacement();
+                } else {
+                    this.#hideMenu();
+                }
+            }
         });
 
         // --- Boutons du menu ---
@@ -109,7 +126,7 @@ class NPCContextMenu {
         // Ajouter un waypoint
         document.getElementById('npc-add-waypoint-btn')?.addEventListener('click', () => {
             if (!this.#currentNPC) return;
-            this.#addCurrentPositionAsWaypoint();
+            this.#enableWaypointPlacementMode();
         });
 
         // Vider les waypoints
@@ -243,6 +260,7 @@ class NPCContextMenu {
         this.#menuElement.style.display = 'none';
         this.#menuElement.classList.add('hidden');
         this.#currentNPC = null;
+        this.#cancelWaypointPlacement();
     }
 
     isVisible() {
@@ -292,37 +310,45 @@ class NPCContextMenu {
         });
     }
 
-    #addCurrentPositionAsWaypoint() {
+    #enableWaypointPlacementMode() {
         if (!this.#currentNPC) return;
+        this.#isPlacingWaypoint = true;
+        if (this.#canvas) this.#canvas.style.cursor = 'crosshair';
+        
+        const btn = document.getElementById('npc-add-waypoint-btn');
+        if (btn) btn.textContent = '📍 Ciblez sur la map (Echap=Annuler)';
+        
+        // Rendre le menu semi-transparent pour y voir plus clair
+        if (this.#menuElement) this.#menuElement.style.opacity = '0.5';
+    }
 
-        // Utiliser la position actuelle du joueur comme waypoint de référence
-        // ou demander les coordonnées à l'utilisateur
+    #cancelWaypointPlacement() {
+        this.#isPlacingWaypoint = false;
+        if (this.#canvas) this.#canvas.style.cursor = 'grab'; // Check if we should restore it nicely
+        
+        const btn = document.getElementById('npc-add-waypoint-btn');
+        if (btn) btn.textContent = '➕ Ajouter Waypoint';
+        
+        if (this.#menuElement) this.#menuElement.style.opacity = '1';
+    }
+
+    #placeWaypointAtClick(screenX, screenY) {
         const scene = this.#engine?.services?.SceneService?.activeScene;
-        let x = this.#currentNPC.coordinates.X;
-        let y = this.#currentNPC.coordinates.Y;
+        if (!scene || !scene.activeCamera) return;
 
-        const input = prompt(
-            `Coordonnées du waypoint (format: x,y)\nPosition actuelle du PNJ: ${x},${y}`,
-            `${x},${y}`
+        const snapped = this.#gridSnapHelper.screenToGridSnap(
+            screenX, screenY,
+            scene.activeCamera,
+            this.#canvas
         );
 
-        if (!input) return;
-
-        const parts = input.split(',');
-        if (parts.length !== 2) return;
-
-        x = parseInt(parts[0].trim()) || 0;
-        y = parseInt(parts[1].trim()) || 0;
-
-        // Snapper sur la grille
-        const snappedX = Math.floor(x / 27) * 27;
-        const snappedY = Math.floor(y / 27) * 27;
-
-        this.#currentNPC.waypoints.push({ x: snappedX, y: snappedY });
+        this.#currentNPC.waypoints.push({ x: snapped.x, y: snapped.y });
         this.#renderWaypoints();
         this.#save();
 
-        console.log(`📍 Waypoint ajouté: (${snappedX}, ${snappedY})`);
+        console.log(`📍 Waypoint ajouté: (${snapped.x}, ${snapped.y})`);
+
+        this.#cancelWaypointPlacement(); // Retour au mode normal
     }
 
     #save() {

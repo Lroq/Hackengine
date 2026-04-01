@@ -1,1 +1,100 @@
-[]
+[
+  {
+    "x": -81,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": -54,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": -27,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 0,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 27,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 54,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 54,
+    "y": -27,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 27,
+    "y": -54,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 0,
+    "y": -81,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": -27,
+    "y": -81,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": -54,
+    "y": -54,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": -81,
+    "y": -27,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": -108,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  },
+  {
+    "x": 81,
+    "y": 0,
+    "sprite": "http://localhost:9000/Public/Assets/Game/Tiles/tile_floor_house_1.png",
+    "isSolid": false,
+    "layer": 0
+  }
+]
