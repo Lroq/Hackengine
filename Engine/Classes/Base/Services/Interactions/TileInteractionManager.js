@@ -11,6 +11,7 @@ class TileInteractionManager {
     #canvas = null;
     #ctx = null;
     #currentInteractableTile = null;
+    #activeNPC = null;
     #eIconImage = null;
     #pulseAnimation = 0; // Pour l'animation de pulsation
 
@@ -97,16 +98,22 @@ class TileInteractionManager {
      * Déclenche l'interaction avec un PNJ (dialogue)
      */
     #triggerNPCInteraction(npc) {
-        // Fermer si déjà ouverte
-        if (this.#dialogueBox.isVisible()) {
-            this.#dialogueBox.hide();
-            return;
+        // Si le joueur a changé de cible pendant un dialogue
+        if (this.#activeNPC && this.#activeNPC !== npc) {
+            this.#activeNPC.resetDialogue();
         }
 
+        this.#activeNPC = npc;
         const msg = npc.getNextDialogue();
+
         if (msg) {
+            // Afficher le texte suivant
             this.#dialogueBox.show(`[${npc.npcName}] ${msg}`);
             console.log(`💬 PNJ "${npc.npcName}": "${msg}"`);
+        } else {
+            // Dialogue terminé = cache la box et libère le PNJ
+            this.#dialogueBox.hide();
+            this.#activeNPC = null;
         }
     }
 

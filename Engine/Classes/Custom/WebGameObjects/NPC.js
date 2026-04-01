@@ -120,13 +120,26 @@ class NPC extends Instance {
     }
 
     /**
-     * Retourne le prochain message de dialogue (cycle)
+     * Retourne le prochain message de dialogue (ou null en fin de cycle)
      */
     getNextDialogue() {
-        if (this.dialogues.length === 0) return null;
+        if (!this.dialogues || this.dialogues.length === 0) return null;
+
+        if (this.#currentDialogueIndex >= this.dialogues.length) {
+            this.#currentDialogueIndex = 0;
+            return null; // Déclenche la fin de la conversation
+        }
+
         const msg = this.dialogues[this.#currentDialogueIndex];
-        this.#currentDialogueIndex = (this.#currentDialogueIndex + 1) % this.dialogues.length;
+        this.#currentDialogueIndex++;
         return msg;
+    }
+
+    /**
+     * Reset manuel (utilisé si l'interaction est interrompue)
+     */
+    resetDialogue() {
+        this.#currentDialogueIndex = 0;
     }
 
     /**

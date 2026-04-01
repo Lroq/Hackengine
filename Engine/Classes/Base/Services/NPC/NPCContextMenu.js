@@ -82,12 +82,16 @@ class NPCContextMenu {
 
     #bindMenuButtons() {
         // Nom du PNJ
-        document.getElementById('npc-menu-name')?.addEventListener('input', (e) => {
-            if (this.#currentNPC) {
-                this.#currentNPC.npcName = e.target.value;
-                this.#save();
-            }
-        });
+        const nameInput = document.getElementById('npc-menu-name');
+        if (nameInput) {
+            nameInput.addEventListener('keydown', (e) => e.stopPropagation());
+            nameInput.addEventListener('change', (e) => {
+                if (this.#currentNPC) {
+                    this.#currentNPC.npcName = e.target.value;
+                    this.#save();
+                }
+            });
+        }
 
         // Sprite (chemin / choix depuis assets)
         document.getElementById('npc-menu-sprite')?.addEventListener('change', (e) => {
@@ -138,16 +142,20 @@ class NPCContextMenu {
         });
 
         // Dialogues
-        document.getElementById('npc-menu-dialogues')?.addEventListener('input', (e) => {
-            if (this.#currentNPC) {
-                // Chaque ligne = un message de dialogue
-                this.#currentNPC.dialogues = e.target.value
-                    .split('\n')
-                    .map(l => l.trim())
-                    .filter(l => l.length > 0);
-                this.#save();
-            }
-        });
+        const dialogueInput = document.getElementById('npc-menu-dialogues');
+        if (dialogueInput) {
+            dialogueInput.addEventListener('keydown', (e) => e.stopPropagation());
+            dialogueInput.addEventListener('change', (e) => {
+                if (this.#currentNPC) {
+                    // Chaque ligne = un message de dialogue
+                    this.#currentNPC.dialogues = e.target.value
+                        .split('\n')
+                        .map(l => l.trim())
+                        .filter(l => l.length > 0);
+                    this.#save();
+                }
+            });
+        }
 
         // Supprimer le PNJ
         document.getElementById('npc-menu-delete')?.addEventListener('click', () => {

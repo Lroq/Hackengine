@@ -170,6 +170,7 @@
                     <label class="text-[9px] text-gray-500 block mb-0.5">Nom</label>
                     <input id="npc-place-name" type="text" value="PNJ" placeholder="Nom du PNJ"
                         class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs"
+                        onkeydown="event.stopPropagation()"
                         oninput="if(window.npcPlacementService) window.npcPlacementService.setConfig({name: this.value})" />
                 </div>
                 <div>
@@ -184,6 +185,7 @@
                     <label class="text-[9px] text-gray-500 block mb-0.5">Dialogue initial</label>
                     <input id="npc-place-dialogue" type="text" value="Bonjour !" placeholder="Message..."
                         class="w-full bg-[#2b2b2f] text-white border border-gray-600 rounded px-2 py-0.5 text-xs"
+                        onkeydown="event.stopPropagation()"
                         oninput="if(window.npcPlacementService) window.npcPlacementService.setConfig({dialogues: [this.value]})" />
                 </div>
                 <div>
