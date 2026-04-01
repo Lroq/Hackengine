@@ -16,6 +16,8 @@ class TileContextMenu {
     #currentTile = null;
     #currentPosition = null;
 
+    #engine = null;
+
     constructor(tileDragService, canvas) {
         this.#tileDragService = tileDragService;
         this.#canvas = canvas;
@@ -27,12 +29,51 @@ class TileContextMenu {
     }
 
     /**
+     * Inject the Engine instance
+     * @param {Engine} engine
+     */
+    injectEngine(engine) {
+        this.#engine = engine;
+    }
+
+    /**
+     * Helper to get edit mode safely
+     */
+    #getEditMode() {
+        if (this.#engine && this.#engine.services.GameModeService) {
+            return this.#engine.services.GameModeService.getEditMode();
+        }
+        return window.getEditMode ? window.getEditMode() : 'brush';
+    }
+
+    /**
+     * Helper to get game mode safely
+     */
+    #getMode() {
+        if (this.#engine && this.#engine.services.GameModeService) {
+            return this.#engine.services.GameModeService.getMode();
+        }
+        return window.getMode ? window.getMode() : 'play';
+    }
+
+    /**
+     * Helper to get active scene safely
+     */
+    #getActiveScene() {
+        if (this.#engine && this.#engine.services.SceneService) {
+            return this.#engine.services.SceneService.activeScene;
+        }
+        // Fallback for transition period if needed, though we aim to remove this
+        return window.engineInstance ? window.engineInstance.services.SceneService.activeScene : null;
+    }
+
+    /**
      * Configure les événements
      */
     #setupEventListeners() {
         // Alt+Clic gauche sur le canvas - afficher le menu contextuel sur les tiles placées
         this.#canvas.addEventListener('click', (e) => {
-            const mode = window.getMode ? window.getMode() : 'play';
+            const mode = this.#getMode();
             if (mode !== 'construction') return;
 
             // Vérifier si Alt est pressé
@@ -55,6 +96,14 @@ class TileContextMenu {
         if (closeTileMenuBtn) {
             closeTileMenuBtn.addEventListener('click', () => {
                 this.#hideMenu();
+            });
+        }
+
+        // Bouton de sauvegarde du menu contextuel
+        const saveTileMenuBtn = document.getElementById('save-tile-menu-btn');
+        if (saveTileMenuBtn) {
+            saveTileMenuBtn.addEventListener('click', () => {
+                this.#saveAndCloseMenu();
             });
         }
 
@@ -117,6 +166,26 @@ class TileContextMenu {
         if (copySpriteCoords) {
             copySpriteCoords.addEventListener('click', () => {
                 this.#copySpriteCoordinates();
+            });
+        }
+
+        // Bouton toggle interaction
+        const toggleInteractionBtn = document.getElementById('menu-toggle-interaction');
+        if (toggleInteractionBtn) {
+            toggleInteractionBtn.addEventListener('click', () => {
+                this.#toggleInteraction();
+            });
+        }
+
+        // Input texte d'interaction
+        const interactionTextInput = document.getElementById('menu-interaction-text');
+        if (interactionTextInput) {
+            interactionTextInput.addEventListener('input', () => {
+                if (this.#currentTile && this.#currentTile.hasInteraction) {
+                    this.#currentTile.interactionText = interactionTextInput.value;
+                    this.#tileDragService.saveMap();
+                    console.log(`💬 Texte d'interaction mis à jour: "${interactionTextInput.value}"`);
+                }
             });
         }
 
@@ -227,6 +296,25 @@ class TileContextMenu {
             }
         }
 
+        // Mettre à jour l'état de l'interaction
+        const hasInteraction = tile.hasInteraction || false;
+        const interactionIcon = document.getElementById('menu-interaction-icon');
+        if (interactionIcon) interactionIcon.textContent = hasInteraction ? '☑' : '☐';
+
+        // Afficher/masquer les paramètres d'interaction
+        const interactionSettings = document.getElementById('interaction-settings');
+        if (interactionSettings) {
+            if (hasInteraction) {
+                interactionSettings.classList.remove('hidden');
+
+                // Remplir le champ texte avec la valeur existante
+                const textInput = document.getElementById('menu-interaction-text');
+                if (textInput) textInput.value = tile.interactionText || '';
+            } else {
+                interactionSettings.classList.add('hidden');
+            }
+        }
+
         // Mettre à jour la position affichée
         const posElement = document.getElementById('menu-tile-pos');
         if (posElement) {
@@ -262,6 +350,26 @@ class TileContextMenu {
         this.#menuElement.classList.add('hidden');
         this.#currentTile = null;
         this.#currentPosition = null;
+    }
+
+    /**
+     * Sauvegarde les modifications et ferme le menu contextuel
+     */
+    #saveAndCloseMenu() {
+        // Sauvegarder la map
+        this.#tileDragService.saveMap();
+        console.log('💾 Tuile sauvegardée avec succès');
+
+        // Fermer le menu
+        this.#hideMenu();
+    }
+
+    /**
+     * Vérifie si le menu contextuel est actuellement visible
+     * @returns {boolean} - True si le menu est visible
+     */
+    isVisible() {
+        return this.#menuElement.style.display === 'block' && !this.#menuElement.classList.contains('hidden');
     }
 
     /**
@@ -331,6 +439,49 @@ class TileContextMenu {
         } else {
             teleportSettings.classList.add('hidden');
         }
+    }
+
+    /**
+     * Bascule l'état interaction de la tuile
+     */
+    #toggleInteraction() {
+        if (!this.#currentTile) return;
+
+        // Inverser l'état
+        const newState = !(this.#currentTile.hasInteraction || false);
+        this.#currentTile.hasInteraction = newState;
+
+        // Initialiser le texte d'interaction si activé
+        if (newState && !this.#currentTile.interactionText) {
+            this.#currentTile.interactionText = '';
+        }
+
+        // NOTE: Contrairement aux téléporteurs, les interactions n'affectent PAS le mode solide
+        // Une tuile peut être solide ET interactive (ex: un mur avec du texte d'information)
+
+        console.log(`Tuile à (${this.#currentPosition.x}, ${this.#currentPosition.y}) : ${newState ? '💬 INTERACTION' : '⬜ Normal'}`);
+
+        // Mettre à jour l'icône
+        const interactionIcon = document.getElementById('menu-interaction-icon');
+        interactionIcon.textContent = newState ? '☑' : '☐';
+
+        // Afficher/masquer les paramètres
+        const interactionSettings = document.getElementById('interaction-settings');
+        if (newState) {
+            interactionSettings.classList.remove('hidden');
+            // Remplir le champ avec la valeur actuelle
+            const textInput = document.getElementById('menu-interaction-text');
+            if (textInput) {
+                textInput.value = this.#currentTile.interactionText || '';
+                // Focus sur le champ pour faciliter la saisie
+                textInput.focus();
+            }
+        } else {
+            interactionSettings.classList.add('hidden');
+        }
+
+        // Sauvegarder
+        this.#tileDragService.saveMap();
     }
 
     /**
@@ -416,16 +567,26 @@ class TileContextMenu {
     #copySpriteCoordinates() {
         if (!this.#currentTile || !this.#currentTile.isTeleporter) return;
 
-        // Récupérer le sprite du joueur
-        const playerInstance = window.playerInstance;
-        if (!playerInstance) {
-            console.warn('⚠️ Sprite du joueur non disponible');
-            return;
+        // Récupérer le sprite du joueur via la scène active
+        let playerX = 0;
+        let playerY = 0;
+
+        const scene = this.#getActiveScene();
+        if (scene && scene.activeCamera && scene.activeCamera.cameraSubject) {
+            const subject = scene.activeCamera.cameraSubject;
+            playerX = Math.round(subject.coordinates.X);
+            playerY = Math.round(subject.coordinates.Y);
+        } else if (window.playerInstance) {
+            // Fallback legacy
+            playerX = Math.round(window.playerInstance.coordinates.X);
+            playerY = Math.round(window.playerInstance.coordinates.Y);
+        } else {
+             console.warn('⚠️ Sprite du joueur non disponible');
+             return;
         }
 
-        // Récupérer les coordonnées actuelles du sprite en pixels
-        const spriteXPixels = Math.round(playerInstance.coordinates.X);
-        const spriteYPixels = Math.round(playerInstance.coordinates.Y);
+        const spriteXPixels = playerX;
+        const spriteYPixels = playerY;
 
         // Convertir en coordonnées tiles pour l'affichage
         const spriteXTiles = Math.round(spriteXPixels / 27);
@@ -451,16 +612,18 @@ class TileContextMenu {
 
             // Feedback visuel
             const btn = document.getElementById('copy-sprite-coords-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span>✅</span><span>Coordonnées copiées !</span>';
-            btn.classList.add('bg-green-600');
-            btn.classList.remove('bg-blue-600');
+            if (btn) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span>✅</span><span>Coordonnées copiées !</span>';
+                btn.classList.add('bg-green-600');
+                btn.classList.remove('bg-blue-600');
 
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.classList.remove('bg-green-600');
-                btn.classList.add('bg-blue-600');
-            }, 1500);
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-600');
+                    btn.classList.add('bg-blue-600');
+                }, 1500);
+            }
 
             console.log(`📍 Coordonnées du sprite copiées: (${spriteXTiles}, ${spriteYTiles}) tiles → (${spriteXPixels}, ${spriteYPixels}) pixels`);
         }

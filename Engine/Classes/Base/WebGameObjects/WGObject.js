@@ -32,9 +32,16 @@ class WGObject {
     }
 
     removeComponent(component) {
-        const index = this.#Components.indexOf(component);
-        if (index > -1) {
-            this.#Components.splice(index, 1);
+        // Fix: Components are stored in an object, not an array.
+        // We delete the property by key (class name).
+        if (component instanceof WGComponent) {
+            const key = component.constructor.name;
+            if (this.#Components[key] === component) {
+                 delete this.#Components[key];
+            }
+        } else if (typeof component === 'string') {
+             // Handle removal by class name string if needed
+             delete this.#Components[component];
         }
     }
 

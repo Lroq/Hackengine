@@ -1,5 +1,0 @@
-class SpriteService {
-
-}
-
-export {SpriteService}

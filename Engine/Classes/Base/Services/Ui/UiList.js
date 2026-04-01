@@ -1,5 +1,0 @@
-const UiList = {
-
-}
-
-export {UiList}

@@ -54,8 +54,21 @@ class Camera extends WGObject {
      * Updates camera position based on its type and subject.
      * Called by Renderer each frame.
      */
-    run(Scene, CanvasSize) {
-        const mode = window.getMode ? window.getMode() : "play";
+    run(Scene, CanvasSize, Services) {
+        let mode = "play";
+        let pan = { x: 0, y: 0 };
+        let zoom = 1.0;
+
+        if (Services && Services.GameModeService) {
+            mode = Services.GameModeService.getMode();
+            pan = Services.GameModeService.getCameraPan();
+            zoom = Services.GameModeService.getZoom();
+        } else {
+             // Fallback legacy
+             mode = window.getMode ? window.getMode() : "play";
+             pan = window.getCameraPan ? window.getCameraPan() : { x: 0, y: 0 };
+             zoom = window.constructionZoom || 1.0;
+        }
 
         switch (this.#cameraType) {
             case CameraType.Follow: {
@@ -78,12 +91,10 @@ class Camera extends WGObject {
 
             case CameraType.Scriptable: {
                 // ✅ En mode "construction" : déplacement libre (pan)
-                const pan = window.getCameraPan ? window.getCameraPan() : { x: 0, y: 0 };
-
+                
                 if (pan.x !== 0 || pan.y !== 0) {
                     // Adapter la vitesse de déplacement au zoom
                     // Plus le zoom est grand, plus on doit bouger lentement pour garder une sensation cohérente
-                    const zoom = window.constructionZoom || 1.0;
                     const speed = 0.01 / zoom;
 
                     super.coordinates.X += pan.x * speed;

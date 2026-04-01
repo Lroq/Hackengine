@@ -25,7 +25,7 @@ class Engine {
         this.#Canvas = Canvas;
 
         this.#TickRate = Configuration.TickRate;
-        this.refreshRate = Configuration.RefreshRate;
+        this.#RefreshRate = Configuration.RefreshRate;
 
         this.#Renderer.setContext(this.#Canvas.getContext("2d"));
         this.#startLoop();
@@ -36,8 +36,20 @@ class Engine {
     }
 
     #startLoop() {
-        this.#TickLoop = setInterval(() => this.tick(), this.#TickRate)
-        this.#RefreshLoop = setInterval(() => this.#Renderer.render(), this.#RefreshRate)
+        // Start the game loop using requestAnimationFrame for smoother rendering
+        const loop = () => {
+             // Pauser le jeu si l'onglet n'est pas visible (comportement par défaut de requestAnimationFrame)
+             this.tick();
+             this.#Renderer.render();
+             this.#TickLoop = requestAnimationFrame(loop);
+        };
+        this.#TickLoop = requestAnimationFrame(loop);
+    }
+
+    stopLoop() {
+        if (this.#TickLoop) {
+            cancelAnimationFrame(this.#TickLoop);
+        }
     }
 
     resize(Size, Options = {FullScreen: false}) {
@@ -95,8 +107,14 @@ class Engine {
             this.#Services.InputService.updatePreviousInputs();
         } else {
             console.warn("No 'SceneService' Detected.");
-            debugger;
         }
+    }
+
+    /**
+     * Définit le TileInteractionManager et le passe au Renderer
+     */
+    setTileInteractionManager(manager) {
+        this.#Renderer.setTileInteractionManager(manager);
     }
 }
 
