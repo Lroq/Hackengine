@@ -1,30 +1,9 @@
 [
   {
-    "npcId": "npc_1775038039536_1",
-    "npcName": "PNJ",
-    "x": -108,
+    "x": -81,
     "y": 0,
-    "spritePath": "/Public/Assets/Game/Characters/Attacker/Attacker_Down_0.png",
-    "dialogues": [
-      "Bonjour !",
-      "prout",
-      "test"
-    ],
-    "movementType": "static",
-    "moveSpeed": 0.3,
-    "waypoints": [
-      {
-        "x": 81,
-        "y": 0
-      },
-      {
-        "x": -27,
-        "y": -81
-      },
-      {
-        "x": -108,
-        "y": 0
-      }
-    ]
+    "sprite": "http://localhost:9000/undefined",
+    "isSolid": false,
+    "layer": 0
   }
 ]
