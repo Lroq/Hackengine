@@ -257,8 +257,11 @@ function setMode(newMode) {
         // Détache la caméra du joueur
         const activeCamera = getActiveCamera();
         if (activeCamera) {
+            console.log("📸 Caméra passée en mode SCRIPTABLE");
             activeCamera.cameraSubject = undefined;
-            activeCamera.cameraType = "CAM_SCRIPTABLE";
+            activeCamera.cameraType = "CAM_SCRIPTABLE"; // Correspond à CameraType.Scriptable
+        } else {
+            console.warn("⚠️ Caméra non trouvée pour le mode construction");
         }
 
         if (canvas) canvas.style.cursor = "grab";
@@ -267,13 +270,22 @@ function setMode(newMode) {
     if (mode === "play") {
         // Rattache la caméra au joueur
         const activeCamera = getActiveCamera();
-        if (activeCamera) {
-            // Tenter de retrouver le joueur via activeScene
-            const player = getPlayerInstance();
-            if (player) {
-                activeCamera.cameraSubject = player;
-            }
-            activeCamera.cameraType = "CAM_FOLLOW";
+        const player = getPlayerInstance();
+        
+        if (activeCamera && player) {
+            console.log("📸 Caméra passée en mode FOLLOW (Suivi joueur)");
+            activeCamera.cameraSubject = player;
+            activeCamera.cameraType = "CAM_FOLLOW"; // Correspond à CameraType.Follow
+            
+            // Forcer le repositionnement immédiat pour éviter le "saut" ou la perte de vue
+            const scale = canvas.height * 0.004;
+            activeCamera.coordinates.X = (canvas.width / 2 / scale) - player.coordinates.X - 13.5;
+            activeCamera.coordinates.Y = (canvas.height / 2 / scale) - player.coordinates.Y - 27;
+            
+            // Reset zoom au passage en jeu pour plus de clarté
+            updateZoom(1.0);
+        } else {
+            console.error("❌ Impossible de rattacher la caméra : Joueur ou Caméra introuvable");
         }
 
         if (canvas) canvas.style.cursor = "default";
@@ -453,16 +465,16 @@ function getActiveCamera() {
 // Helper to get player instance through active scene
 function getPlayerInstance() {
     if (sceneService && sceneService.activeScene) {
-        // Assume player is the camera subject if set, or search for it
-        // Or specific player retrieval if implemented on Scene
-        const scene = sceneService.activeScene;
-        // Basic search for player if not camera subject
-        if (scene.activeCamera && scene.activeCamera.cameraSubject && scene.activeCamera.cameraSubject.constructor.name === 'Player') {
-            return scene.activeCamera.cameraSubject;
+        // Accès direct à l'instance stockée dans la scène
+        if (sceneService.activeScene.player) {
+            return sceneService.activeScene.player;
         }
-        // Fallback: iterate objects (simplified) or use window global
+
+        // Fallback : recherche dans les WGObjects par nom de classe
+        const player = sceneService.activeScene.wgObjects.find(obj => obj.constructor.name === 'Player');
+        if (player) return player;
     }
-    return window.playerInstance; // Fallback
+    return window.playerInstance; // Ultime secours
 }
 
 // Shims de compatibilité
