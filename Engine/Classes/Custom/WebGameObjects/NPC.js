@@ -2,7 +2,6 @@ import { Instance } from "../../Base/WebGameObjects/Instance.js";
 import { SpriteModel } from "../../Base/Components/SpriteModel.js";
 import { BoxCollider } from "../../Base/Components/BoxCollider.js";
 import { PhysicController } from "../../Base/Components/PhysicController.js";
-import { NameTag } from "./NameTag.js";
 import { Utils } from "../../Base/Services/Utilities/Utils.js";
 
 /**
@@ -10,7 +9,7 @@ import { Utils } from "../../Base/Services/Utilities/Utils.js";
  *
  * Supporte :
  * - Sprite configurable
- * - Nom affiché (NameTag)
+ * - Nom
  * - Dialogues (tableau de messages)
  * - Mouvements : 'static' | 'patrol'
  * - Waypoints pour le mode patrol
@@ -50,8 +49,6 @@ class NPC extends Instance {
     // --- Interaction ---
     hasInteraction = true;  // Toujours interactable via touche E
 
-    // --- Interne ---
-    #nameTagRef = null;
     #isTalkingCooldown = false;
 
     constructor(name = 'PNJ') {
@@ -78,13 +75,6 @@ class NPC extends Instance {
         collider.hitbox.Width = 20;
         collider.hitbox.Height = 4;
         super.addComponent(collider);
-
-        // === NameTag ===
-        const nameTag = new NameTag(name);
-        nameTag.coordinates.Y = -65;
-        nameTag.coordinates.X = -5;
-        super.addChild(nameTag);
-        this.#nameTagRef = nameTag;
     }
 
     /**
@@ -113,7 +103,7 @@ class NPC extends Instance {
     }
 
     /**
-     * Met à jour le nom et le NameTag
+     * Met à jour le nom
      */
     setName(name) {
         this.npcName = name;
