@@ -1,3 +1,5 @@
+import { InteractionUtils } from "./InteractionUtils.js";
+
 /**
  * TileInteractionManager - Gère les interactions avec les tuiles configurées
  *
@@ -87,10 +89,7 @@ class TileInteractionManager {
                 const tileX = obj.coordinates.X;
                 const tileY = obj.coordinates.Y;
 
-                const distance = Math.sqrt(
-                    Math.pow(playerX - tileX, 2) +
-                    Math.pow(playerY - tileY, 2)
-                );
+                const distance = InteractionUtils.distance2D(playerX, playerY, tileX, tileY);
 
                 if (distance < closestDistance) {
                     closestDistance = distance;
@@ -115,7 +114,7 @@ class TileInteractionManager {
         }
 
         // Afficher le texte d'interaction
-        this.#dialogueBox.show(tile.interactionText);
+        this.#dialogueBox.show(InteractionUtils.normalizeDialogueLines(tile.interactionText));
         console.log(`💬 Interaction avec tuile: "${tile.interactionText}"`);
     }
 
