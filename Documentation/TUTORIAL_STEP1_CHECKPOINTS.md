@@ -49,6 +49,24 @@ Ce document suit une strategie "commit par commit" pour isoler rapidement une re
 - Verifier affichage HUD en mode play.
 - Basculer en mode construction et verifier HUD masque.
 
+## Commit 4
+
+`05c45f9` - `feat(tutorial-step2): add infiltration path, salon choices, and fail-reset flow`
+
+### Objectif
+- Corriger la mere pour qu'elle reste immobile.
+- Ajouter l'etape 2 d'infiltration avec zones autorisees.
+- Ajouter les interactions niche/cadre/frigo avec choix Oui/Non.
+- Ajouter la sanction mission echouee + TP chambre + reset progression.
+
+### Validation
+- Verifier que la mere ne se deplace plus.
+- En etape 2, rester dans le chemin autorise: pas de fail.
+- Sortir du chemin: mission echouee, TP chambre, reset.
+- Niche -> Oui: echec mission; Non: fermeture sans echec.
+- Cadre -> Oui: afficher 1995 + completion indice.
+- Frigo: popup calendrier + completion 1502.
+
 ## Commandes de controle rapide
 
 ```powershell
