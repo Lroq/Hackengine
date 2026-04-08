@@ -5,6 +5,7 @@ import {Size_2D}        from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
 import {InputService}   from "/Engine/Classes/Base/Services/Inputs/InputService.js";
 import {ExempleScene}   from "/Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {TutorialScene}  from "/Engine/Classes/Custom/Scenes/TutorialScene.js";
 import {TileDragService} from "/Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "/Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 import {GameModeService} from "/Engine/Classes/Base/Services/GameModeService.js";
@@ -76,7 +77,13 @@ async function main(){
         FullScreen : true,
     })
 
-    const TestScene = new ExempleScene();
+    const searchParams = new URLSearchParams(window.location.search);
+    const forceTutorial = searchParams.get('tutorial') === '1';
+    const isTutorialMap = currentMapName === 'a' || currentMapName === 'tutorial_step1';
+
+    const TestScene = (forceTutorial || isTutorialMap)
+        ? new TutorialScene()
+        : new ExempleScene();
 
     // Attendre que la scène soit prête (init asynchrone)
     if (TestScene.ready) {

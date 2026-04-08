@@ -3,6 +3,7 @@ import {NameTag} from "./NameTag.js";
 import {FACING, PLAYER_STATE , SPRITES} from "./PlayerUtils.js";
 import {SpriteModel} from "../../Base/Components/SpriteModel.js";
 import {PhysicController} from "../../Base/Components/PhysicController.js";
+import {TextLabel} from "../../Base/WebGameObjects/TextLabel.js";
 
 
 class Player extends Character {
@@ -10,6 +11,8 @@ class Player extends Character {
     #AnimationFrame = 0;
     #Face = FACING.Right;
     #isTeleporting = false; // Pour éviter les téléportations multiples
+    #StateBeforeFreeze = PLAYER_STATE.Idling;
+    #EmoteLabel = null;
 
     constructor(username) {
         super();
@@ -20,7 +23,50 @@ class Player extends Character {
 
         super.addChild(Tag)
 
+        const emoteLabel = new TextLabel();
+        emoteLabel.text = "";
+        emoteLabel.font = "Pixel Font";
+        emoteLabel.size = 12;
+        emoteLabel.color = "#ff6b6b";
+        emoteLabel.coordinates.X = 10;
+        emoteLabel.coordinates.Y = -82;
+        super.addChild(emoteLabel);
+        this.#EmoteLabel = emoteLabel;
+
         this.hp = 3;
+    }
+
+    freeze() {
+        if (this.#GlobalState !== PLAYER_STATE.Freeze) {
+            this.#StateBeforeFreeze = this.#GlobalState;
+            this.#GlobalState = PLAYER_STATE.Freeze;
+        }
+
+        const physic = this.getComponent(PhysicController);
+        if (physic) {
+            physic.velocity.X = 0;
+            physic.velocity.Y = 0;
+        }
+    }
+
+    unfreeze() {
+        if (this.#GlobalState === PLAYER_STATE.Freeze) {
+            this.#GlobalState = this.#StateBeforeFreeze;
+        }
+    }
+
+    isFrozen() {
+        return this.#GlobalState === PLAYER_STATE.Freeze;
+    }
+
+    setEmote(text) {
+        if (this.#EmoteLabel) {
+            this.#EmoteLabel.text = text || "";
+        }
+    }
+
+    clearEmote() {
+        this.setEmote("");
     }
 
 
@@ -195,6 +241,11 @@ class Player extends Character {
                 break;
             }
             case PLAYER_STATE.Freeze: {
+                const physic = this.getComponent(PhysicController);
+                if (physic) {
+                    physic.velocity.X = 0;
+                    physic.velocity.Y = 0;
+                }
                 break
             }
         }

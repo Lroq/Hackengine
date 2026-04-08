@@ -1,3 +1,5 @@
+import { InteractionUtils } from "./InteractionUtils.js";
+
 class InteractionManager {
     #interactables = [];
     #player = null;
@@ -23,6 +25,20 @@ class InteractionManager {
         }
     }
 
+    #getAnchor(interactable) {
+        if (interactable && typeof interactable.getInteractionAnchor === 'function') {
+            const anchor = interactable.getInteractionAnchor();
+            if (anchor && typeof anchor.x === 'number' && typeof anchor.y === 'number') {
+                return anchor;
+            }
+        }
+
+        return {
+            x: interactable?.coordinates?.X ?? 0,
+            y: interactable?.coordinates?.Y ?? 0
+        };
+    }
+
     checkInteractions(inputService) {
         if (!this.#player || !inputService.IsKeyPressed('e')) return;
 
@@ -34,21 +50,29 @@ class InteractionManager {
         const playerX = this.#player.coordinates.X;
         const playerY = this.#player.coordinates.Y;
 
+        let nearestInteractable = null;
+        let nearestDistance = Number.POSITIVE_INFINITY;
+
         for (const interactable of this.#interactables) {
-            const objX = interactable.coordinates.X;
-            const objY = interactable.coordinates.Y;
+            if (!interactable || interactable.isInteractionEnabled === false) continue;
 
-            const distance = Math.sqrt(
-                Math.pow(playerX - objX, 2) +
-                Math.pow(playerY - objY, 2)
-            );
+            const anchor = this.#getAnchor(interactable);
 
-            if (distance <= this.#interactionRange) {
-                if (interactable.onInteract) {
-                    interactable.onInteract();
-                }
-                return;
+            const distance = InteractionUtils.distance2D(playerX, playerY, anchor.x, anchor.y);
+            const interactionRange = interactable.interactionRange ?? this.#interactionRange;
+
+            if (distance <= interactionRange && distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestInteractable = interactable;
             }
+        }
+
+        if (nearestInteractable && nearestInteractable.onInteract) {
+            nearestInteractable.onInteract({
+                player: this.#player,
+                dialogueBox: this.#dialogueBox,
+                inputService
+            });
         }
     }
 }
