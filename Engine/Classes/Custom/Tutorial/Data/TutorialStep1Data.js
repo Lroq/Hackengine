@@ -23,6 +23,10 @@ const TutorialStep1Data = {
             y: 85,
             lines: [
                 "Impossible d'utiliser la console ! Le pare-feu bloque tout !"
+            ],
+            linesAfterFirewall: [
+                "Pare-feu desactive !",
+                "Yes ! Je peux rejouer a la console."
             ]
         },
         {
@@ -34,18 +38,6 @@ const TutorialStep1Data = {
             y: 105,
             lines: [
                 "J'adore voyager dans des mondes differents avec mon Casque VR 3000 !",
-                "Ma mere ne sait pas que je l'ai ..."
-            ]
-        },
-        {
-            id: "pc",
-            spritePath: "/Engine/Assets/texture_not_found.png",
-            width: 22,
-            height: 20,
-            x: 297,
-            y: 105,
-            lines: [
-                "Impossible d'utiliser le PC ! Y'a le pare-feu qui bloque tout !",
                 "Ma mere ne sait pas que je l'ai ..."
             ]
         },

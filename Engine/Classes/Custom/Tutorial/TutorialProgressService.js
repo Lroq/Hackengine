@@ -9,7 +9,8 @@ class TutorialProgressService {
         infiltrationPathIndex: 0,
         missionFailed: false,
         foundClues: new Set(),
-        password: "paperclip150295"
+        password: "paperclip150295",
+        step3Completed: false
     };
 
     subscribe(listener) {
@@ -89,6 +90,16 @@ class TutorialProgressService {
         this.#emit();
     }
 
+    isStep3Completed() {
+        return this.#state.step3Completed;
+    }
+
+    markStep3Completed() {
+        this.#state.step3Completed = true;
+        this.#state.objectiveDone = true;
+        this.#emit();
+    }
+
     hasClue(clueId) {
         return this.#state.foundClues.has(clueId);
     }
@@ -99,4 +110,3 @@ class TutorialProgressService {
 }
 
 export { TutorialProgressService };
-

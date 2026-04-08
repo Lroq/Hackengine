@@ -5,9 +5,7 @@
       "folders": [
         "folder_1767866557195_b37mmuinp"
       ],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/grandjuke27x27.png"
-      ]
+      "tiles": []
     },
     "folder_1767863296306_5jw6ozh7o": {
       "name": "floor",
@@ -65,12 +63,7 @@
       "folders": [
         "folder_1773218071157_utaiwje2t"
       ],
-      "tiles": [
-        "/Public/Assets/Game/Tiles/sofa_left.png",
-        "/Public/Assets/Game/Tiles/sofa_right.png",
-        "/Public/Assets/Game/Tiles/left_armrest.png",
-        "/Public/Assets/Game/Tiles/right_armrest.png"
-      ]
+      "tiles": []
     },
     "folder_1773218071157_utaiwje2t": {
       "name": "sofa",
@@ -86,6 +79,7 @@
     "folder_1767866557195_b37mmuinp",
     "folder_1773217995426_nr5ecfxqk",
     "folder_1773218000990_crs551wo8",
-    "folder_1767863414045_gfdujcxx8"
+    "folder_1767863414045_gfdujcxx8",
+    "folder_1767869268574_waya4vj9n"
   ]
 }

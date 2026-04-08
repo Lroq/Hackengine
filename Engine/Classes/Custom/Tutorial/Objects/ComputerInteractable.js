@@ -4,19 +4,24 @@ import { BoxCollider } from "../../../Base/Components/BoxCollider.js";
 import { Utils } from "../../../Base/Services/Utilities/Utils.js";
 import { InteractionUtils } from "../../../Base/Services/Interactions/InteractionUtils.js";
 
-class ScriptedInteractable extends Instance {
+class ComputerInteractable extends Instance {
     #dialogueBox;
     #lines;
-    #onInteract;
-    #onDialogueClosed;
+    #linesStep1;
+    #linesStep3;
     #interactionRange;
+    #onInteract;
+    #isActive = true;
+    #currentStep = "step1";
 
     constructor(config, dialogueBox, hooks = {}) {
         super();
         this.#dialogueBox = dialogueBox;
-        this.#lines = InteractionUtils.normalizeDialogueLines(config.lines || "");
+        // Support pour deux ensembles de dialogues
+        this.#linesStep1 = InteractionUtils.normalizeDialogueLines(config.linesStep1 || config.lines || "");
+        this.#linesStep3 = InteractionUtils.normalizeDialogueLines(config.linesStep3 || config.lines || "");
+        this.#lines = this.#linesStep1; // Par défaut étape 1
         this.#onInteract = hooks?.onInteract ?? null;
-        this.#onDialogueClosed = hooks?.onDialogueClosed ?? null;
         this.#interactionRange = config.interactionRange ?? 34;
 
         const sprite = new SpriteModel();
@@ -35,7 +40,8 @@ class ScriptedInteractable extends Instance {
 
         this.metadata = {
             id: config.id || null,
-            label: config.label || null
+            label: config.label || null,
+            isStep3Computer: true
         };
     }
 
@@ -54,23 +60,54 @@ class ScriptedInteractable extends Instance {
         };
     }
 
-    onInteract(context = {}) {
+    /**
+     * Appelé quand le joueur interagit avec l'ordinateur
+     */
+    async onInteract(context = {}) {
+        if (!this.#isActive) return;
+
+        let shouldShowDialogue = true;
+
         if (typeof this.#onInteract === 'function') {
-            this.#onInteract({
+            const result = await this.#onInteract({
                 ...context,
                 interactable: this
             });
+            if (result === false) {
+                shouldShowDialogue = false;
+            }
         }
 
-        if (this.#dialogueBox) {
+        if (shouldShowDialogue && this.#dialogueBox) {
             this.#dialogueBox.show(this.#lines, () => {
-                if (typeof this.#onDialogueClosed === 'function') {
-                    this.#onDialogueClosed({
-                        ...context,
-                        interactable: this
-                    });
-                }
+                // Dialogue fermé
             });
+        }
+    }
+
+    /**
+     * Désactive temporairement l'interaction pendant le mini-jeu
+     */
+    disableInteraction() {
+        this.#isActive = false;
+    }
+
+    /**
+     * Réactive l'interaction
+     */
+    enableInteraction() {
+        this.#isActive = true;
+    }
+
+    /**
+     * Change l'étape et met à jour les dialogues
+     */
+    setStep(step) {
+        this.#currentStep = step;
+        if (step === "step1" || step === "step2") {
+            this.#lines = this.#linesStep1;
+        } else if (step === "step3") {
+            this.#lines = this.#linesStep3;
         }
     }
 
@@ -81,5 +118,7 @@ class ScriptedInteractable extends Instance {
     run() {}
 }
 
-export { ScriptedInteractable };
+export { ComputerInteractable };
+
+
 
