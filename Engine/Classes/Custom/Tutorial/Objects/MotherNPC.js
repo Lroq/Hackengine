@@ -6,8 +6,7 @@ import { InteractionUtils } from "../../../Base/Services/Interactions/Interactio
 
 const MOTHER_STATE = {
     WatchingTV: "WatchingTV",
-    Alert: "Alert",
-    Repositioned: "Repositioned"
+    Alert: "Alert"
 };
 
 class MotherNPC extends Instance {
@@ -48,7 +47,7 @@ class MotherNPC extends Instance {
         const previousState = this.#state;
         this.#state = nextState;
 
-        if (this.#state === MOTHER_STATE.Alert || this.#state === MOTHER_STATE.Repositioned) {
+        if (this.#state === MOTHER_STATE.Alert) {
             this.#sprite.sprite = Utils.createSprite(this.#config.spriteAlert);
             if (previousState !== this.#state && typeof this.#onStateChange === 'function') {
                 this.#onStateChange(this.#state, previousState);
@@ -98,14 +97,6 @@ class MotherNPC extends Instance {
             this.#setState(MOTHER_STATE.Alert);
         }
 
-        // Quand le joueur passe derriere la mere, on decale son placement de maniere scriptable.
-        const playerCenterX = (playerRect.left + playerRect.right) / 2;
-        const playerBehind = playerCenterX > (this.coordinates.X + this.#config.width);
-
-        if (this.#state === MOTHER_STATE.Alert && playerBehind) {
-            this.coordinates.X += this.#config.repositionOffsetX;
-            this.#setState(MOTHER_STATE.Repositioned);
-        }
 
         if (this.#state !== MOTHER_STATE.WatchingTV && !sensed) {
             this.#setState(MOTHER_STATE.WatchingTV);

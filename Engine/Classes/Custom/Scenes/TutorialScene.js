@@ -10,6 +10,7 @@ import {ScriptedInteractable} from "../Tutorial/Objects/ScriptedInteractable.js"
 import {ProximityTrigger} from "../Tutorial/Objects/ProximityTrigger.js";
 import {MotherNPC} from "../Tutorial/Objects/MotherNPC.js";
 import {Utils} from "../../Base/Services/Utilities/Utils.js";
+import {InteractionUtils} from "../../Base/Services/Interactions/InteractionUtils.js";
 
 class TutorialScene extends Scene {
     #player = null;
@@ -19,6 +20,8 @@ class TutorialScene extends Scene {
     #tutorialHud = new TutorialHudService();
     #progress = new TutorialProgressService();
     #isInitialized = false;
+    #isResolvingFailure = false;
+    #activeStep = "step1";
 
     async buildScene() {
         if (this.#isInitialized) return;
@@ -79,8 +82,8 @@ class TutorialScene extends Scene {
         this.#player.unfreeze();
     }
 
-    #registerInteractable(config, onInteract = null) {
-        const interactable = new ScriptedInteractable(config, this.#dialogueBox, onInteract);
+    #registerInteractable(config, hooks = {}) {
+        const interactable = new ScriptedInteractable(config, this.#dialogueBox, hooks);
         interactable.coordinates.X = config.x;
         interactable.coordinates.Y = config.y;
         interactable.layer = 1;
@@ -96,13 +99,53 @@ class TutorialScene extends Scene {
     }
 
     #createLivingRoomClues() {
-        TutorialStep1Data.livingRoomClues.forEach(clue => {
-            this.#registerInteractable(clue, () => {
-                const newlyCollected = this.#progress.collectClue(clue.id);
-                if (newlyCollected) {
-                    this.#tutorialHud.pushNotification(`Indice recupere: ${clue.label}`, 'info');
+        const byId = Object.fromEntries(TutorialStep1Data.livingRoomClues.map(clue => [clue.id, clue]));
+
+        this.#registerInteractable(byId.kennel, {
+            onDialogueClosed: async () => {
+                const petDog = await this.#confirmChoice("Le caresser ?", "Niche");
+                if (petDog) {
+                    this.#triggerFailFlow("Wouf ! Wouf !");
+                    return;
                 }
-            });
+
+                const newlyCollected = this.#progress.collectClue(byId.kennel.id);
+                if (newlyCollected) {
+                    this.#tutorialHud.pushNotification(TutorialStep1Data.clueCompletionText.kennel, 'info');
+                }
+            }
+        });
+
+        this.#registerInteractable(byId.dresser_frame, {
+            onDialogueClosed: async () => {
+                const turnFrame = await this.#confirmChoice("Retourner le cadre ?", "Cadre de famille");
+                if (!turnFrame) return;
+
+                this.#dialogueBox.show([
+                    "Date de naissance 1995",
+                    TutorialStep1Data.clueCompletionText.frame
+                ]);
+
+                const newlyCollected = this.#progress.collectClue(byId.dresser_frame.id);
+                if (newlyCollected) {
+                    this.#tutorialHud.pushNotification("Indice recupere: 95", 'info');
+                }
+            }
+        });
+
+        this.#registerInteractable(byId.fridge, {
+            onDialogueClosed: async () => {
+                this.#tutorialHud.showCalendarPopup();
+                this.#dialogueBox.show([
+                    "15 fevrier: ANNIVERSAIRE MAMAN",
+                    TutorialStep1Data.clueCompletionText.fridge
+                ]);
+
+                const newlyCollected = this.#progress.collectClue(byId.fridge.id);
+                if (newlyCollected) {
+                    this.#tutorialHud.pushNotification("Indice recupere: 1502", 'info');
+                }
+            }
         });
     }
 
@@ -113,8 +156,8 @@ class TutorialScene extends Scene {
         mother.layer = 2;
         mother.setPlayer(this.#player);
         mother.onStateChange((nextState) => {
-            if (nextState === 'Alert' || nextState === 'Repositioned') {
-                this.#tutorialHud.pushNotification("Maman: 'Hein ?! Tu fais quoi derriere moi ?'", 'warning');
+            if (nextState === 'Alert') {
+                this.#triggerFailFlow(TutorialStep1Data.failText);
             }
         });
 
@@ -123,9 +166,13 @@ class TutorialScene extends Scene {
 
     #createStepTransitionTrigger() {
         const trigger = new ProximityTrigger(TutorialStep1Data.bedroomExitTrigger, () => {
+            this.#activeStep = "step2";
             this.#progress.goToStep("step2");
             this.#progress.markRoomExited();
-            this.#tutorialHud.pushNotification("Etape 2 debloquee: direction le salon", 'success');
+            this.#progress.startInfiltration();
+            this.#progress.setObjective(TutorialStep1Data.step2Objective);
+            this.#tutorialHud.setObjective(TutorialStep1Data.step2Objective);
+            this.#tutorialHud.pushNotification("Etape 2: infiltration activee", 'success');
         });
 
         trigger.coordinates.X = TutorialStep1Data.bedroomExitTrigger.x;
@@ -134,10 +181,95 @@ class TutorialScene extends Scene {
         super.addWGObject(trigger);
     }
 
+    #getPlayerRect() {
+        const collider = this.#player?.components?.BoxCollider;
+        if (!collider) return null;
+
+        return InteractionUtils.getObjectRect(this.#player, collider.hitbox.Width, collider.hitbox.Height);
+    }
+
+    #updateStep2Infiltration() {
+        if (this.#activeStep !== "step2") return;
+        if (this.#isResolvingFailure) return;
+
+        const path = TutorialStep1Data.infiltrationPath;
+        const playerRect = this.#getPlayerRect();
+        if (!playerRect || path.length === 0) return;
+
+        let validIndex = -1;
+        for (let i = 0; i < path.length; i++) {
+            const zone = path[i];
+            const zoneRect = {
+                left: zone.x,
+                top: zone.y,
+                right: zone.x + zone.width,
+                bottom: zone.y + zone.height
+            };
+            if (InteractionUtils.rectsOverlap(zoneRect, playerRect)) {
+                validIndex = i;
+                break;
+            }
+        }
+
+        const currentIndex = this.#progress.snapshot().infiltrationPathIndex;
+
+        if (validIndex === -1) {
+            this.#triggerFailFlow(TutorialStep1Data.failText);
+            return;
+        }
+
+        if (validIndex > currentIndex) {
+            this.#progress.setInfiltrationPathIndex(validIndex);
+        }
+    }
+
+    async #confirmChoice(message, title) {
+        try {
+            const module = await import('/Public/Js/CustomDialog.js');
+            if (module?.CustomDialog?.confirm) {
+                return await module.CustomDialog.confirm(message, title);
+            }
+        } catch (err) {
+            console.warn('CustomDialog indisponible, fallback window.confirm', err);
+        }
+
+        return window.confirm(`${title}\n\n${message}`);
+    }
+
+    async #triggerFailFlow(message) {
+        if (this.#isResolvingFailure) return;
+        this.#isResolvingFailure = true;
+
+        this.#progress.setMissionFailed(true);
+        this.#tutorialHud.showMissionFailed(message);
+        this.#dialogueBox.show([TutorialStep1Data.failText]);
+
+        this.#player.freeze();
+        await Utils.wait(1.3);
+
+        if (this.#dialogueBox.isVisible()) {
+            this.#dialogueBox.hide();
+        }
+
+        this.#player.coordinates.X = TutorialStep1Data.spawn.x;
+        this.#player.coordinates.Y = TutorialStep1Data.spawn.y;
+
+        this.#activeStep = "step1";
+        this.#progress.resetStepTwoProgress();
+        this.#progress.setObjective(TutorialStep1Data.objective);
+        this.#tutorialHud.setObjective(TutorialStep1Data.objective);
+        this.#tutorialHud.pushNotification("Progression reset: repars de ta chambre", 'warning');
+
+        this.#player.unfreeze();
+        this.#isResolvingFailure = false;
+    }
+
     update(Services) {
         if (window.getMode && window.getMode() !== 'play') {
             return;
         }
+
+        this.#updateStep2Infiltration();
 
         this.#interactionManager.checkInteractions(Services.InputService);
 

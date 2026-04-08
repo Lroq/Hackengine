@@ -8,13 +8,15 @@ class ScriptedInteractable extends Instance {
     #dialogueBox;
     #lines;
     #onInteract;
+    #onDialogueClosed;
     #interactionRange;
 
-    constructor(config, dialogueBox, onInteract = null) {
+    constructor(config, dialogueBox, hooks = {}) {
         super();
         this.#dialogueBox = dialogueBox;
         this.#lines = InteractionUtils.normalizeDialogueLines(config.lines || "");
-        this.#onInteract = onInteract;
+        this.#onInteract = hooks?.onInteract ?? null;
+        this.#onDialogueClosed = hooks?.onDialogueClosed ?? null;
         this.#interactionRange = config.interactionRange ?? 34;
 
         const sprite = new SpriteModel();
@@ -53,14 +55,21 @@ class ScriptedInteractable extends Instance {
     }
 
     onInteract(context = {}) {
-        if (this.#dialogueBox) {
-            this.#dialogueBox.show(this.#lines);
-        }
-
         if (typeof this.#onInteract === 'function') {
             this.#onInteract({
                 ...context,
                 interactable: this
+            });
+        }
+
+        if (this.#dialogueBox) {
+            this.#dialogueBox.show(this.#lines, () => {
+                if (typeof this.#onDialogueClosed === 'function') {
+                    this.#onDialogueClosed({
+                        ...context,
+                        interactable: this
+                    });
+                }
             });
         }
     }

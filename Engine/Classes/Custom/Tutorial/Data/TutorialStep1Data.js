@@ -1,6 +1,8 @@
 const TutorialStep1Data = {
     objective: "Retirer le pare-feu sur l'ordinateur du salon",
+    step2Objective: "S'infiltrer dans le salon sans se faire reperer",
     introNotification: "Acces WIFI desactive par le pare-feu",
+    failText: "Mais tu dors pas ?!!! RETOURNE DANS TA CHAMBRE DE SUITE",
     spawn: {
         x: 243,
         y: 135
@@ -69,7 +71,7 @@ const TutorialStep1Data = {
             width: 20,
             height: 18,
             lines: [
-                "Un post-it sur la niche : paperclip"
+                "Clipper dort dans sa niche"
             ]
         },
         {
@@ -81,7 +83,7 @@ const TutorialStep1Data = {
             width: 20,
             height: 24,
             lines: [
-                "Sur le frigo : 1502"
+                "Un calendrier est colle sur le frigo"
             ]
         },
         {
@@ -93,10 +95,23 @@ const TutorialStep1Data = {
             width: 20,
             height: 18,
             lines: [
-                "Derriere le cadre : 95"
+                "Une photo encadree de maman est posee"
             ]
         }
     ],
+    infiltrationPath: [
+        { id: "corridor_start", x: 432, y: 108, width: 54, height: 30 },
+        { id: "wall_lane_1", x: 486, y: 108, width: 54, height: 30 },
+        { id: "wall_lane_2", x: 540, y: 108, width: 54, height: 30 },
+        { id: "behind_mother", x: 486, y: 135, width: 108, height: 30 },
+        { id: "pc_access", x: 567, y: 162, width: 54, height: 30 }
+    ],
+    clueCompletionText: {
+        kennel: "Complete clipper _ _ _ _",
+        frame: "Complete _ _ _ _ _ _ _ _ _ 95",
+        fridge: "Complete _ _ _ _ _ _ _ 1502 _ _"
+    },
+    passwordTarget: "clipper150295",
     mother: {
         spriteIdle: "/Public/Assets/Game/Characters/Maman/Maman_1.png",
         spriteAlert: "/Public/Assets/Game/Characters/Maman/Maman_2.png",
@@ -104,8 +119,7 @@ const TutorialStep1Data = {
         y: 120,
         width: 27,
         height: 54,
-        sensingRange: 54,
-        repositionOffsetX: 24
+        sensingRange: 54
     }
 };
 

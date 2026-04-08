@@ -5,6 +5,9 @@ class TutorialProgressService {
         currentObjective: "",
         objectiveDone: false,
         roomExited: false,
+        infiltrationStarted: false,
+        infiltrationPathIndex: 0,
+        missionFailed: false,
         foundClues: new Set(),
         password: "paperclip150295"
     };
@@ -56,6 +59,38 @@ class TutorialProgressService {
     markRoomExited() {
         this.#state.roomExited = true;
         this.#emit();
+    }
+
+    startInfiltration() {
+        this.#state.infiltrationStarted = true;
+        this.#state.infiltrationPathIndex = 0;
+        this.#state.missionFailed = false;
+        this.#emit();
+    }
+
+    setInfiltrationPathIndex(index) {
+        this.#state.infiltrationPathIndex = index;
+        this.#emit();
+    }
+
+    setMissionFailed(failed) {
+        this.#state.missionFailed = !!failed;
+        this.#emit();
+    }
+
+    resetStepTwoProgress() {
+        this.#state.currentStep = "step1";
+        this.#state.objectiveDone = false;
+        this.#state.roomExited = false;
+        this.#state.infiltrationStarted = false;
+        this.#state.infiltrationPathIndex = 0;
+        this.#state.missionFailed = false;
+        this.#state.foundClues = new Set();
+        this.#emit();
+    }
+
+    hasClue(clueId) {
+        return this.#state.foundClues.has(clueId);
     }
 
     get password() {

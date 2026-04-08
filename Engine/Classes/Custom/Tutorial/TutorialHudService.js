@@ -93,6 +93,77 @@ class TutorialHudService {
             }, 120);
         });
     }
+
+    showMissionFailed(message) {
+        const failLayer = document.createElement('div');
+        failLayer.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 935;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.72);
+            pointer-events: none;
+            font-family: 'Pixel Font', monospace;
+        `;
+
+        failLayer.innerHTML = `
+            <div style="
+                min-width: 360px;
+                max-width: 620px;
+                background: rgba(22,22,27,0.97);
+                border: 1px solid #ef4444;
+                border-radius: 10px;
+                padding: 18px;
+                text-align: center;
+                color: #f8fafc;
+            ">
+                <div style="font-size: 20px; color: #f87171; margin-bottom: 10px;">Mission echouee</div>
+                <div style="font-size: 14px; line-height: 1.35;">${message}</div>
+            </div>
+        `;
+
+        document.body.appendChild(failLayer);
+
+        setTimeout(() => {
+            failLayer.remove();
+        }, 1800);
+    }
+
+    showCalendarPopup() {
+        const layer = document.createElement('div');
+        layer.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 934;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.58);
+            font-family: 'Pixel Font', monospace;
+            pointer-events: none;
+        `;
+
+        layer.innerHTML = `
+            <div style="
+                width: 340px;
+                background: #fff;
+                color: #111827;
+                border-radius: 8px;
+                border: 2px solid #e5e7eb;
+                padding: 14px;
+                box-shadow: 0 14px 24px rgba(0,0,0,0.35);
+            ">
+                <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">Calendrier</div>
+                <div style="font-size: 12px; line-height: 1.35;">15 fevrier est entoure en rouge: ANNIVERSAIRE MAMAN</div>
+                <div style="margin-top: 10px; font-size: 11px; color: #b91c1c;">Indice retenu: 1502</div>
+            </div>
+        `;
+
+        document.body.appendChild(layer);
+        setTimeout(() => layer.remove(), 1700);
+    }
 }
 
 export { TutorialHudService };
