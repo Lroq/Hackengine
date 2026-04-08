@@ -215,9 +215,11 @@ function resizeCanvas() {
 function updateLayout() {
     const aside = document.querySelector('aside');
     const editModePanel = document.querySelector('.absolute.top-4.left-4');
+    const tutorialHud = document.getElementById('tutorial-hud-root');
 
     if (aside) aside.style.display = mode === 'play' ? 'none' : 'flex';
     if (editModePanel) editModePanel.style.display = mode === 'play' ? 'none' : 'block';
+    if (tutorialHud) tutorialHud.style.display = mode === 'play' ? 'block' : 'none';
 
     setTimeout(() => {
         resizeCanvas();
