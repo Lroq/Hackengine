@@ -1,0 +1,24 @@
+[
+  {
+    "npcId": "npc_1775046036896_3",
+    "npcName": "PNJ",
+    "x": -108,
+    "y": 0,
+    "spritePath": "/Public/Assets/Game/Characters/Attacker/Attacker_Down_0.png",
+    "dialogues": [
+      "Bonjour !"
+    ],
+    "movementType": "patrol",
+    "moveSpeed": 0.3,
+    "waypoints": [
+      {
+        "x": 81,
+        "y": 0
+      },
+      {
+        "x": -108,
+        "y": 0
+      }
+    ]
+  }
+]

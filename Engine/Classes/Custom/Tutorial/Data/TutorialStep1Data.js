@@ -4,8 +4,8 @@ const TutorialStep1Data = {
     introNotification: "Acces WIFI desactive par le pare-feu",
     failText: "Mais tu dors pas ?!!! RETOURNE DANS TA CHAMBRE DE SUITE",
     spawn: {
-        x: 243,
-        y: 135
+        x: 100,
+        y: 70
     },
     bedroomExitTrigger: {
         x: 430,
@@ -19,8 +19,8 @@ const TutorialStep1Data = {
             spritePath: "/Public/Assets/Game/Objects/tele.png",
             width: 35,
             height: 21,
-            x: 350,
-            y: 85,
+            x: 300,
+            y: 27,
             lines: [
                 "Impossible d'utiliser la console ! Le pare-feu bloque tout !"
             ],
@@ -34,8 +34,8 @@ const TutorialStep1Data = {
             spritePath: "/Engine/Assets/texture_not_found.png",
             width: 20,
             height: 20,
-            x: 270,
-            y: 105,
+            x: 150,
+            y: 30,
             lines: [
                 "J'adore voyager dans des mondes differents avec mon Casque VR 3000 !",
                 "Ma mere ne sait pas que je l'ai ..."
@@ -46,7 +46,7 @@ const TutorialStep1Data = {
             spritePath: "/Engine/Assets/texture_not_found.png",
             width: 16,
             height: 16,
-            x: 324,
+            x: 10,
             y: 105,
             lines: [
                 "Mon premier Hackemon ! Qu'il est mignon"
@@ -70,8 +70,8 @@ const TutorialStep1Data = {
             id: "fridge",
             label: "frigo",
             spritePath: "/Engine/Assets/texture_not_found.png",
-            x: 513,
-            y: 108,
+            x: 590,
+            y: 40,
             width: 20,
             height: 24,
             lines: [
@@ -82,8 +82,8 @@ const TutorialStep1Data = {
             id: "dresser_frame",
             label: "cadre",
             spritePath: "/Engine/Assets/texture_not_found.png",
-            x: 567,
-            y: 135,
+            x: 216,
+            y: 54,
             width: 20,
             height: 18,
             lines: [
@@ -111,7 +111,7 @@ const TutorialStep1Data = {
         y: 120,
         width: 27,
         height: 54,
-        sensingRange: 54
+        sensingRange: 10
     }
 };
 

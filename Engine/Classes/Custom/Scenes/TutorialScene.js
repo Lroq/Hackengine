@@ -41,7 +41,7 @@ class TutorialScene extends Scene {
         this.#progress.setObjective(TutorialStep1Data.objective);
         this.#tutorialHud.setObjective(TutorialStep1Data.objective);
 
-        this.#player = new Player("Joueur");
+        this.#player = new Player("Pochi");
         this.#player.coordinates.X = TutorialStep1Data.spawn.x;
         this.#player.coordinates.Y = TutorialStep1Data.spawn.y;
         this.#player.layer = 2;
