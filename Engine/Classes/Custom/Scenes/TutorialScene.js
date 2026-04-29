@@ -17,6 +17,7 @@ import {WindowsSimulatorService} from "../Tutorial/Services/WindowsSimulatorServ
 import {MotherAlertService} from "../Tutorial/Services/MotherAlertService.js";
 import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
 import {SpriteModel} from "../../Base/Components/SpriteModel.js";
+import {BoxCollider} from "../../Base/Components/BoxCollider.js";
 
 class TutorialScene extends Scene {
     #player = null;
@@ -273,6 +274,13 @@ class TutorialScene extends Scene {
         sprite.size.Width = 70;
         sprite.size.Height = 30;
         sofa.addComponent(sprite);
+
+        const collider = new BoxCollider();
+        collider.enabled = true;
+        collider.hitbox.Width = 70;
+        collider.hitbox.Height = 30;
+        sofa.addComponent(collider);
+
         sofa.coordinates.X = 450;
         sofa.coordinates.Y = 115;
         sofa.layer = 1;
@@ -286,6 +294,13 @@ class TutorialScene extends Scene {
         tvSprite.size.Width = 70;
         tvSprite.size.Height = 50;
         tv.addComponent(tvSprite);
+
+        const tvCollider = new BoxCollider();
+        tvCollider.enabled = true;
+        tvCollider.hitbox.Width = 70;
+        tvCollider.hitbox.Height = 50;
+        tv.addComponent(tvCollider);
+
         tv.coordinates.X = 450;
         tv.coordinates.Y = 170;
         tv.layer = 1;

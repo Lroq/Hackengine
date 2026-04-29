@@ -20,7 +20,8 @@ const TutorialStep1Data = {
             width: 35,
             height: 21,
             x: 45,
-            y: 27       ,
+            y: 27,
+            solid: true,
             lines: [
                 "Impossible d'utiliser la console ! Le pare-feu bloque tout !"
             ],
@@ -62,6 +63,7 @@ const TutorialStep1Data = {
             y: 152,
             width: 35,
             height: 20,
+            solid: true,
             lines: [
                 "Clipper dort dans sa niche"
             ]
@@ -74,6 +76,8 @@ const TutorialStep1Data = {
             y: 27,
             width: 60,
             height: 60,
+            interactionRange: 60,
+            solid: true,
             lines: [
                 "Un calendrier est colle sur le frigo"
             ]
@@ -116,4 +120,3 @@ const TutorialStep1Data = {
 };
 
 export { TutorialStep1Data };
-

@@ -26,7 +26,7 @@ class ScriptedInteractable extends Instance {
         sprite.size.Height = config.height;
 
         const collider = new BoxCollider();
-        collider.enabled = false;
+        collider.enabled = config.solid ?? false;
         collider.hitbox.Width = config.width;
         collider.hitbox.Height = config.height;
 
