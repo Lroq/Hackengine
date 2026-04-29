@@ -32,11 +32,11 @@ const TutorialStep3Data = {
     // Position de l'ordinateur sur la map (au salon)
     computerInteractable: {
         id: "computer_salon",
-        spritePath: "/Engine/Assets/texture_not_found.png",
+        spritePath: "/Public/Assets/Game/Objects/Laptop.gif",
         x: 90,
         y: 135,
-        width: 22,
-        height: 20,
+        width: 30,
+        height: 25,
         label: "ordinateur",
         interactionRange: 34,
         // Dialogues pour étape 1 (chambre)

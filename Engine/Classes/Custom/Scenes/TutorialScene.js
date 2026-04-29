@@ -15,6 +15,8 @@ import {Utils} from "../../Base/Services/Utilities/Utils.js";
 import {InteractionUtils} from "../../Base/Services/Interactions/InteractionUtils.js";
 import {WindowsSimulatorService} from "../Tutorial/Services/WindowsSimulatorService.js";
 import {MotherAlertService} from "../Tutorial/Services/MotherAlertService.js";
+import {WGObject} from "../../Base/WebGameObjects/WGObject.js";
+import {SpriteModel} from "../../Base/Components/SpriteModel.js";
 
 class TutorialScene extends Scene {
     #player = null;
@@ -65,6 +67,8 @@ class TutorialScene extends Scene {
         this.#createBedroomObjects();
         this.#createLivingRoomClues();
         this.#createMotherNpc();
+        this.#createSofa();
+        this.#createTV();
         this.#createStepTransitionTrigger();
 
         console.log("✅ TutorialScene chargée");
@@ -260,6 +264,32 @@ class TutorialScene extends Scene {
         this.#motherAlertService = new MotherAlertService(this.#motherNpc, () => {
             this.#triggerFailFlow(TutorialStep3Data.failText);
         });
+    }
+
+    #createSofa() {
+        const sofa = new WGObject();
+        const sprite = new SpriteModel();
+        sprite.sprite = Utils.createSprite("/Public/Assets/Game/Objects/Sofa.png");
+        sprite.size.Width = 70;
+        sprite.size.Height = 30;
+        sofa.addComponent(sprite);
+        sofa.coordinates.X = 450;
+        sofa.coordinates.Y = 115;
+        sofa.layer = 1;
+        super.addWGObject(sofa);
+    }
+
+    #createTV() {
+        const tv = new WGObject();
+        const tvSprite = new SpriteModel();
+        tvSprite.sprite = Utils.createSprite("Public/Assets/Game/Objects/tvmaman.png");
+        tvSprite.size.Width = 70;
+        tvSprite.size.Height = 50;
+        tv.addComponent(tvSprite);
+        tv.coordinates.X = 450;
+        tv.coordinates.Y = 170;
+        tv.layer = 1;
+        super.addWGObject(tv);
     }
 
     #createStepTransitionTrigger() {

@@ -19,8 +19,8 @@ const TutorialStep1Data = {
             spritePath: "/Public/Assets/Game/Objects/tele.png",
             width: 35,
             height: 21,
-            x: 300,
-            y: 27,
+            x: 45,
+            y: 27       ,
             lines: [
                 "Impossible d'utiliser la console ! Le pare-feu bloque tout !"
             ],
@@ -43,7 +43,7 @@ const TutorialStep1Data = {
         },
         {
             id: "hackemon_plush",
-            spritePath: "/Engine/Assets/texture_not_found.png",
+            spritePath: "Public/Assets/Game/Hackemons/lapingtromignong.png",
             width: 16,
             height: 16,
             x: 10,
@@ -57,11 +57,11 @@ const TutorialStep1Data = {
         {
             id: "kennel",
             label: "niche",
-            spritePath: "/Engine/Assets/texture_not_found.png",
+            spritePath: "Public/Assets/Game/Characters/Chien/Chien_1.png",
             x: 486,
-            y: 162,
-            width: 20,
-            height: 18,
+            y: 152,
+            width: 35,
+            height: 20,
             lines: [
                 "Clipper dort dans sa niche"
             ]
@@ -69,11 +69,11 @@ const TutorialStep1Data = {
         {
             id: "fridge",
             label: "frigo",
-            spritePath: "/Engine/Assets/texture_not_found.png",
+            spritePath: "Public/Assets/Game/Objects/frigopostittahlesfous.png",
             x: 590,
-            y: 40,
-            width: 20,
-            height: 24,
+            y: 27,
+            width: 60,
+            height: 60,
             lines: [
                 "Un calendrier est colle sur le frigo"
             ]
@@ -81,9 +81,9 @@ const TutorialStep1Data = {
         {
             id: "dresser_frame",
             label: "cadre",
-            spritePath: "/Engine/Assets/texture_not_found.png",
-            x: 216,
-            y: 54,
+            spritePath: "Public/Assets/Game/Objects/Tableau.png",
+            x: 230,
+            y: 27,
             width: 20,
             height: 18,
             lines: [
@@ -108,7 +108,7 @@ const TutorialStep1Data = {
         spriteIdle: "/Public/Assets/Game/Characters/Maman/Maman_1.png",
         spriteAlert: "/Public/Assets/Game/Characters/Maman/Maman_2.png",
         x: 460,
-        y: 120,
+        y: 100,
         width: 27,
         height: 54,
         sensingRange: 10
