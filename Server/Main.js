@@ -27,8 +27,13 @@ const staticOptions = {
     }
 };
 
-app.use('/Engine', express.static(path.join(__dirname, '../Engine'), staticOptions));
-app.use('/Public', express.static(path.join(__dirname, '../Public'), staticOptions));
+const enginePath = path.join(__dirname, '../Engine');
+const publicPath = path.join(__dirname, '../Public');
+console.log('[Static] Engine path:', enginePath);
+console.log('[Static] Public path:', publicPath);
+
+app.use('/Engine', express.static(enginePath, staticOptions));
+app.use('/Public', express.static(publicPath, staticOptions));
 
 // Route principale (Page de jeu)
 app.get('/', (req, res) => {
