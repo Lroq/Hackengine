@@ -106,7 +106,10 @@ class MapSelector {
 
             this.#mapsList.innerHTML = '';
 
-            if (maps.length === 0) {
+            // Filtre de sécurité côté client
+            const playableMaps = maps.filter(map => !map.name.includes('.npcs'));
+
+            if (playableMaps.length === 0) {
                 this.#mapsList.innerHTML = `
                     <div class="col-span-2 text-center py-8 text-gray-400">
                         <p class="mb-2">🗺️ Aucune map disponible</p>
@@ -116,7 +119,7 @@ class MapSelector {
                 return;
             }
 
-            maps.forEach(map => {
+            playableMaps.forEach(map => {
                 this.#createMapCard(map);
             });
 

@@ -1,11 +1,15 @@
 class DialogueBox {
     #isVisible = false;
-    #currentText = "";
+    #currentLines = [];
     #callback = null;
 
     show(text, callback = null) {
         this.#isVisible = true;
-        this.#currentText = text;
+        if (Array.isArray(text)) {
+            this.#currentLines = text.flat().map(line => String(line));
+        } else {
+            this.#currentLines = [String(text)];
+        }
         this.#callback = callback;
         this.#render();
     }
@@ -50,12 +54,22 @@ class DialogueBox {
             document.body.appendChild(box);
         }
 
+        const linesHtml = this.#currentLines
+            .map(line => `<p style="margin: 0 0 8px 0; line-height: 1.5;">${this.#escapeHtml(line)}</p>`)
+            .join('');
+
         box.innerHTML = `
-            <p style="margin: 0 0 10px 0; line-height: 1.5;">${this.#currentText}</p>
+            <div style="margin: 0 0 10px 0;">${linesHtml}</div>
             <div style="text-align: right; margin-top: 10px; font-size: 12px; color: #888;">
                 Appuyez sur E pour fermer
             </div>
         `;
+    }
+
+    #escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value;
+        return div.innerHTML;
     }
 
     isVisible() {

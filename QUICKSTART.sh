@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Quick Start - Hackengine Tutoriel
+
+echo "🚀 Hackengine Tutoriel - Quick Start"
+echo "===================================="
+echo ""
+echo "1. Le serveur est-il actif?"
+curl -s -o /dev/null -w "   Status: HTTP %{http_code}" http://localhost:9000
+echo ""
+echo ""
+echo "2. Démarrer le tutoriel:"
+echo "   Ouvrir: http://localhost:9000?tutorial=1"
+echo ""
+echo "3. Indices à collecter:"
+echo "   - Niche: Clipper"
+echo "   - Cadre: 1995"
+echo "   - Frigo: 1502"
+echo "   → Mot de passe: clipper150295"
+echo ""
+echo "4. Tests automatisés:"
+echo "   a) Ouvrir console (F12)"
+echo "   b) Exécuter: RunAllTests()"
+echo ""
+echo "5. Documentation:"
+echo "   - ETAPE3_SUMMARY.md"
+echo "   - TUTORIAL_STEP3_FINAL.md"
+echo "   - README_TUTORIAL.md"
+echo ""
+echo "✅ Tutoriel Étapes 1-3 complétées!"
+

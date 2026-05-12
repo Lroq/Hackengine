@@ -3,6 +3,7 @@ const path = require('path');
 const tileRoutes = require('./routes/tiles');
 const mapRoutes = require('./routes/maps');
 const tileFolderRoutes = require('./routes/tileFolders');
+const npcRoutes = require('./routes/npcs');
 
 const app = express();
 const PORT = 9000;
@@ -38,6 +39,7 @@ app.get('/', (req, res) => {
 app.use('/api', tileRoutes);
 app.use('/api', mapRoutes);
 app.use('/api', tileFolderRoutes);
+app.use('/api', npcRoutes);
 
 // Gestionnaire 404 pour les routes non trouvées
 app.use((req, res) => {

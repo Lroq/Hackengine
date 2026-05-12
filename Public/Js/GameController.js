@@ -47,9 +47,61 @@ export function initializeGameController(engineInstance) {
 
     return {
         setMode,
-        getMode: () => mode
+        getMode: () => mode,
+        setEditMode,
+        getEditMode: () => editMode
     };
 }
+
+/**
+ * Change le mode d'édition actuel (brush, fill, eraser, npc, none)
+ * @param {string} newEditMode 
+ */
+export function setEditMode(newEditMode) {
+    editMode = newEditMode;
+    console.log(`🛠️ Mode d'édition changé : ${editMode}`);
+
+    if (gameModeService) {
+        gameModeService.setEditMode(editMode);
+    }
+
+    // Mettre à jour l'interface (boutons)
+    const modeButtons = document.querySelectorAll('.mode-button');
+    modeButtons.forEach(btn => {
+        if (btn.getAttribute('data-mode') === editMode) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Gestion du placement des PNJ
+    if (window.npcPlacementService) {
+        if (editMode === 'npc') {
+            window.npcPlacementService.activate();
+        } else {
+            window.npcPlacementService.deactivate();
+        }
+    }
+
+    // Mise à jour du curseur si on est en construction
+    if (mode === 'construction' && !isPanning) {
+        const canvas = document.getElementById('game-canvas');
+        if (canvas) {
+            if (editMode === 'none') {
+                canvas.style.cursor = 'grab';
+            } else if (editMode === 'npc') {
+                canvas.style.cursor = 'crosshair';
+            }
+            // Les autres modes (brush, etc.) peuvent avoir leurs propres curseurs 
+            // mais par défaut on garde grab ou celui défini par le service
+        }
+    }
+
+    // Legacy global
+    window.editMode = editMode;
+}
+
 
 function setupEventListeners() {
     const canvas = document.getElementById('game-canvas');
@@ -148,24 +200,21 @@ function setupEventListeners() {
     document.getElementById('play-btn')?.addEventListener('click', () => setMode('play'));
     document.getElementById('stop-btn')?.addEventListener('click', () => setMode('construction'));
 
-    // Edit Mode buttons
+    // Mode buttons
     const modeButtons = document.querySelectorAll('.mode-button');
     modeButtons.forEach(button => {
         button.addEventListener('click', () => {
-            modeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            editMode = button.getAttribute('data-mode');
-            console.log(`🛠️ Mode d'édition changé : ${editMode}`);
-
-            if (gameModeService) {
-                gameModeService.setEditMode(editMode);
+            const targetMode = button.getAttribute('data-mode');
+            
+            // Si on clique sur le mode déjà actif, on peut passer en mode 'none' (vue libre)
+            if (editMode === targetMode) {
+                setEditMode('none');
+            } else {
+                setEditMode(targetMode);
             }
-
-            // Legacy global
-            window.editMode = editMode;
         });
     });
+
 
     // --- Téléportation ---
     document.getElementById('teleport-to-sprite-btn')?.addEventListener('click', teleportToSprite);
@@ -215,9 +264,11 @@ function resizeCanvas() {
 function updateLayout() {
     const aside = document.querySelector('aside');
     const editModePanel = document.querySelector('.absolute.top-4.left-4');
+    const tutorialHud = document.getElementById('tutorial-hud-root');
 
     if (aside) aside.style.display = mode === 'play' ? 'none' : 'flex';
     if (editModePanel) editModePanel.style.display = mode === 'play' ? 'none' : 'block';
+    if (tutorialHud) tutorialHud.style.display = mode === 'play' ? 'block' : 'none';
 
     setTimeout(() => {
         resizeCanvas();
@@ -248,8 +299,11 @@ function setMode(newMode) {
         // Détache la caméra du joueur
         const activeCamera = getActiveCamera();
         if (activeCamera) {
+            console.log("📸 Caméra passée en mode SCRIPTABLE");
             activeCamera.cameraSubject = undefined;
-            activeCamera.cameraType = "CAM_SCRIPTABLE";
+            activeCamera.cameraType = "CAM_SCRIPTABLE"; // Correspond à CameraType.Scriptable
+        } else {
+            console.warn("⚠️ Caméra non trouvée pour le mode construction");
         }
 
         if (canvas) canvas.style.cursor = "grab";
@@ -258,13 +312,22 @@ function setMode(newMode) {
     if (mode === "play") {
         // Rattache la caméra au joueur
         const activeCamera = getActiveCamera();
-        if (activeCamera) {
-            // Tenter de retrouver le joueur via activeScene
-            const player = getPlayerInstance();
-            if (player) {
-                activeCamera.cameraSubject = player;
-            }
-            activeCamera.cameraType = "CAM_FOLLOW";
+        const player = getPlayerInstance();
+        
+        if (activeCamera && player) {
+            console.log("📸 Caméra passée en mode FOLLOW (Suivi joueur)");
+            activeCamera.cameraSubject = player;
+            activeCamera.cameraType = "CAM_FOLLOW"; // Correspond à CameraType.Follow
+            
+            // Forcer le repositionnement immédiat pour éviter le "saut" ou la perte de vue
+            const scale = canvas.height * 0.004;
+            activeCamera.coordinates.X = (canvas.width / 2 / scale) - player.coordinates.X - 13.5;
+            activeCamera.coordinates.Y = (canvas.height / 2 / scale) - player.coordinates.Y - 27;
+            
+            // Reset zoom au passage en jeu pour plus de clarté
+            updateZoom(1.0);
+        } else {
+            console.error("❌ Impossible de rattacher la caméra : Joueur ou Caméra introuvable");
         }
 
         if (canvas) canvas.style.cursor = "default";
@@ -375,6 +438,12 @@ function saveMapManually() {
     if (window.engineInstance && window.engineInstance.services.TileDragService) {
         window.engineInstance.services.TileDragService.saveMap();
 
+        // Sauvegarder aussi les PNJ
+        const npcService = window.engineInstance.services.NPCService || window.npcService;
+        if (npcService) {
+            npcService.saveNPCs();
+        }
+
         const saveBtn = document.getElementById('save-map-btn');
         if (saveBtn) {
             const originalText = saveBtn.innerHTML;
@@ -438,16 +507,16 @@ function getActiveCamera() {
 // Helper to get player instance through active scene
 function getPlayerInstance() {
     if (sceneService && sceneService.activeScene) {
-        // Assume player is the camera subject if set, or search for it
-        // Or specific player retrieval if implemented on Scene
-        const scene = sceneService.activeScene;
-        // Basic search for player if not camera subject
-        if (scene.activeCamera && scene.activeCamera.cameraSubject && scene.activeCamera.cameraSubject.constructor.name === 'Player') {
-            return scene.activeCamera.cameraSubject;
+        // Accès direct à l'instance stockée dans la scène
+        if (sceneService.activeScene.player) {
+            return sceneService.activeScene.player;
         }
-        // Fallback: iterate objects (simplified) or use window global
+
+        // Fallback : recherche dans les WGObjects par nom de classe
+        const player = sceneService.activeScene.wgObjects.find(obj => obj.constructor.name === 'Player');
+        if (player) return player;
     }
-    return window.playerInstance; // Fallback
+    return window.playerInstance; // Ultime secours
 }
 
 // Shims de compatibilité

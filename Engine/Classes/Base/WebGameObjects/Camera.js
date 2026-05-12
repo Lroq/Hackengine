@@ -70,22 +70,22 @@ class Camera extends WGObject {
              zoom = window.constructionZoom || 1.0;
         }
 
+        // Calcul du scale exact utilisé par le Renderer (Height * 0.004)
+        let scale = CanvasSize.Height * 0.004;
+        if (mode === 'construction') {
+            scale *= zoom;
+        }
+
         switch (this.#cameraType) {
             case CameraType.Follow: {
                 // ✅ En mode "play" : comportement normal
-                if (mode !== "play") return;
+                if (mode !== "play" || !this.#cameraSubject) return;
 
-                const scale = CanvasSize.Height * 0.004;
-                let modelX = 0;
-                let modelY = 0;
-
-                if (this.#cameraSubject.components.BoxCollider) {
-                    modelX = this.#cameraSubject.components.BoxCollider.hitbox.Width / 2;
-                    modelY = this.#cameraSubject.components.BoxCollider.hitbox.Height / 2;
-                }
-
-                super.coordinates.X = -this.#cameraSubject.coordinates.X + (CanvasSize.Width / 2) / scale - modelX;
-                super.coordinates.Y = -this.#cameraSubject.coordinates.Y + (CanvasSize.Height / 2) / scale - modelY;
+                // Centrage parfait : On prend la moitié de l'écran, on divise par le scale pour repasser en monde,
+                // et on soustrait la position du sujet (le joueur).
+                // On ajoute un léger offset (13.5, 27) pour que le centre du perso (27x54) soit le point de focus.
+                this.coordinates.X = (CanvasSize.Width / 2 / scale) - this.#cameraSubject.coordinates.X - 13.5;
+                this.coordinates.Y = (CanvasSize.Height / 2 / scale) - this.#cameraSubject.coordinates.Y - 27;
                 break;
             }
 
@@ -95,10 +95,10 @@ class Camera extends WGObject {
                 if (pan.x !== 0 || pan.y !== 0) {
                     // Adapter la vitesse de déplacement au zoom
                     // Plus le zoom est grand, plus on doit bouger lentement pour garder une sensation cohérente
-                    const speed = 0.01 / zoom;
+                    const speed = 1 / zoom;
 
-                    super.coordinates.X += pan.x * speed;
-                    super.coordinates.Y += pan.y * speed;
+                    this.coordinates.X += pan.x * speed;
+                    this.coordinates.Y += pan.y * speed;
                 }
                 break;
             }

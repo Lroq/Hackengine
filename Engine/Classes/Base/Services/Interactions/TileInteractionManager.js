@@ -1,3 +1,5 @@
+import { InteractionUtils } from "./InteractionUtils.js";
+
 /**
  * TileInteractionManager - Gère les interactions avec les tuiles configurées
  *
@@ -11,6 +13,7 @@ class TileInteractionManager {
     #canvas = null;
     #ctx = null;
     #currentInteractableTile = null;
+    #activeNPC = null;
     #eIconImage = null;
     #pulseAnimation = 0; // Pour l'animation de pulsation
 
@@ -40,11 +43,21 @@ class TileInteractionManager {
     }
 
     /**
-     * Vérifie et affiche l'icône E si une tuile interactive est proche
+     * Vérifie et affiche l'icône E si une tuile interactive ou un PNJ est proche
      */
     update(inputService) {
         const mode = window.getMode ? window.getMode() : 'play';
         if (mode !== 'play' || !this.#player) return;
+
+        // Priorité : PNJ > Tiles
+        const nearestNPC = this.#findNearestInteractableNPC();
+        if (nearestNPC) {
+            this.#currentInteractableTile = nearestNPC; // Réutilise le slot pour simplifier le rendu
+            if (inputService.IsKeyPressed('e')) {
+                this.#triggerNPCInteraction(nearestNPC);
+            }
+            return;
+        }
 
         // Trouver les tuiles interactives proches
         this.#currentInteractableTile = this.#findNearestInteractableTile();
@@ -52,6 +65,62 @@ class TileInteractionManager {
         // Si le joueur appuie sur E et qu'il y a une tuile interactive
         if (this.#currentInteractableTile && inputService.IsKeyPressed('e')) {
             this.#triggerInteraction(this.#currentInteractableTile);
+        }
+    }
+
+    /**
+     * Trouve le PNJ interactable le plus proche du joueur
+     */
+    #findNearestInteractableNPC() {
+        if (!this.#player) return null;
+
+        const npcService = window.npcService;
+        if (!npcService) return null;
+
+        const playerX = this.#player.coordinates.X;
+        const playerY = this.#player.coordinates.Y;
+
+        let closestNPC = null;
+        let closestDistance = this.#interactionRange;
+
+        npcService.getAllNPCs().forEach(npc => {
+            const dx = playerX - npc.coordinates.X;
+            const dy = playerY - npc.coordinates.Y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < closestDistance) {
+                closestDistance = dist;
+                closestNPC = npc;
+            }
+        });
+
+        return closestNPC;
+    }
+
+    /**
+     * Déclenche l'interaction avec un PNJ (dialogue)
+     */
+    #triggerNPCInteraction(npc) {
+        // Si le joueur a changé de cible pendant un dialogue
+        if (this.#activeNPC && this.#activeNPC !== npc) {
+            this.#activeNPC.resetDialogue();
+            this.#activeNPC.isTalking = false; // Libérer l'ancien PNJ
+        }
+ 
+        this.#activeNPC = npc;
+        this.#activeNPC.isTalking = true; // Immobiliser le PNJ
+        const msg = npc.getNextDialogue();
+ 
+        if (msg) {
+            // Afficher le texte suivant
+            this.#dialogueBox.show(`[${npc.npcName}] ${msg}`);
+            console.log(`💬 PNJ "${npc.npcName}": "${msg}"`);
+        } else {
+            // Dialogue terminé = cache la box et libère le PNJ
+            this.#dialogueBox.hide();
+            if (this.#activeNPC) {
+                this.#activeNPC.isTalking = false; // Reprendre le chemin
+            }
+            this.#activeNPC = null;
         }
     }
 
@@ -87,10 +156,7 @@ class TileInteractionManager {
                 const tileX = obj.coordinates.X;
                 const tileY = obj.coordinates.Y;
 
-                const distance = Math.sqrt(
-                    Math.pow(playerX - tileX, 2) +
-                    Math.pow(playerY - tileY, 2)
-                );
+                const distance = InteractionUtils.distance2D(playerX, playerY, tileX, tileY);
 
                 if (distance < closestDistance) {
                     closestDistance = distance;
@@ -115,7 +181,7 @@ class TileInteractionManager {
         }
 
         // Afficher le texte d'interaction
-        this.#dialogueBox.show(tile.interactionText);
+        this.#dialogueBox.show(InteractionUtils.normalizeDialogueLines(tile.interactionText));
         console.log(`💬 Interaction avec tuile: "${tile.interactionText}"`);
     }
 

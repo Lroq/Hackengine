@@ -14,6 +14,7 @@ class ExempleScene extends Scene {
     #initialized = false;
     #dialogueBox = new DialogueBox();
     #tileInteractionManager = null;
+    #playerInstance = null;
 
     constructor() {
         super();
@@ -43,6 +44,9 @@ class ExempleScene extends Scene {
         PlayerInstance.coordinates.Y = 0;
 
         super.addWGObject(PlayerInstance);
+        this.#playerInstance = PlayerInstance;
+        // Exposer pour le GameController
+        this.player = PlayerInstance;
 
         // === CAMÉRA === //
         super.activeCamera.cameraSubject = PlayerInstance;

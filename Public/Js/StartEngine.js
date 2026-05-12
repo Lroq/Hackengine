@@ -5,10 +5,14 @@ import {Size_2D}        from "/Engine/Classes/Base/MicroClasses/Size_2D.js";
 import {PhysicService}  from "/Engine/Classes/Base/Services/Physic/PhysicService.js";
 import {InputService}   from "/Engine/Classes/Base/Services/Inputs/InputService.js";
 import {ExempleScene}   from "/Engine/Classes/Custom/Scenes/ExempleScene.js";
+import {TutorialScene}  from "/Engine/Classes/Custom/Scenes/TutorialScene.js";
 import {TileDragService} from "/Engine/Classes/Base/Services/Grid/TileDragService.js";
 import {TileContextMenu} from "/Engine/Classes/Base/Services/Grid/TileContextMenu.js";
 import {GameModeService} from "/Engine/Classes/Base/Services/GameModeService.js";
 import {MapService}     from "/Engine/Classes/Base/Services/Grid/MapService.js";
+import {NPCService}     from "/Engine/Classes/Base/Services/NPC/NPCService.js";
+import {NPCPlacementService} from "/Engine/Classes/Base/Services/NPC/NPCPlacementService.js";
+import {NPCContextMenu} from "/Engine/Classes/Base/Services/NPC/NPCContextMenu.js";
 import {initializeGameController} from "/Public/Js/GameController.js";
 // -- :: -- :: --:: -- :: -- \\
 
@@ -44,6 +48,8 @@ async function main(){
     const gameModeService = new GameModeService();
     const mapService = new MapService();
     const tileDragService = new TileDragService(); // Instantiated here but injected via services
+    const npcService = new NPCService();
+    const npcPlacementService = new NPCPlacementService(Canvas);
 
     const EngineInstance = new Engine({
             SceneService :          new SceneService(),
@@ -51,7 +57,9 @@ async function main(){
             InputService :          new InputService(),
             GameModeService:        gameModeService,
             MapService:             mapService,
-            TileDragService:        tileDragService
+            TileDragService:        tileDragService,
+            NPCService:             npcService,
+            NPCPlacementService:    npcPlacementService
         },
         {
             TickRate: 10,
@@ -62,12 +70,20 @@ async function main(){
     gameModeService.initialize(EngineInstance);
     mapService.initialize(EngineInstance);
     tileDragService.initialize(EngineInstance, Canvas);
+    npcService.initialize(EngineInstance);
+    npcPlacementService.initialize(EngineInstance);
 
     EngineInstance.resize(new Size_2D(0,0),{
         FullScreen : true,
     })
 
-    const TestScene = new ExempleScene();
+    const searchParams = new URLSearchParams(window.location.search);
+    const forceTutorial = searchParams.get('tutorial') === '1';
+    const isTutorialMap = currentMapName === 'a' || currentMapName === 'tutorial_step1';
+
+    const TestScene = (forceTutorial || isTutorialMap)
+        ? new TutorialScene()
+        : new ExempleScene();
 
     // Attendre que la scène soit prête (init asynchrone)
     if (TestScene.ready) {
@@ -85,11 +101,20 @@ async function main(){
     // Charger la map sélectionnée VIA MapService
     await mapService.loadMapFromServer(currentMapName);
 
+    // Charger les PNJ de cette map
+    await npcService.loadNPCsFromServer(currentMapName);
+
     // Initialiser le TileContextMenu (clic droit sur les tuiles)
     const tileContextMenu = new TileContextMenu(tileDragService, Canvas);
     // Injecter l'engine dans TileContextMenu
     tileContextMenu.injectEngine(EngineInstance);
     window.tileContextMenu = tileContextMenu;
+
+    // Initialiser le menu contextuel des PNJ (Alt+Clic sur un PNJ)
+    const npcContextMenu = new NPCContextMenu(Canvas);
+    npcContextMenu.injectEngine(EngineInstance);
+    window.npcContextMenu = npcContextMenu;
+    window.npcPlacementService = npcPlacementService;
 
     // Update display
     updateMapNameDisplay(currentMapName);
@@ -110,6 +135,7 @@ async function main(){
     // Initialiser le contrôleur de jeu (UI, Modes)
     const gameController = initializeGameController(EngineInstance);
     window.setMode = gameController.setMode; // Exposer pour compatibilité si nécessaire
+    window.setEditMode = gameController.setEditMode;
 
     // Gestion du bouton de retour à la sélection des maps
     const backToMapsBtn = document.getElementById('back-to-maps-btn');
@@ -123,6 +149,9 @@ async function main(){
 
                 // Charger la nouvelle map via le service
                 await mapService.loadMapFromServer(currentMapName);
+
+                // Charger les PNJ de la nouvelle map
+                await npcService.loadNPCsFromServer(currentMapName);
 
                 // Mettre à jour l'affichage du nom de la map
                 updateMapNameDisplay(currentMapName);

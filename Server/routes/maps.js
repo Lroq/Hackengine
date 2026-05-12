@@ -107,11 +107,14 @@ router.get('/maps/list', (req, res) => {
         }
 
         const maps = files
-            .filter(f => f.endsWith('.json') && !f.endsWith('.meta.json')) // Exclure les fichiers .meta.json
-            .map(f => ({
-                name: f.replace('.json', ''),
-                displayName: f.replace('.json', '').replace(/_/g, ' ')
-            }));
+            .filter(f => f.endsWith('.json') && !f.endsWith('.meta.json') && !f.endsWith('.npcs.json'))
+            .map(f => {
+                const name = f.replace('.json', '');
+                return {
+                    name: name,
+                    displayName: name.replace('.npcs', '').replace(/_/g, ' ')
+                };
+            });
 
         res.json(maps);
     });

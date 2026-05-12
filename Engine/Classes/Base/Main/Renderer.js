@@ -94,12 +94,89 @@ class Renderer {
                     if (mode === 'construction' && Instance instanceof Tile) {
                         this.#drawTileIndicators(Instance, SceneToRender.activeCamera, FinalX, FinalY, SpriteModel);
                     }
+
+                    // En mode construction, afficher les waypoints uniquement pour le PNJ en cours d'édition
+                    const currentNPC = window.npcContextMenu ? window.npcContextMenu.getCurrentNPC() : null;
+                    if (mode === 'construction' && Instance.waypoints && Instance.waypoints.length > 0 && Instance === currentNPC) {
+                        this.#drawNPCWaypoints(Instance, SceneToRender.activeCamera);
+                    }
                 } catch (error) {
                     // Ignorer silencieusement les erreurs de rendu d'images
                     this.#Context.restore();
                 }
             }
         }
+    }
+
+    /**
+     * Dessine les waypoints d'un PNJ sur la carte en mode construction
+     * @param {Instance} npc 
+     * @param {Camera} camera 
+     */
+    #drawNPCWaypoints(npc, camera) {
+        if (!npc.waypoints || npc.waypoints.length === 0) return;
+
+        this.#Context.save();
+
+        // Style des lignes de liaison
+        this.#Context.strokeStyle = 'rgba(168, 85, 247, 0.6)'; // Violet (couleur thématique PNJ)
+        this.#Context.lineWidth = 1;
+        this.#Context.setLineDash([5, 5]); // Pointillés pour un look "édition"
+
+        // On dessine le chemin complet
+        this.#Context.beginPath();
+        
+        // Point de départ (position actuelle/spawn du PNJ)
+        const startX = camera.coordinates.X + npc.coordinates.X;
+        const startY = camera.coordinates.Y + npc.coordinates.Y;
+        this.#Context.moveTo(startX, startY);
+
+        // Relier chaque waypoint
+        npc.waypoints.forEach(wp => {
+            const wx = camera.coordinates.X + wp.x;
+            const wy = camera.coordinates.Y + wp.y;
+            this.#Context.lineTo(wx, wy);
+        });
+
+        // Si c'est une patrouille, on boucle vers le départ
+        if (npc.movementType === 'patrol') {
+            this.#Context.lineTo(startX, startY);
+        }
+
+        this.#Context.stroke();
+
+        // Dessiner les points (marqueurs)
+        npc.waypoints.forEach((wp, index) => {
+            const wx = camera.coordinates.X + wp.x;
+            const wy = camera.coordinates.Y + wp.y;
+
+            // Halo extérieur
+            this.#Context.fillStyle = 'rgba(168, 85, 247, 0.3)';
+            this.#Context.beginPath();
+            this.#Context.arc(wx, wy, 6, 0, Math.PI * 2);
+            this.#Context.fill();
+
+            // Cercle central
+            this.#Context.fillStyle = '#a855f7';
+            this.#Context.beginPath();
+            this.#Context.arc(wx, wy, 3, 0, Math.PI * 2);
+            this.#Context.fill();
+
+            // Bordure blanche pour le contraste
+            this.#Context.strokeStyle = '#ffffff';
+            this.#Context.lineWidth = 1;
+            this.#Context.setLineDash([]); // Reset dash for the circle
+            this.#Context.stroke();
+
+            // Numéro du waypoint
+            this.#Context.fillStyle = '#ffffff';
+            this.#Context.font = 'bold 8px Arial';
+            this.#Context.textAlign = 'center';
+            this.#Context.textBaseline = 'bottom';
+            this.#Context.fillText(`W${index + 1}`, wx, wy - 8);
+        });
+
+        this.#Context.restore();
     }
 
     /**
