@@ -64,7 +64,7 @@ class MapService {
 
             const spriteModel = tile.components.SpriteModel;
             spriteModel.sprite = new Image();
-            spriteModel.sprite.src = data.sprite;
+            spriteModel.sprite.src = data.sprite?.startsWith('http') ? new URL(data.sprite).pathname : data.sprite;
             spriteModel.size.Width = 27;
             spriteModel.size.Height = 27;
             spriteModel.enabled = true;
@@ -105,7 +105,7 @@ class MapService {
             const tileData = {
                 x,
                 y,
-                sprite: spriteModel.sprite.src,
+                sprite: new URL(spriteModel.sprite.src).pathname,
                 isSolid: tile.isSolid !== undefined ? tile.isSolid : false,
                 layer: layer !== undefined ? layer : 0,
             };
