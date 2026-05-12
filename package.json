@@ -3,6 +3,8 @@
   "version": "2.1.0",
   "main": "index.js",
   "scripts": {
+    "build:css": "tailwindcss -i ./Public/Css/Game.input.css -o ./Public/Css/Game.css",
+    "watch:css": "tailwindcss -i ./Public/Css/Game.input.css -o ./Public/Css/Game.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node Server/Main.js"
   },
@@ -21,5 +23,9 @@
     "url": "https://github.com/Lroq/Hackengine/issues"
   },
   "homepage": "https://github.com/Lroq/Hackengine#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
 }
