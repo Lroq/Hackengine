@@ -44,7 +44,7 @@ const TutorialStep1Data = {
         },
         {
             id: "hackemon_plush",
-            spritePath: "Public/Assets/Game/Hackemons/lapingtromignong.png",
+            spritePath: "Public/Assets/Game/Hackemons/slime.png",
             width: 16,
             height: 16,
             x: 10,
