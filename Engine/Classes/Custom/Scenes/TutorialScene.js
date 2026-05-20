@@ -35,6 +35,8 @@ class TutorialScene extends Scene {
     #motherAlertService = null;
     #isPlayingStep3 = false;
     #consoleInteractable = null;
+    #services = null;
+    #musicStarted = false;
 
     async buildScene() {
         if (this.#isInitialized) return;
@@ -142,6 +144,9 @@ class TutorialScene extends Scene {
         const byId = Object.fromEntries(TutorialStep1Data.livingRoomClues.map(clue => [clue.id, clue]));
 
         this.#registerInteractable(byId.kennel, {
+            onInteract: () => {
+                this.#services?.AudioService?.playOneShot('dog_snore');
+            },
             onDialogueClosed: async () => {
                 const petDog = await this.#confirmChoice("Le caresser ?", "Niche");
                 if (petDog) {
@@ -178,7 +183,11 @@ class TutorialScene extends Scene {
         });
 
         this.#registerInteractable(byId.fridge, {
+            onInteract: () => {
+                this.#services?.AudioService?.playLoop('fridge_ambient');
+            },
             onDialogueClosed: async () => {
+                this.#services?.AudioService?.stopLoop('fridge_ambient');
                 this.#tutorialHud.showCalendarPopup();
                 this.#dialogueBox.show([
                     "15 fevrier: ANNIVERSAIRE MAMAN",
@@ -347,13 +356,18 @@ class TutorialScene extends Scene {
         this.#windowsSimulator = new WindowsSimulatorService(
             TutorialStep3Data.windowsUI.correctPassword,
             TutorialStep3Data.windowsUI.maxLoginAttempts,
-            this.#buildStep3StickyNote()
+            this.#buildStep3StickyNote(),
+            this.#services?.AudioService
         );
+
+        this.#services?.AudioService?.playOneShot('computer_startup');
+        this.#services?.AudioService?.playLoop('computer_fan');
 
         // Phase 1 : Login
         let result = await this.#windowsSimulator.launch(TutorialStep3Data.timer.maxDurationSeconds);
 
         if (!result.success) {
+            this.#services?.AudioService?.stopLoop('computer_fan');
             // Échec du login - raison : timeout ou max_attempts
             if (result.reason === 'max_attempts') {
                 this.#motherAlertService.recordFailedAttempt();
@@ -369,6 +383,8 @@ class TutorialScene extends Scene {
          result = await this.#windowsSimulator.showParentalControlPanel(
              TutorialStep3Data.timer.panelDurationSeconds || 40
          );
+
+        this.#services?.AudioService?.stopLoop('computer_fan');
 
          if (result && result.success) {
              // ✓ Succès ! Étape 3 complétée
@@ -490,6 +506,13 @@ class TutorialScene extends Scene {
     }
 
     update(Services) {
+        if (!this.#services) this.#services = Services;
+
+        if (!this.#musicStarted) {
+            this.#musicStarted = true;
+            Services.AudioService?.playMusic('intro_music');
+        }
+
         if (window.getMode && window.getMode() !== 'play') {
             return;
         }

@@ -127,6 +127,7 @@ class Player extends Character {
 
         if (!IsStopped) {
             this.#AnimationFrame = (this.#AnimationFrame + 0.06) % 3
+            Services.AudioService?.playFootstep();
         }else{
             this.#AnimationFrame = 0
         }

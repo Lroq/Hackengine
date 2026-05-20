@@ -14,6 +14,7 @@ import {NPCService}     from "/Engine/Classes/Base/Services/NPC/NPCService.js";
 import {NPCPlacementService} from "/Engine/Classes/Base/Services/NPC/NPCPlacementService.js";
 import {NPCContextMenu} from "/Engine/Classes/Base/Services/NPC/NPCContextMenu.js";
 import {initializeGameController} from "/Public/Js/GameController.js";
+import {AudioService} from "/Engine/Classes/Base/Services/Audio/AudioService.js";
 // -- :: -- :: --:: -- :: -- \\
 
 let Canvas;
@@ -45,6 +46,9 @@ async function main(){
         });
     });
 
+    const audioService = new AudioService();
+    audioService.preload();
+
     const gameModeService = new GameModeService();
     const mapService = new MapService();
     const tileDragService = new TileDragService(); // Instantiated here but injected via services
@@ -55,6 +59,7 @@ async function main(){
             SceneService :          new SceneService(),
             PhysicService :         new PhysicService(),
             InputService :          new InputService(),
+            AudioService:           audioService,
             GameModeService:        gameModeService,
             MapService:             mapService,
             TileDragService:        tileDragService,

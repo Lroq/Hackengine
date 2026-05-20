@@ -14,10 +14,12 @@ class WindowsSimulatorService {
     #attemptsDisplay = null;
     #stickyNoteTitle = "Post-it";
     #stickyNoteLines = [];
+    #audioService = null;
 
-    constructor(correctPassword = "clipper150295", maxAttempts = 3, stickyNote = null) {
+    constructor(correctPassword = "clipper150295", maxAttempts = 3, stickyNote = null, audioService = null) {
         this.#correctPassword = correctPassword;
         this.#maxAttempts = maxAttempts;
+        this.#audioService = audioService;
         if (stickyNote) {
             this.#stickyNoteTitle = String(stickyNote.title || this.#stickyNoteTitle);
             this.#stickyNoteLines = Array.isArray(stickyNote.lines)
@@ -298,6 +300,7 @@ class WindowsSimulatorService {
         } else {
             feedbackDisplay.textContent = '✗ Mot de passe incorrect';
             feedbackDisplay.style.color = '#d32f2f';
+            this.#audioService?.playOneShot('computer_error');
 
             if (this.#loginAttempts >= this.#maxAttempts) {
                 setTimeout(() => {
